@@ -36,10 +36,6 @@ dependencies {
     // feature 모듈
     implementation(project(":feature:home:api"))
     implementation(project(":feature:home:impl"))
-    implementation(project(":feature:login:api"))
-    implementation(project(":feature:login:impl"))
-    implementation(project(":feature:onboarding:api"))
-    implementation(project(":feature:onboarding:impl"))
     implementation(project(":feature:chatting:api"))
     implementation(project(":feature:chatting:impl"))
     implementation(project(":feature:call:api"))
