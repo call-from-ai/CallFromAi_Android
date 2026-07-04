@@ -1,58 +1,64 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.compose)
+    id("callfromai.android.application")
+    id("callfromai.android.compose")
+    id("callfromai.android.hilt")
 }
 
 android {
     namespace = "kr.co.call.callfromai"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
-
     defaultConfig {
         applicationId = "kr.co.call.callfromai"
-        minSdk = 26
-        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-        }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
 dependencies {
-    implementation(platform(libs.androidx.compose.bom))
+    // feature 모듈
+    implementation(project(":feature:main:api"))
+    implementation(project(":feature:main:impl"))
+    implementation(project(":feature:login:api"))
+    implementation(project(":feature:login:impl"))
+    implementation(project(":feature:onboarding:api"))
+    implementation(project(":feature:onboarding:impl"))
+    implementation(project(":feature:home:api"))
+    implementation(project(":feature:home:impl"))
+    implementation(project(":feature:chatting:api"))
+    implementation(project(":feature:chatting:impl"))
+    implementation(project(":feature:call:api"))
+    implementation(project(":feature:call:impl"))
+    implementation(project(":feature:mypage:api"))
+    implementation(project(":feature:mypage:impl"))
+
+    // core 모듈
+    implementation(project(":core:common"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
+    implementation(project(":core:datastore"))
+
+    // 필수 의존성
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+    // nav3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+
+    // timber
+    implementation(libs.timber)
+
+    // test
     testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    debugImplementation(libs.androidx.compose.ui.tooling)
+
 }
