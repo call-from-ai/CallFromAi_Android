@@ -47,7 +47,8 @@ reviews:
         - Composable 함수의 불필요한 recomposition 유발 여부 (remember, key 사용)
         - State hoisting 원칙 준수
         - side effect (LaunchedEffect, DisposableEffect) 사용의 적절성
-        - UI 상태를 sealed class/interface로 표현했는지
+        - UI 상태를 data class로 표현했는지
+        - 로딩/에러 상태를 Boolean 대신 LoadStatus로 관리하는지
 
     - path: "**/data/**/*.kt"
       instructions: >
@@ -60,8 +61,10 @@ reviews:
       instructions: >
         ViewModel은 다음을 확인해줘:
         - UI 상태와 비즈니스 로직 분리
-        - SavedStateHandle 활용 여부 (프로세스 종료 대응)
-        - 메모리 누수 가능성 (Context 직접 참조 등)
+        - Orbit ContainerHost 패턴 준수 여부
+        - intent 내부에서 상태 변경(reduce)만 수행하는지
+        - postSideEffect 남용 여부
+        - blocking 작업을 intent 내부에서 직접 수행하지 않는지
 
     - path: "**/service/**/*.kt"
       instructions: >
