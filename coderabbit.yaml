@@ -1,0 +1,88 @@
+language: "ko-KR"
+
+tone_instructions: >
+  Kotlin/Android 프로젝트 리뷰어로서 간결하고 직접적으로 피드백해줘.
+  MVI, Clean Architecture, Coroutine/Flow 사용 관례를 기준으로 리뷰하고,
+  불필요한 칭찬이나 장황한 설명은 생략해줘.
+
+early_access: false
+
+reviews:
+  profile: "chill"  # assertive로 바꾸면 더 깐깐하게 지적함
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "develop"
+      - "main"
+
+  path_filters:
+    - "!**/build/**"
+    - "!**/*.lock"
+    - "!gradle/wrapper/**"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.webp"
+    - "!**/generated/**"
+
+  path_instructions:
+    - path: "**/*.kt"
+      instructions: >
+        Kotlin 코드 리뷰 시 다음을 중점적으로 봐줘:
+        - Coroutine 사용 시 Dispatcher 명시 여부, viewModelScope/lifecycleScope 오남용
+        - Flow/StateFlow 사용 시 collect 시점 (repeatOnLifecycle 사용 여부)
+        - null 안전성 (!! 사용 지양)
+        - data class에 불필요한 var 사용 여부
+        - Hilt DI 시 생성자 주입 원칙 준수 여부
+        - 하드코딩된 문자열/매직 넘버
+
+    - path: "**/ui/**/*.kt"
+      instructions: >
+        Jetpack Compose 코드는 다음을 확인해줘:
+        - Composable 함수의 불필요한 recomposition 유발 여부 (remember, key 사용)
+        - State hoisting 원칙 준수
+        - side effect (LaunchedEffect, DisposableEffect) 사용의 적절성
+        - UI 상태를 data class로 표현했는지
+        - 로딩/에러 상태를 Boolean 대신 LoadStatus로 관리하는지
+
+    - path: "**/data/**/*.kt"
+      instructions: >
+        Repository/DataSource 레이어는 다음을 확인해줘:
+        - Retrofit 에러 핸들링 (try-catch, Result 래핑)
+        - 네트워크 응답과 도메인 모델 매핑 분리 여부
+        - 캐싱 전략 (로컬 DB vs 메모리)
+
+    - path: "**/*ViewModel.kt"
+      instructions: >
+        ViewModel은 다음을 확인해줘:
+        - UI 상태와 비즈니스 로직 분리
+        - Orbit ContainerHost 패턴 준수 여부
+        - intent 내부에서 상태 변경(reduce)만 수행하는지
+        - postSideEffect 남용 여부
+        - blocking 작업을 intent 내부에서 직접 수행하지 않는지
+
+    - path: "**/service/**/*.kt"
+      instructions: >
+        FCM/SSE/실시간 통신 관련 코드는 다음을 확인해줘:
+        - 연결 재시도 로직 (exponential backoff)
+        - 백그라운드 제약 (Doze 모드, 배터리 최적화) 대응 여부
+        - 리소스 정리 (연결 해제, 리스너 해제)
+
+  auto_title_placeholder: "@coderabbitai"
+  auto_title_instructions: ""
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: "auto"
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "**/*.md"
