@@ -232,6 +232,7 @@ refactor: 채팅 뷰모델 상태관리 구조 개선
 ### 패키지 구조 규칙
 
 - feature 모듈은 기능 단위로 분리하고, 외부에 노출할 Navigation 계약은 `api`, 화면/상태/비즈니스 로직 구현은 `impl`에 둠
-- 공통 UI는 `core:designsystem`, 공통 유틸은 `core:common`에 두되, 특정 feature에서만 쓰는 코드는 공통 모듈로 올리지 않음
-- 데이터 흐름은 단방향으로 유지하고, 의존성은 `feature → core:domain ← core:data` 구조를 기준으로 순환 참조를 방지함. 단, `core:datastore` 모듈은 각 feature 모듈의 의존할 수 있도록 허용
-- 화면 상태는 ViewModel에서 Orbit MVI Container로 관리하고, UI는 State와 SideEffect를 구독해 렌더링함
+- 공통 UI는 `core:designsystem`, 공통 유틸은 `core:common`에 두되, 특정 `feature`에서만 쓰는 코드는 공통 모듈로 올리지 않음
+- 데이터 흐름은 단방향으로 유지하고, 의존성은 `feature → core:domain ← core:data` 구조를 기준으로 순환 참조를 방지함. 단, `core:datastore` 모듈은 각 `feature` 모듈이 의존할 수 있도록 허용
+- 화면 상태는 ViewModel에서 Orbit MVI Container로 관리하고, UI는 State와 SideEffect를 구독해 렌더링함.
+- drawable을 비롯한 리소스는 `core:designsystem` 모듈에서 일괄 관리
