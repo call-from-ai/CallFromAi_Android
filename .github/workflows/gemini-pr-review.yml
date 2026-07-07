@@ -88,9 +88,9 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          jq -Rs '{
-            body: "## Gemini AI 코드리뷰\n\n" + .
-          }' review.md > comment.json
+          jq -n --rawfile review review.md '{
+            body: ("## Gemini AI 코드리뷰\n\n" + $review)
+          }' > comment.json
 
           curl -sS -X POST \
             -H "Authorization: Bearer $GITHUB_TOKEN" \
