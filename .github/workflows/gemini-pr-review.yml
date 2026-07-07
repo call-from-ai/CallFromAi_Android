@@ -1,0 +1,101 @@
+name: Gemini PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+  issues: write
+
+jobs:
+  gemini-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          curl -sSL \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3.diff" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" \
+            > pr.diff
+
+          head -c 60000 pr.diff > pr_limited.diff
+
+      - name: Ask Gemini to review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > prompt.txt <<'EOF'
+          너는 GitHub Pull Request를 리뷰하는 시니어 Android 개발자야.
+
+          아래 PR diff를 보고 코드리뷰를 해줘.
+
+          리뷰 규칙:
+          - 한국어로 작성해줘.
+          - Android/Kotlin/Java/Gradle 관점에서 리뷰해줘.
+          - 실제 버그 가능성, 예외 처리, 구조, 네이밍, 중복 코드, 보안 문제 위주로 봐줘.
+          - 사소한 취향 차이는 지적하지 마.
+          - 문제가 없으면 "큰 문제는 없어 보입니다"라고 말해줘.
+          - 너무 길지 않게 핵심만 정리해줘.
+          - 마지막에 전체 요약을 작성해줘.
+
+          PR diff:
+          EOF
+
+          cat pr_limited.diff >> prompt.txt
+
+          jq -Rs '{
+            contents: [
+              {
+                parts: [
+                  {
+                    text: .
+                  }
+                ]
+              }
+            ]
+          }' prompt.txt > request.json
+
+          curl -sS -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+            -H "x-goog-api-key: $GEMINI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @request.json \
+            > response.json
+
+          if jq -e '.candidates[0].content.parts[0].text' response.json > /dev/null; then
+            jq -r '.candidates[0].content.parts[0].text' response.json > review.md
+          else
+            echo "Gemini API 응답을 읽지 못했습니다." > review.md
+            echo "" >> review.md
+            echo '```json' >> review.md
+            cat response.json >> review.md
+            echo '```' >> review.md
+          fi
+
+      - name: Comment review on PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          jq -Rs '{
+            body: "## Gemini AI 코드리뷰\n\n" + .
+          }' review.md > comment.json
+
+          curl -sS -X POST \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" \
+            -d @comment.json
