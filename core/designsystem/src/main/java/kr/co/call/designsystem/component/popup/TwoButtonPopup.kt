@@ -22,7 +22,7 @@ fun TwoButtonPopup(
     onPositiveClick: () -> Unit,
     onNegativeClick: () -> Unit,
     description: AnnotatedString? = null,
-    onDismissRequest: () -> Unit = onNegativeClick,
+    onDismissRequest: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         PopupCard(label = label, title = title, description = description, modifier = modifier) {

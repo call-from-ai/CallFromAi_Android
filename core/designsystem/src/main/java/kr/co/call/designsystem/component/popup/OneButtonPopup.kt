@@ -23,7 +23,7 @@ fun OneButtonPopup(
     buttonText: String,
     onButtonClick: () -> Unit,
     description: AnnotatedString? = null,
-    onDismissRequest: () -> Unit = onButtonClick,
+    onDismissRequest: () -> Unit = {},
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         PopupCard(label = label, title = title, description = description, modifier = modifier) {
