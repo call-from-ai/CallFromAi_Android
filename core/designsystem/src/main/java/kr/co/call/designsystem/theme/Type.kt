@@ -46,6 +46,7 @@ data class CallTypography(
     val bodyLarge: TextStyle       = pretendard(20, 1.5f, FontWeight.Normal),
     val bodyLargeBold: TextStyle   = pretendard(20, 1.5f, FontWeight.SemiBold),
     val bodyMedium: TextStyle      = pretendard(16, 1.5f, FontWeight.Normal),
+    val bodyMediumMedium: TextStyle = pretendard(15, 1.5f, FontWeight.Medium),
     val bodyMediumBold: TextStyle  = pretendard(16, 1.5f, FontWeight.SemiBold),
     val bodySmall: TextStyle       = pretendard(14, 1.5f, FontWeight.Normal),
     val bodySmallBold: TextStyle   = pretendard(14, 1.5f, FontWeight.SemiBold),

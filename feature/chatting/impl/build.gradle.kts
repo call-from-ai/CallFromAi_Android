@@ -12,6 +12,7 @@ android {
 
 dependencies {
     implementation(project(":feature:chatting:api"))
+    implementation(project(":feature:call:api"))
 
     // core 모듈
     implementation(project(":core:designsystem"))

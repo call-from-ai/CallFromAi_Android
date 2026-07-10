@@ -11,45 +11,57 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
 
 private val LightColorScheme = lightColorScheme(
+    // Brand
     primary = Main,
     onPrimary = White,
+
     secondary = MainVariant1,
     onSecondary = White,
-    background = White,
+
+    // Background
+    background = Background,
     onBackground = Black,
-    surface = White,
+
+    // Surface
+    surface = Background,
     onSurface = Black,
-    surfaceVariant = Gray100,
+
+    surfaceVariant = SubGray2,
     onSurfaceVariant = Gray600,
+
+    // Outline
     outline = Gray200,
+
+    // Error
+    error = SubRed,
+    onError = White,
 )
 
 @Composable
 fun CallFromAiTheme(
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
-        LocalCallColors provides CallColors(),      // 아래 참고
+        LocalCallColors provides CallColors(),
         LocalCallTypography provides CallTypography(),
     ) {
         MaterialTheme(
             colorScheme = LightColorScheme,
             typography = Typography,
-            content = content
+            content = content,
         )
     }
 }
 
 object CallTheme {
+
     val colors: CallColors
-        @Composable get() = LocalCallColors.current
+        @Composable
+        get() = LocalCallColors.current
+
     val typography: CallTypography
-        @Composable get() = LocalCallTypography.current
+        @Composable
+        get() = LocalCallTypography.current
 }
