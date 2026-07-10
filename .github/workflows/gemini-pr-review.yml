@@ -40,13 +40,37 @@ jobs:
           아래 PR diff를 보고 코드리뷰를 해줘.
 
           리뷰 규칙:
-          - 한국어로 작성해줘.
-          - Android/Kotlin/Java/Gradle 관점에서 리뷰해줘.
-          - 실제 버그 가능성, 예외 처리, 구조, 네이밍, 중복 코드, 보안 문제 위주로 봐줘.
-          - 사소한 취향 차이는 지적하지 마.
-          - 문제가 없으면 "큰 문제는 없어 보입니다"라고 말해줘.
-          - 너무 길지 않게 핵심만 정리해줘.
-          - 마지막에 전체 요약을 작성해줘.
+          1. Kotlin 코드 리뷰 시 다음을 중점적으로 봐줘:
+          - Coroutine 사용 시 Dispatcher 명시 여부, viewModelScope/lifecycleScope 오남용
+          - Flow/StateFlow 사용 시 collect 시점 (repeatOnLifecycle 사용 여부)
+          - null 안전성 (!! 사용 지양)
+          - data class에 불필요한 var 사용 여부
+          - Hilt DI 시 생성자 주입 원칙 준수 여부
+          - 하드코딩된 문자열/매직 넘버
+
+          2. Jetpack Compose 코드는 다음을 확인해줘:
+          - Composable 함수의 불필요한 recomposition 유발 여부 (remember, key 사용)
+          - State hoisting 원칙 준수
+          - side effect (LaunchedEffect, DisposableEffect) 사용의 적절성
+          - UI 상태를 data class로 표현했는지
+          - 로딩/에러 상태를 Boolean 대신 LoadStatus로 관리하는지
+
+          3. Repository/DataSource 레이어는 다음을 확인해줘:
+          - Retrofit 에러 핸들링 (try-catch, Result 래핑)
+          - 네트워크 응답과 도메인 모델 매핑 분리 여부
+          - 캐싱 전략 (로컬 DB vs 메모리)
+
+          4. ViewModel은 다음을 확인해줘:
+          - UI 상태와 비즈니스 로직 분리
+          - Orbit ContainerHost 패턴 준수 여부
+          - intent 내부에서 상태 변경(reduce)만 수행하는지
+          - postSideEffect 남용 여부
+          - blocking 작업을 intent 내부에서 직접 수행하지 않는지
+
+          5. FCM/SSE/실시간 통신 관련 코드는 다음을 확인해줘:
+          - 연결 재시도 로직 (exponential backoff)
+          - 백그라운드 제약 (Doze 모드, 배터리 최적화) 대응 여부
+          - 리소스 정리 (연결 해제, 리스너 해제)
 
           PR diff:
           EOF
