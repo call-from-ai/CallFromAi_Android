@@ -1,0 +1,123 @@
+name: Gemini PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  gemini-review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR diff
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          curl -sSL \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3.diff" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" \
+            > pr.diff
+
+          head -c 60000 pr.diff > pr_limited.diff
+
+      - name: Ask Gemini to review
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > prompt.txt <<'EOF'
+          너는 GitHub Pull Request를 리뷰하는 시니어 Android 개발자야.
+
+          아래 PR diff를 보고 코드리뷰를 해줘.
+
+          리뷰 규칙:
+          1. Kotlin 코드 리뷰 시 다음을 중점적으로 봐줘:
+          - Coroutine 사용 시 Dispatcher 명시 여부, viewModelScope/lifecycleScope 오남용
+          - Flow/StateFlow 사용 시 collect 시점 (repeatOnLifecycle 사용 여부)
+          - null 안전성 (!! 사용 지양)
+          - data class에 불필요한 var 사용 여부
+          - Hilt DI 시 생성자 주입 원칙 준수 여부
+          - 하드코딩된 문자열/매직 넘버
+
+          2. Jetpack Compose 코드는 다음을 확인해줘:
+          - Composable 함수의 불필요한 recomposition 유발 여부 (remember, key 사용)
+          - State hoisting 원칙 준수
+          - side effect (LaunchedEffect, DisposableEffect) 사용의 적절성
+          - UI 상태를 data class로 표현했는지
+          - 로딩/에러 상태를 Boolean 대신 LoadStatus로 관리하는지
+
+          3. Repository/DataSource 레이어는 다음을 확인해줘:
+          - Retrofit 에러 핸들링 (try-catch, Result 래핑)
+          - 네트워크 응답과 도메인 모델 매핑 분리 여부
+          - 캐싱 전략 (로컬 DB vs 메모리)
+
+          4. ViewModel은 다음을 확인해줘:
+          - UI 상태와 비즈니스 로직 분리
+          - Orbit ContainerHost 패턴 준수 여부
+          - intent 내부에서 상태 변경(reduce)만 수행하는지
+          - postSideEffect 남용 여부
+          - blocking 작업을 intent 내부에서 직접 수행하지 않는지
+
+          5. FCM/SSE/실시간 통신 관련 코드는 다음을 확인해줘:
+          - 연결 재시도 로직 (exponential backoff)
+          - 백그라운드 제약 (Doze 모드, 배터리 최적화) 대응 여부
+          - 리소스 정리 (연결 해제, 리스너 해제)
+
+          PR diff:
+          EOF
+
+          cat pr_limited.diff >> prompt.txt
+
+          jq -Rs '{
+            contents: [
+              {
+                parts: [
+                  {
+                    text: .
+                  }
+                ]
+              }
+            ]
+          }' prompt.txt > request.json
+
+          curl -sS -X POST \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent" \
+            -H "x-goog-api-key: $GEMINI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @request.json \
+            > response.json
+
+          if jq -e '.candidates[0].content.parts[0].text' response.json > /dev/null; then
+            jq -r '.candidates[0].content.parts[0].text' response.json > review.md
+          else
+            echo "Gemini API 응답을 읽지 못했습니다." > review.md
+            echo "" >> review.md
+            echo '```json' >> review.md
+            cat response.json >> review.md
+            echo '```' >> review.md
+          fi
+
+      - name: Comment review on PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "## Gemini AI 코드리뷰"
+            echo ""
+            cat review.md
+          } > comment_body.md
+
+          gh pr comment "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
+            --body-file comment_body.md
