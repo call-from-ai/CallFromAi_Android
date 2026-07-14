@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -13,13 +14,13 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.HomeNavKey
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.impl.MainNavigator
 import kr.co.call.impl.component.MainBottomBar
 import kr.co.call.impl.component.MainTab
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.util.toMainTab
-import kr.co.call.impl.util.toNavKey
 import kr.co.call.impl.viewmodel.MainIntent
 import kr.co.call.impl.viewmodel.MainSideEffect
 import kr.co.call.impl.viewmodel.MainViewModel
@@ -32,17 +33,18 @@ fun MainScreen(
 ) {
     val backStack = rememberNavBackStack(HomeNavKey)
 
+    // 각 피쳐 모듈 간 내비게이션을 담당하는 Navigator
+    val mainNavigator = remember(backStack) {
+        MainNavigator(backStack)
+    }
+
     // 백스택 top에서 현재 탭을 derive — 뒤로가기 시에도 자동 동기화
     val currentTab = backStack.lastOrNull()?.toMainTab() ?: MainTab.HOME
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MainSideEffect.NavigateTo -> {
-                backStack.clear()
-                backStack.add(HomeNavKey)
-                if (sideEffect.tab != MainTab.HOME) {
-                    backStack.add(sideEffect.tab.toNavKey())
-                }
+                mainNavigator.navigateToTab(sideEffect.tab)
             }
         }
     }

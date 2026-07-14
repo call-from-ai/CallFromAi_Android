@@ -14,7 +14,6 @@ android {
 
 dependencies {
     implementation(project(":feature:onboarding:api"))
-    implementation(project(":feature:call:api"))
 
     // core 모듈
     implementation(project(":core:designsystem"))

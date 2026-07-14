@@ -1,6 +1,7 @@
 package kr.co.call.callfromai
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -24,6 +25,11 @@ fun AppScreen(
 ) {
     // TODO: 로그인 화면 구현 후 로그인 여부에 따른 분기처리 필요
     val backStack = rememberNavBackStack(MainNavKey)
+
+    // 모듈 간 내비게이션을 담당하는 AppNavigator 생성
+    val appNavigator = remember(backStack) {
+        AppNavigator(backStack)
+    }
 
     NavDisplay(
         backStack = backStack,
