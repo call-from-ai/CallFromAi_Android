@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -30,10 +29,9 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    startDestination: NavKey = HomeNavKey, // 파라미터 외부 주입 가능
     viewModel: MainViewModel = hiltViewModel()
 ) {
-    val backStack = rememberNavBackStack(startDestination)
+    val backStack = rememberNavBackStack(HomeNavKey)
 
     // 각 피쳐 모듈 간 내비게이션을 담당하는 Navigator
     val mainNavigator = remember(backStack) {
