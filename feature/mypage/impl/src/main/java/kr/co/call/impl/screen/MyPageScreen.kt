@@ -14,10 +14,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.util.LoadStatus
@@ -37,6 +42,8 @@ fun MyPageScreen(
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -48,10 +55,10 @@ fun MyPageScreen(
             is MyPageSideEffect.NavigateToFaq -> { /* TODO */ }
             is MyPageSideEffect.NavigateToInquiry -> { /* TODO */ }
             is MyPageSideEffect.NavigateToTerms -> { /* TODO */ }
-            is MyPageSideEffect.ShowLogoutConfirmDialog -> { /* TODO: 다이얼로그 표시 */ }
-            is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> { /* TODO: 다이얼로그 표시 */ }
-            is MyPageSideEffect.NavigateToLogin -> { /* TODO: 로그인 화면으로 */ }
-            is MyPageSideEffect.NavigateToLanding -> {/*TODO: 랜딩 화면으로 */}
+            is MyPageSideEffect.ShowLogoutConfirmDialog -> { showLogoutDialog = true }
+            is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> { showDeleteAccountDialog=true }
+            is MyPageSideEffect.NavigateToLogin -> { showLogoutDialog = false /*TODO: 로그인 화면으로 */}
+            is MyPageSideEffect.NavigateToLanding -> { showDeleteAccountDialog = false /*TODO: 랜딩 화면으로*/}
         }
     }
 
@@ -60,6 +67,22 @@ fun MyPageScreen(
         onIntent = viewModel::handleIntent,
         modifier = modifier,
     )
+
+    // 로그아웃 다이얼로그
+    if (showLogoutDialog) {
+        MyPageLogoutDialog(
+            onConfirm = { viewModel.handleIntent(MyPageIntent.ConfirmLogout) },
+            onDismiss = { showLogoutDialog = false },
+        )
+    }
+
+    // 계정 삭제 다이얼로그
+    if (showDeleteAccountDialog) {
+        MyPageDeleteAccountDialog(
+            onConfirm = { viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount) },
+            onDismiss = { showDeleteAccountDialog = false },
+        )
+    }
 }
 
 @Composable
@@ -184,23 +207,63 @@ private fun MyPageScreenContent(
 
 }
 
+// 로그아웃 다이얼로그 컴포넌트
+@Composable
+private fun MyPageLogoutDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    TwoButtonPopup(
+        label = "로그아웃",
+        title = "로그아웃 하시겠습니까?",
+        positiveText = "확인",
+        negativeText = "취소",
+        onPositiveClick = onConfirm,
+        onNegativeClick = onDismiss,
+        onDismissRequest = onDismiss,
+    )
+}
+
+// 계정삭제 다이얼로그 컴포넌트
+@Composable
+private fun MyPageDeleteAccountDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    TwoButtonPopup(
+        label = "",
+        title = "잠시만요 🖐️",
+        description = buildAnnotatedString {
+            append("탈퇴 시 계정 및 이용 기록은 모두 삭제되며,\n삭제된 데이터는 복구가 불가능합니다.\n\n탈퇴를 진행할까요?")
+        },
+        positiveText = "탈퇴할게요",
+        negativeText = "취소",
+        onPositiveClick = onConfirm,
+        onNegativeClick = onDismiss,
+        onDismissRequest = onDismiss,
+    )
+}
+
+// preview용 state
+private val previewMyPageState = MyPageState(
+    nickname = "김수현",
+    tier = "Basic",
+    remainingTicketCount = 18,
+    appVersion = "1.0.0",
+)
+
 @Preview(showBackground = true)
 @Composable
 private fun MyPageScreenPreview() {
     CallFromAiTheme {
         MyPageScreenContent(
-            state = MyPageState(
-                nickname = "김수현",
-                tier = "Basic",
-                remainingTicketCount = 18,
-                appVersion = "1.0.0",
-            ),
+            state = previewMyPageState,
             onIntent = {},
         )
     }
 }
 
-@Preview(showBackground = true, name = "Loading")
+@Preview(showBackground = true, name = "로딩 상태")
 @Composable
 private fun MyPageScreenLoadingPreview() {
     CallFromAiTheme {
@@ -208,5 +271,47 @@ private fun MyPageScreenLoadingPreview() {
             state = MyPageState(loadStatus = LoadStatus.Loading),
             onIntent = {},
         )
+    }
+}
+
+@Preview(showBackground = true, name = "로그아웃")
+@Composable
+private fun MyPageScreenLogoutDialogPreview() {
+    CallFromAiTheme {
+            MyPageScreenContent(
+                state = previewMyPageState,
+                onIntent = {},
+            )
+            TwoButtonPopup(
+                label = "로그아웃",
+                title = "로그아웃 하시겠습니까?",
+                positiveText = "확인",
+                negativeText = "취소",
+                onPositiveClick = {},
+                onNegativeClick = {},
+            )
+    }
+}
+
+@Preview(showBackground = true, name = "계정 삭제")
+@Composable
+private fun MyPageScreenDeleteAccountDialogPreview() {
+    CallFromAiTheme {
+            MyPageScreenContent(
+                state = previewMyPageState,
+                onIntent = {}
+            )
+            TwoButtonPopup(
+                label = "",
+                title = "잠시만요 🖐️",
+                description = buildAnnotatedString {
+                    append("탈퇴 시 계정 및 이용 기록은 모두 삭제되며,\n삭제된 데이터는 복구가 불가능합니다.\n\n탈퇴를 진행할까요?")
+                },
+                positiveText = "탈퇴할게요",
+                negativeText = "취소",
+                onPositiveClick = {},
+                onNegativeClick = {},
+                onDismissRequest = {}
+            )
     }
 }
