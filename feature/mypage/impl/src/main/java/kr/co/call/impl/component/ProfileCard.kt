@@ -1,6 +1,7 @@
 package kr.co.call.impl.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,11 +30,15 @@ fun ProfileCard(
     onHistoryClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+
+    val cardShape = RoundedCornerShape(20.dp)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(CallTheme.colors.white),
+            .clip(cardShape)
+            .background(CallTheme.colors.white)
+            .border(width = 1.dp, color = CallTheme.colors.gray100, shape =cardShape ),
     ) {
         // 프로필 정보 요약
         ProfileSummaryContent(
@@ -56,7 +61,7 @@ fun ProfileCard(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun ProfileTicketCardPreview(){
     CallFromAiTheme {
