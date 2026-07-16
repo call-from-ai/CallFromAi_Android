@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.domain.model.chatting.ChatSummary
+import kr.co.call.impl.component.FrontRow
 
 @Composable
 fun ChatListScreen(
@@ -43,9 +45,24 @@ fun ChatListScreenContent(
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn(
-            modifier = Modifier
+            modifier = Modifier.fillMaxSize()
         ) {
+            //TODO: 채팅 목록 출력
 
+            // 매니저
+            item {
+                FrontRow(
+                    isManager = true,
+                    chatSummary = ChatSummary(
+                        image = "",
+                        name = "전화왔어 매니저",
+                        isMainCharacter = true,
+                        content = "오늘 저녁에 뭐해?",
+                        whenSubmitted = "30분 전",
+                        unReadMessageCount = "3",
+                    )
+                )
+            }
         }
     }
 }

@@ -1,13 +1,14 @@
 package kr.co.call.impl.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ import kr.co.call.domain.model.chatting.ChatSummary
 @Composable
 fun FrontRow(
     modifier: Modifier = Modifier,
+    isManager: Boolean = false,
     chatSummary: ChatSummary,
     onClick: () -> Unit = {},
 ) {
@@ -40,7 +43,6 @@ fun FrontRow(
             .fillMaxWidth()
             .height(102.dp)
             .background(CallTheme.colors.white)
-            .border(width = 1.dp, color = CallTheme.colors.mainVariant2)
             .clickable { onClick() }
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -55,11 +57,20 @@ fun FrontRow(
                 .background(CallTheme.colors.gray100),
             contentAlignment = Alignment.Center,
         ) {
-            Text(
-                text = chatSummary.name.take(1),
-                style = CallTheme.typography.bodyMediumBold,
-                color = CallTheme.colors.gray600,
-            )
+            if (isManager) {
+                Image(
+                    painter = painterResource(R.drawable.ic_chat_manager),
+                    contentDescription = "매니저",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    text = chatSummary.name.take(1),
+                    style = CallTheme.typography.bodyMediumBold,
+                    color = CallTheme.colors.gray600,
+                )
+            }
         }
 
         // 이름 + 최근 메시지
@@ -75,7 +86,7 @@ fun FrontRow(
                 Text(
                     text = chatSummary.name,
                     style = CallTheme.typography.bodyLargeBold,
-                    color = CallTheme.colors.black,
+                    color = if (isManager) CallTheme.colors.mainVariant1 else CallTheme.colors.black,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -103,23 +114,25 @@ fun FrontRow(
         }
 
         // 시간 + 읽지 않은 메시지 수
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = chatSummary.whenSubmitted,
-                style = CallTheme.typography.caption,
-                color = CallTheme.colors.gray800,
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            if (chatSummary.unReadMessageCount.toInt() > 0) {
-                Spacer(modifier = Modifier.height(4.dp))
-                UnReadMessageCountBox(
-                    unReadMessageCount = chatSummary.unReadMessageCount
+        if (!isManager) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    text = chatSummary.whenSubmitted,
+                    style = CallTheme.typography.caption,
+                    color = CallTheme.colors.gray800,
                 )
+
+                Spacer(Modifier.height(16.dp))
+
+                if ((chatSummary.unReadMessageCount.toIntOrNull() ?: 0) > 0) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    UnReadMessageCountBox(
+                        unReadMessageCount = chatSummary.unReadMessageCount
+                    )
+                }
             }
         }
     }

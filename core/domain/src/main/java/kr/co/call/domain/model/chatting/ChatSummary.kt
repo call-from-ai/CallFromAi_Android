@@ -12,11 +12,11 @@ package kr.co.call.domain.model.chatting
  *
  *  */
 data class ChatSummary(
-    val image: String,
+    val image: String = "",
     val name: String,
     val isMainCharacter: Boolean,
     val content: String,
     val whenSubmitted: String,
     val unReadMessageCount: String,
-    val isAlarmEnabled: Boolean
+    val isAlarmEnabled: Boolean = false
 )

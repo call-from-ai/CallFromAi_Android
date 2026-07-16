@@ -1,7 +1,6 @@
 package kr.co.call.impl.component
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
