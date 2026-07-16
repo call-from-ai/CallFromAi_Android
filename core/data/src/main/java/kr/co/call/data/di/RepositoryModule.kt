@@ -1,11 +1,18 @@
 package kr.co.call.data.di
 
+import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.domain.repository.MyPageRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
-class RepositoryModule {
+abstract class RepositoryModule {
 
+    @Binds
+    abstract fun bindMyPageRepository(
+        impl: MyPageRepositoryImpl
+    ): MyPageRepository
 }
