@@ -17,8 +17,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ChatSummary
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.ChatListItem
 import kr.co.call.impl.component.FrontRow
+import kr.co.call.impl.component.LoadingColumn
 import kr.co.call.impl.model.ChatListState
 import kr.co.call.impl.viewmodel.ChatListViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -59,28 +61,40 @@ fun ChatListScreenContent(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            items(
-                count = state.chatList.size,
-                key = { index -> state.chatList[index].chatRoomId }
-            ) {
-                ChatListItem(
-                    chatSummary = state.chatList[it]
-                )
-            }
+            when (state.status) {
+                is LoadStatus.Error -> {
+                    //TODO: 에러 플레이스홀더 처리
+                }
+                LoadStatus.Loading -> {
+                    item {
+                        LoadingColumn()
+                    }
+                }
+                LoadStatus.Idle -> {
+                    items(
+                        count = state.chatList.size,
+                        key = { index -> state.chatList[index].chatRoomId }
+                    ) {
+                        ChatListItem(
+                            chatSummary = state.chatList[it]
+                        )
+                    }
 
-            // 매니저는 맨 아래 고정
-            item {
-                FrontRow(
-                    isManager = true,
-                    chatSummary = ChatSummary(
-                        image = "",
-                        name = "전화왔어 매니저",
-                        isMainCharacter = true,
-                        content = "오늘 저녁에 뭐해?",
-                        whenSubmitted = "30분 전",
-                        unReadMessageCount = "3",
-                    )
-                )
+                    // 매니저는 맨 아래 고정
+                    item {
+                        FrontRow(
+                            isManager = true,
+                            chatSummary = ChatSummary(
+                                image = "",
+                                name = "전화왔어 매니저",
+                                isMainCharacter = true,
+                                content = "오늘 저녁에 뭐해?",
+                                whenSubmitted = "30분 전",
+                                unReadMessageCount = "3",
+                            )
+                        )
+                    }
+                }
             }
         }
     }
