@@ -44,16 +44,17 @@ fun MyPageScreen(
     val state by viewModel.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
+    var showComingSoon by remember { mutableStateOf(false) }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MyPageSideEffect.NavigateToProfileDetail -> { /* TODO: 네비게이션 */ }
-            is MyPageSideEffect.NavigateToChargeTicket -> { /* TODO */ }
-            is MyPageSideEffect.NavigateToPurchaseTicket -> { /* TODO */ }
-            is MyPageSideEffect.NavigateToTicketHistory -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
+            is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
+            is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
             is MyPageSideEffect.NavigateToCharacterManagement -> { /* TODO */ }
             is MyPageSideEffect.NavigateToFaq -> { /* TODO */ }
-            is MyPageSideEffect.NavigateToInquiry -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToTerms -> { /* TODO */ }
             is MyPageSideEffect.ShowLogoutConfirmDialog -> { showLogoutDialog = true }
             is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> { showDeleteAccountDialog=true }
@@ -82,6 +83,11 @@ fun MyPageScreen(
             onConfirm = { viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount) },
             onDismiss = { showDeleteAccountDialog = false },
         )
+    }
+
+    // 준비중 화면 다이얼로그
+    if (showComingSoon) {
+        ComingSoonScreen(onBackClick = { showComingSoon = false })
     }
 }
 
