@@ -6,6 +6,9 @@ plugins {
 
 android {
     namespace = "kr.co.call.callfromai"
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "kr.co.call.callfromai"
         versionCode = 1
@@ -15,8 +18,6 @@ android {
 
 dependencies {
     // feature 모듈
-    implementation(project(":feature:main:api"))
-    implementation(project(":feature:main:impl"))
     implementation(project(":feature:login:api"))
     implementation(project(":feature:login:impl"))
     implementation(project(":feature:onboarding:api"))
