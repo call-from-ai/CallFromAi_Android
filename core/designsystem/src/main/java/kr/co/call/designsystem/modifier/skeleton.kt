@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import kr.co.call.designsystem.theme.Gray100
 import kr.co.call.designsystem.theme.Gray200
+import kr.co.call.designsystem.theme.Gray400
 
 /**
  * UI 구성 요소에 스켈레톤(Skeleton) 로딩 효과를 적용합니다.
@@ -44,7 +45,7 @@ import kr.co.call.designsystem.theme.Gray200
  */
 fun Modifier.skeleton(
     isLoading: Boolean,
-    baseColor: Color = Gray200.copy(alpha = 0.3f),
+    baseColor: Color = Gray400.copy(alpha = 0.3f),
     highlightColor: Color = Gray100.copy(alpha = 0.6f),
     durationMillis: Int = 1000
 ): Modifier = composed {
