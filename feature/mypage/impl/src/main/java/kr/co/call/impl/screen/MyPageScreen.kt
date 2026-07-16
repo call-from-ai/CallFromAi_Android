@@ -39,6 +39,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
@@ -48,7 +49,7 @@ fun MyPageScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is MyPageSideEffect.NavigateToProfileDetail -> { /* TODO: 네비게이션 */ }
+            is MyPageSideEffect.NavigateToProfileDetail -> onNavigateToProfile()
             is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
