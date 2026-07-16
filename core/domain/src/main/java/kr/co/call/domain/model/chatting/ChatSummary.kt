@@ -12,6 +12,7 @@ package kr.co.call.domain.model.chatting
  *
  *  */
 data class ChatSummary(
+    val chatRoomId: Int = 0,
     val image: String = "",
     val name: String,
     val isMainCharacter: Boolean,

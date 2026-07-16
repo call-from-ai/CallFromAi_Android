@@ -10,12 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kr.co.call.impl.model.SwipeState
 import kotlin.math.roundToInt
 
 /**
@@ -36,6 +37,7 @@ fun SwipeableBox(
     val swipeWidthPx = with(LocalDensity.current) { swipeWidth.toPx() }
     val offsetX = swipeState.offset
     val clampedOffset = if (offsetX.isNaN()) 0 else offsetX.roundToInt()
+    val backgroundAlpha = if (swipeWidthPx == 0f) 0f else (-clampedOffset / swipeWidthPx).coerceIn(0f, 1f)
 
     LaunchedEffect(Unit) {
         swipeState.updateAnchors(
@@ -54,7 +56,9 @@ fun SwipeableBox(
                 orientation = Orientation.Horizontal
             )
     ) {
-        backgroundContent()
+        Box(modifier = Modifier.align(Alignment.CenterEnd).alpha(backgroundAlpha)) {
+            backgroundContent()
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -62,6 +66,5 @@ fun SwipeableBox(
         ) {
             content()
         }
-
     }
 }

@@ -42,7 +42,7 @@ fun FrontRow(
         modifier = modifier
             .fillMaxWidth()
             .height(102.dp)
-            .background(CallTheme.colors.white)
+            .background(CallTheme.colors.white.copy(alpha = 0.5f))
             .clickable { onClick() }
             .padding(horizontal = 20.dp),
         verticalAlignment = Alignment.CenterVertically,

@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.ColorPainter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +41,7 @@ fun BackgroundRow(
 
             val iconPainter = if (isAlarmEnabled)
                 painterResource(R.drawable.ic_chat_bell)
-            else ColorPainter(CallTheme.colors.white)
+            else painterResource(R.drawable.ic_chat_bell_off)
 
 
             Icon(

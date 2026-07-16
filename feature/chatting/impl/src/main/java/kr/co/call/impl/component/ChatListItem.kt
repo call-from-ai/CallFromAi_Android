@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.chatting.ChatSummary
-import kr.co.call.impl.model.SwipeState
 
 @Composable
 fun ChatListItem(

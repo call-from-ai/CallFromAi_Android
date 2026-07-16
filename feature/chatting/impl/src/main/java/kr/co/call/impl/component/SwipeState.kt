@@ -1,4 +1,4 @@
-package kr.co.call.impl.model
+package kr.co.call.impl.component
 
 enum class SwipeState {
     Closed,
