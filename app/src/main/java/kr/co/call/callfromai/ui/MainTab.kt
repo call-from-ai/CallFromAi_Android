@@ -1,4 +1,4 @@
-package kr.co.call.impl.component
+package kr.co.call.callfromai.ui
 
 import androidx.annotation.DrawableRes
 import kr.co.call.designsystem.R
