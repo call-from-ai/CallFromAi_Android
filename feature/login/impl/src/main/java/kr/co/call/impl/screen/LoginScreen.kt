@@ -74,7 +74,7 @@ fun LoginScreen(
                 }
                 append("\uD83D\uDC9E")
             },
-            fontSize = 24.sp,
+            fontSize = 22.sp,
             color = Gray900,
             fontFamily = Pretendard,
             fontWeight = FontWeight.Normal,
