@@ -29,12 +29,14 @@ import org.orbitmvi.orbit.compose.collectAsState
 @Composable
 fun ChatListScreen(
     modifier: Modifier = Modifier,
+    onChatRoomClick: (Long) -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     val state = viewModel.collectAsState().value
 
     ChatListScreenContent(
         state = state,
+        onChatRoomClick = onChatRoomClick,
         modifier = modifier
     )
 }
@@ -42,6 +44,7 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
+    onChatRoomClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -78,7 +81,8 @@ fun ChatListScreenContent(
                         key = { index -> state.chatList[index].chatRoomId }
                     ) {
                         ChatListItem(
-                            chatSummary = state.chatList[it]
+                            chatSummary = state.chatList[it],
+                            onItemClick = { onChatRoomClick(state.chatList[it].chatRoomId) }
                         )
                     }
 
@@ -88,7 +92,7 @@ fun ChatListScreenContent(
                             isManager = true,
                             chatSummary = ChatSummary(
                                 name = "전화왔어 매니저",
-                                content = "오늘 저녁에 뭐해?",
+                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를"
                             )
                         )
                     }
@@ -103,6 +107,7 @@ fun ChatListScreenContent(
 private fun ChatListScreenPreview() {
     CallFromAiTheme {
         ChatListScreenContent(
+            onChatRoomClick = {},
             state = ChatListState(
                 chatList = listOf(
                     ChatSummary(

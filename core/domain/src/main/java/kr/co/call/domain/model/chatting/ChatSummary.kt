@@ -12,7 +12,7 @@ package kr.co.call.domain.model.chatting
  *
  */
 data class ChatSummary(
-    val chatRoomId: Int = -1, // 매니저 챗방은 -1
+    val chatRoomId: Long = -1, // 매니저 챗방은 -1
     val image: String = "", // 매니저의 경우에는 없음
     val name: String = "",
     val isMainCharacter: Boolean = false,
