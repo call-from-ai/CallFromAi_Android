@@ -23,12 +23,12 @@ import kr.co.call.impl.component.header.HomeHeader
 import kr.co.call.impl.component.history.HomeHistorySection
 import kr.co.call.impl.component.header.HomeReservationCard
 import kr.co.call.impl.tab.HomeHistoryTab
-import kr.co.call.impl.viewmodel.state.CallHistoryState
-import kr.co.call.impl.viewmodel.state.HomeSummaryState
 import kr.co.call.impl.viewmodel.HomeIntent
 import kr.co.call.impl.viewmodel.state.HomeNotificationState
-import kr.co.call.impl.viewmodel.state.HomeReservationState
 import kr.co.call.impl.viewmodel.HomeViewModel
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
+import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
+import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 import androidx.paging.PagingData
 import org.orbitmvi.orbit.compose.collectAsState
 
@@ -46,10 +46,10 @@ fun HomeScreen(
     val notifications = remember { createHomeMockData().notificationFlow() }
 
     HomeScreenContent(
-        homeSummaryState = state.summary,
+        homeSummary = state.summary,
         hasUnreadNotification = state.hasUnreadNotification,
-        homeReservationState = state.reservation,
-        callHistoryState = state.callHistory,
+        homeReservation = state.reservation,
+        callHistories = state.callHistories,
         selectedHistoryTab = state.selectedHistoryTab,
         notifications = notifications,
         onHistoryTabClick = { tab ->
@@ -66,10 +66,10 @@ fun HomeScreen(
  */
 @Composable
 internal fun HomeScreenContent(
-    homeSummaryState: HomeSummaryState,
+    homeSummary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
-    homeReservationState: HomeReservationState,
-    callHistoryState: CallHistoryState,
+    homeReservation: HomeReservationUiModel,
+    callHistories: List<CallHistoryUiModel>,
     selectedHistoryTab: HomeHistoryTab,
     notifications: Flow<PagingData<HomeNotificationState>>,
     onHistoryTabClick: (HomeHistoryTab) -> Unit,
@@ -81,12 +81,12 @@ internal fun HomeScreenContent(
             .background(CallTheme.colors.background),
     ) {
         HomeHeader(
-            summaryState = homeSummaryState,
+            summary = homeSummary,
             hasUnreadNotification = hasUnreadNotification,
         )
 
         // 예약된 전화 조회
-        HomeReservationCard(reservationState = homeReservationState)
+        HomeReservationCard(reservation = homeReservation)
 
         Box(
             modifier = Modifier
@@ -100,7 +100,7 @@ internal fun HomeScreenContent(
             selectedTab = selectedHistoryTab,
             onTabClick = onHistoryTabClick,
             notifications = notifications,
-            callHistoryState = callHistoryState,
+            callHistories = callHistories,
         )
     }
 }
@@ -122,10 +122,10 @@ private fun HomeScreenContentPreview() {
 
     CallFromAiTheme {
         HomeScreenContent(
-            homeSummaryState = mockData.summaryState,
+            homeSummary = mockData.summaryUiModel,
             hasUnreadNotification = mockData.hasUnreadNotification,
-            homeReservationState = mockData.reservationState,
-            callHistoryState = mockData.callHistoryState,
+            homeReservation = mockData.reservationUiModel,
+            callHistories = mockData.callHistoryUiModels,
             selectedHistoryTab = selectedHistoryTab,
             notifications = mockData.notificationFlow(),
             onHistoryTabClick = { selectedHistoryTab = it },

@@ -3,26 +3,26 @@ package kr.co.call.data.repositoryImpl
 import java.time.LocalDateTime
 import javax.inject.Inject
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallSender
-import kr.co.call.domain.model.home.CallStatus
-import kr.co.call.domain.model.home.CallType
-import kr.co.call.domain.model.home.HomeModel
+import kr.co.call.domain.model.home.CallReservation
+import kr.co.call.domain.model.home.CallReservations
+import kr.co.call.domain.model.home.HomeSummary
+import kr.co.call.domain.model.home.ReservationStatus
 import kr.co.call.domain.repository.HomeRepository
 
 class HomeRepositoryImpl @Inject constructor() : HomeRepository {
 
-    override suspend fun getReservations(): Result<HomeModel.Reservations> =
+    override suspend fun getReservations(): Result<CallReservations> =
         Result.success(
-            HomeModel.Reservations(
-                count = 1,
+            CallReservations(
+                totalCount = 1,
                 items = listOf(
-                    HomeModel.Reservation(
-                        callReservationId = 3L,
+                    CallReservation(
+                        id = 3L,
                         characterId = 2L,
                         firstName = "민준",
                         imageUrl = null,
                         scheduledAt = LocalDateTime.of(2026, 6, 30, 21, 0),
-                        status = HomeModel.ReservationStatus.SCHEDULED,
+                        status = ReservationStatus.SCHEDULED,
                     ),
                 ),
             ),
@@ -34,7 +34,6 @@ class HomeRepositoryImpl @Inject constructor() : HomeRepository {
                 CallHistory(
                     callId = (index + 1).toLong(),
                     characterName = if (index % 2 == 0) "민준" else "동휘",
-                    sender = if (index % 2 == 0) CallSender.USER else CallSender.AI,
                     aiSummary = if (index % 2 == 0) {
                         "오늘 하루와 퇴근 후 일상 이야기"
                     } else {
@@ -47,15 +46,15 @@ class HomeRepositoryImpl @Inject constructor() : HomeRepository {
                         23,
                         2,
                     ),
-                    callType = if (index % 2 == 0) CallType.DAILY else CallType.DEEP,
-                    status = if (index % 4 == 3) CallStatus.MISSED else CallStatus.COMPLETED,
+                    isOutgoing = index % 2 == 0,
+                    isMissed = index % 4 == 3,
                 )
             },
         )
 
-    override suspend fun getSummary(characterId: Long): Result<HomeModel.Summary> =
+    override suspend fun getSummary(characterId: Long): Result<HomeSummary> =
         Result.success(
-            HomeModel.Summary(
+            HomeSummary(
                 characterId = characterId,
                 firstName = "수현",
                 relationshipDays = 30,

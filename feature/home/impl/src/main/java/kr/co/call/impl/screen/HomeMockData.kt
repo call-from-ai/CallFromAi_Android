@@ -4,48 +4,37 @@ import androidx.paging.PagingData
 import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kr.co.call.domain.model.home.HomeModel
-import kr.co.call.impl.mapper.toUiState
+import kr.co.call.domain.model.home.CallHistory
+import kr.co.call.domain.model.home.CallReservation
+import kr.co.call.domain.model.home.CallReservations
+import kr.co.call.domain.model.home.HomeSummary
+import kr.co.call.domain.model.home.ReservationStatus
+import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.mock.CallMockData
 import kr.co.call.impl.viewmodel.NotificationType
-import kr.co.call.impl.viewmodel.state.CallHistoryState
 import kr.co.call.impl.viewmodel.state.HomeNotificationState
-import kr.co.call.impl.viewmodel.state.HomeReservationState
-import kr.co.call.impl.viewmodel.state.HomeSummaryState
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
+import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
+import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 /**
  * 홈화면에서 사용하는 Mock Data
  */
 internal data class HomeMockData(
-    val home: HomeModel,
+    val summary: HomeSummary,
+    val reservations: CallReservations,
+    val callHistories: List<CallHistory>,
     val hasUnreadNotification: Boolean,
     val notifications: List<HomeNotificationState>,
 ) {
-    val summaryState: HomeSummaryState
-        get() = HomeSummaryState(
-            characterId = home.summary.characterId,
-            firstName = home.summary.firstName,
-            relationshipDays = home.summary.relationshipDays,
-            totalCallCount = home.summary.totalCallCount,
-            callStreakDays = home.summary.callStreakDays,
-        )
+    val summaryUiModel: HomeSummaryUiModel
+        get() = summary.toUiModel()
 
-    val reservationState: HomeReservationState
-        get() {
-            val reservation = home.reservations.items.firstOrNull()
+    val reservationUiModel: HomeReservationUiModel
+        get() = reservations.toUiModel()
 
-            return HomeReservationState(
-                reservationCount = home.reservations.count,
-                profileImageUrl = reservation?.imageUrl,
-                scheduledAt = reservation?.scheduledAt,
-                firstName = reservation?.firstName,
-            )
-        }
-
-    val callHistoryState: CallHistoryState
-        get() = CallHistoryState(
-            histories = home.callHistories.map { callHistory -> callHistory.toUiState() },
-        )
+    val callHistoryUiModels: List<CallHistoryUiModel>
+        get() = callHistories.map { callHistory -> callHistory.toUiModel() }
 
     fun notificationFlow(): Flow<PagingData<HomeNotificationState>> =
         flowOf(PagingData.from(notifications))
@@ -55,29 +44,27 @@ internal fun createHomeMockData(
     now: LocalDateTime = LocalDateTime.now(),
 ): HomeMockData =
     HomeMockData(
-        home = HomeModel(
-            summary = HomeModel.Summary(
-                characterId = 2L,
-                firstName = "수현",
-                relationshipDays = 30,
-                totalCallCount = 24,
-                callStreakDays = 12,
-            ),
-            reservations = HomeModel.Reservations(
-                count = 2,
-                items = listOf(
-                    HomeModel.Reservation(
-                        callReservationId = 3L,
-                        characterId = 2L,
-                        firstName = "민준",
-                        imageUrl = null,
-                        scheduledAt = now.withHour(21).withMinute(0).withSecond(0),
-                        status = HomeModel.ReservationStatus.SCHEDULED,
-                    ),
+        summary = HomeSummary(
+            characterId = 2L,
+            firstName = "수현",
+            relationshipDays = 30,
+            totalCallCount = 24,
+            callStreakDays = 12,
+        ),
+        reservations = CallReservations(
+            totalCount = 2,
+            items = listOf(
+                CallReservation(
+                    id = 3L,
+                    characterId = 2L,
+                    firstName = "민준",
+                    imageUrl = null,
+                    scheduledAt = now.withHour(21).withMinute(0).withSecond(0),
+                    status = ReservationStatus.SCHEDULED,
                 ),
             ),
-            callHistories = CallMockData.histories,
         ),
+        callHistories = CallMockData.histories,
         hasUnreadNotification = true,
         notifications = listOf(
             HomeNotificationState(

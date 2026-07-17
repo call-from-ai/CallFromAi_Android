@@ -26,10 +26,8 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.mock.CallMockData
-import kr.co.call.impl.viewmodel.CallHistoryType
-import kr.co.call.impl.viewmodel.isMissed
-import kr.co.call.impl.viewmodel.state.CallHistoryState
-import kr.co.call.impl.viewmodel.state.HomeCallHistoryItemState
+import kr.co.call.impl.viewmodel.model.CallHistoryIconType
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
 /**
  * 통화 기록 목록을 표시하는 컴포넌트
@@ -38,7 +36,7 @@ import kr.co.call.impl.viewmodel.state.HomeCallHistoryItemState
  */
 @Composable
 internal fun CallHistoryList(
-    callHistoryState: CallHistoryState,
+    histories: List<CallHistoryUiModel>,
     modifier: Modifier = Modifier,
     onRecordClick: (Long) -> Unit = {},
 ) {
@@ -60,7 +58,7 @@ internal fun CallHistoryList(
                 .weight(1f),
         ) {
             items(
-                items = callHistoryState.histories,
+                items = histories,
                 key = { history -> history.callId },
             ) { history ->
                 CallHistoryCard(
@@ -79,19 +77,20 @@ internal fun CallHistoryList(
  */
 @Composable
 private fun CallHistoryCard(
-    callHistory: HomeCallHistoryItemState,
+    callHistory: CallHistoryUiModel,
     modifier: Modifier = Modifier,
     onRecordClick: () -> Unit = {},
 ) {
-    val isMissed = callHistory.type.isMissed
+    // Missed type
+    val isMissed = callHistory.iconType == CallHistoryIconType.MISSED
 
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(if (isMissed) 70.dp else 90.dp),
     ) {
-        CallTypeIcon(
-            type = callHistory.type,
+        CallHistoryIcon(
+            iconType = callHistory.iconType,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(
@@ -160,27 +159,24 @@ private fun CallHistoryCard(
 
 // 아이콘 타입에 따라서 표시
 @Composable
-private fun CallTypeIcon(
-    type: CallHistoryType,
+private fun CallHistoryIcon(
+    iconType: CallHistoryIconType,
     modifier: Modifier = Modifier,
 ) {
-    val iconResource = when (type) {
-        CallHistoryType.SEND ->
+    val iconResource = when (iconType) {
+        CallHistoryIconType.SENT ->
             kr.co.call.designsystem.R.drawable.img_home_call_send
 
-        CallHistoryType.RECEIVED ->
+        CallHistoryIconType.RECEIVED ->
             kr.co.call.designsystem.R.drawable.img_home_call_received
 
-        CallHistoryType.SEND_MISSED,
-        CallHistoryType.RECEIVE_MISSED,
-        -> kr.co.call.designsystem.R.drawable.img_home_call_missed
+        CallHistoryIconType.MISSED ->
+            kr.co.call.designsystem.R.drawable.img_home_call_missed
     }
-    val iconSize = when (type) {
-        CallHistoryType.SEND -> DpSize(26.dp, 23.dp)
-        CallHistoryType.RECEIVED -> DpSize(23.dp, 23.dp)
-        CallHistoryType.SEND_MISSED,
-        CallHistoryType.RECEIVE_MISSED,
-        -> DpSize(25.dp, 26.dp)
+    val iconSize = when (iconType) {
+        CallHistoryIconType.SENT -> DpSize(26.dp, 23.dp)
+        CallHistoryIconType.RECEIVED -> DpSize(23.dp, 23.dp)
+        CallHistoryIconType.MISSED -> DpSize(25.dp, 26.dp)
     }
 
     Image(
@@ -195,7 +191,7 @@ private fun CallTypeIcon(
 private fun CallHistoryListPreview() {
     CallFromAiTheme {
         CallHistoryList(
-            callHistoryState = CallMockData.state,
+            histories = CallMockData.uiModels,
         )
     }
 }

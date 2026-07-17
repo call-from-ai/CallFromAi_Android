@@ -7,7 +7,6 @@ data class CallHistory(
     val characterName: String,
     val aiSummary: String,
     val startedAt: LocalDateTime,
-    val sender: CallSender,
-    val callType: CallType,
-    val status: CallStatus,
+    val isOutgoing: Boolean,
+    val isMissed: Boolean,
 )

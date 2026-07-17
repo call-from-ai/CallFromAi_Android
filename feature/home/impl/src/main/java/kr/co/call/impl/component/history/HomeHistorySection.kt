@@ -10,7 +10,7 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.tab.HomeHistoryTabBar
-import kr.co.call.impl.viewmodel.state.CallHistoryState
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 import kr.co.call.impl.viewmodel.state.HomeNotificationState
 
 @Composable
@@ -18,7 +18,7 @@ internal fun HomeHistorySection(
     selectedTab: HomeHistoryTab,
     onTabClick: (HomeHistoryTab) -> Unit,
     notifications: Flow<PagingData<HomeNotificationState>>,
-    callHistoryState: CallHistoryState,
+    callHistories: List<CallHistoryUiModel>,
     modifier: Modifier = Modifier,
 ) {
     Spacer(modifier = Modifier.height(22.dp))
@@ -35,7 +35,7 @@ internal fun HomeHistorySection(
         }
 
         HomeHistoryTab.CALL_HISTORY -> {
-            CallHistoryList(callHistoryState = callHistoryState)
+            CallHistoryList(histories = callHistories)
         }
     }
 }

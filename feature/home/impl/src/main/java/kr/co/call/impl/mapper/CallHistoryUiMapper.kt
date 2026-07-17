@@ -2,31 +2,21 @@ package kr.co.call.impl.mapper
 
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallSender
-import kr.co.call.domain.model.home.CallStatus
-import kr.co.call.impl.viewmodel.CallHistoryType
-import kr.co.call.impl.viewmodel.state.HomeCallHistoryItemState
+import kr.co.call.impl.viewmodel.model.CallHistoryIconType
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
-internal fun CallHistory.toUiState(): HomeCallHistoryItemState =
-    HomeCallHistoryItemState(
+internal fun CallHistory.toUiModel(): CallHistoryUiModel =
+    CallHistoryUiModel(
         callId = callId,
         characterName = characterName,
         aiSummary = aiSummary,
         startedAtText = TimeUtil.toCallHistoryDateText(startedAt),
-        type = toCallHistoryType(),
+        iconType = toIconType(),
     )
 
-private fun CallHistory.toCallHistoryType(): CallHistoryType =
+private fun CallHistory.toIconType(): CallHistoryIconType =
     when {
-        sender == CallSender.USER && status == CallStatus.COMPLETED ->
-            CallHistoryType.SEND
-
-        sender == CallSender.AI && status == CallStatus.COMPLETED ->
-            CallHistoryType.RECEIVED
-
-        sender == CallSender.USER && status == CallStatus.MISSED ->
-            CallHistoryType.SEND_MISSED
-
-        else ->
-            CallHistoryType.RECEIVE_MISSED
+        isMissed -> CallHistoryIconType.MISSED
+        isOutgoing -> CallHistoryIconType.SENT
+        else -> CallHistoryIconType.RECEIVED
     }

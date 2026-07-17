@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.impl.viewmodel.state.HomeSummaryState
+import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 // 관계 요약
 /**
@@ -27,7 +27,7 @@ import kr.co.call.impl.viewmodel.state.HomeSummaryState
  */
 @Composable
 internal fun RelationshipSummaryCard(
-    summaryState: HomeSummaryState,
+    summary: HomeSummaryUiModel,
     modifier: Modifier = Modifier,
 ) {
     val cardShape = RoundedCornerShape(20.dp)
@@ -48,7 +48,7 @@ internal fun RelationshipSummaryCard(
     ) {
         RelationshipSummaryItem(
             label = "관계",
-            value = summaryState.relationshipDays.withSuffixOrDash("일째"),
+            value = summary.relationshipDaysText,
             modifier = Modifier.weight(1f),
         )
 
@@ -56,7 +56,7 @@ internal fun RelationshipSummaryCard(
 
         RelationshipSummaryItem(
             label = "통화",
-            value = summaryState.totalCallCount.withSuffixOrDash("회"),
+            value = summary.totalCallCountText,
             modifier = Modifier.weight(1f),
         )
 
@@ -64,7 +64,7 @@ internal fun RelationshipSummaryCard(
 
         RelationshipSummaryItem(
             label = "연속 통화",
-            value = summaryState.callStreakDays.withSuffixOrDash("일"),
+            value = summary.callStreakDaysText,
             modifier = Modifier.weight(1f),
         )
     }
@@ -111,10 +111,6 @@ private fun RelationshipSummaryDivider() {
     )
 }
 
-// 0으로 들어올 경우 마이너스로 표시하는 확장함수
-private fun Int.withSuffixOrDash(suffix: String): String =
-    if (this == 0) "-" else "$this$suffix"
-
 /**
  * 관계 요약 카드 Preview
  * - 관계와 통화 샘플 데이터 표시
@@ -124,11 +120,10 @@ private fun Int.withSuffixOrDash(suffix: String): String =
 private fun RelationshipSummaryCardPreview() {
     CallFromAiTheme {
         RelationshipSummaryCard(
-            summaryState = HomeSummaryState(
-                characterId = 1L,
-                relationshipDays = 30,
-                totalCallCount = 24,
-                callStreakDays = 12,
+            summary = HomeSummaryUiModel(
+                relationshipDaysText = "30일째",
+                totalCallCountText = "24회",
+                callStreakDaysText = "12일",
             ),
             modifier = Modifier.height(94.dp),
         )

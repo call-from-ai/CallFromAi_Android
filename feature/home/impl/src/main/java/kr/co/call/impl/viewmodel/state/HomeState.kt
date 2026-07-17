@@ -2,13 +2,15 @@ package kr.co.call.impl.viewmodel.state
 
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.tab.HomeHistoryTab
-import kr.co.call.impl.viewmodel.state.HomeReservationState
-import kr.co.call.impl.viewmodel.state.HomeSummaryState
+import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
+import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
+import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 data class HomeState(
-    val summary: HomeSummaryState = HomeSummaryState(),
-    val reservation: HomeReservationState = HomeReservationState(),
-    val callHistory: CallHistoryState = CallHistoryState(),
+    val characterId: Long = 0L,
+    val summary: HomeSummaryUiModel = HomeSummaryUiModel(),
+    val reservation: HomeReservationUiModel = HomeReservationUiModel(),
+    val callHistories: List<CallHistoryUiModel> = emptyList(),
     val hasUnreadNotification: Boolean = true,
     val loadStatus: LoadStatus = LoadStatus.Idle,
     val selectedHistoryTab: HomeHistoryTab = HomeHistoryTab.NOTIFICATION,

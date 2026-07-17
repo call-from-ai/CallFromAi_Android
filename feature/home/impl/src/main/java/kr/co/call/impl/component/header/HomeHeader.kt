@@ -38,7 +38,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.component.RelationshipSummaryCard
 import kr.co.call.impl.component.UnreadIndicator
-import kr.co.call.impl.viewmodel.state.HomeSummaryState
+import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 /**
  * 홈 화면 상단 헤더 컴포넌트
@@ -47,7 +47,7 @@ import kr.co.call.impl.viewmodel.state.HomeSummaryState
  */
 @Composable
 internal fun HomeHeader(
-    summaryState: HomeSummaryState,
+    summary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -119,7 +119,7 @@ internal fun HomeHeader(
                         tint = Color.Unspecified,
                     )
 
-                    // 알림 읽음 여부에 따라 불러오기
+                    // 알림 읽음 여부 표시
                     if (hasUnreadNotification) {
                         UnreadIndicator(
                             modifier = Modifier
@@ -143,7 +143,7 @@ internal fun HomeHeader(
                     withStyle(
                         style = SpanStyle(fontWeight = FontWeight.SemiBold),
                     ) {
-                        append(summaryState.firstName)
+                        append(summary.firstName)
                     }
                     append("님, 반가워요! 👋🏻")
                 },
@@ -174,6 +174,7 @@ internal fun HomeHeader(
                 contentColor = CallTheme.colors.mainVariant1,
             ),
         ) {
+            // 전화하기 버튼
             Icon(
                 painter = painterResource(
                     id = R.drawable.ic_home_call,
@@ -186,7 +187,7 @@ internal fun HomeHeader(
 
         // 관계 요약
         RelationshipSummaryCard(
-            summaryState = summaryState,
+            summary = summary,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .offset(y = 217.dp)
@@ -208,12 +209,11 @@ internal fun HomeHeader(
 private fun HomeHeaderPreview() {
     CallFromAiTheme {
         HomeHeader(
-            summaryState = HomeSummaryState(
-                characterId = 1L,
+            summary = HomeSummaryUiModel(
                 firstName = "수현",
-                relationshipDays = 30,
-                totalCallCount = 24,
-                callStreakDays = 12,
+                relationshipDaysText = "30일째",
+                totalCallCountText = "24회",
+                callStreakDaysText = "12일",
             ),
             hasUnreadNotification = true,
         )

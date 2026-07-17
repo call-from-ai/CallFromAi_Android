@@ -27,12 +27,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
-import java.time.LocalDateTime
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.component.ProfileImageWithIcon
-import kr.co.call.impl.viewmodel.state.HomeReservationState
+import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 
 /**
  * 홈 화면의 통화 약속 컴포넌트
@@ -41,7 +40,7 @@ import kr.co.call.impl.viewmodel.state.HomeReservationState
  */
 @Composable
 internal fun HomeReservationCard(
-    reservationState: HomeReservationState,
+    reservation: HomeReservationUiModel,
     modifier: Modifier = Modifier,
     onTimeChangeClick: () -> Unit = {},
 ) {
@@ -53,7 +52,7 @@ internal fun HomeReservationCard(
     ) {
         // 날짜 항상 표시
         ReservationDate(
-            reservationCount = reservationState.reservationCount,
+            reservationCountText = reservation.reservationCountText,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(
@@ -63,9 +62,9 @@ internal fun HomeReservationCard(
         )
 
         // 예약이 있을 때만 카드 상세 표시
-        if (reservationState.reservationCount > 0) {
+        if (reservation.hasReservation) {
             ReservationContent(
-                reservationState = reservationState,
+                reservation = reservation,
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(
@@ -74,9 +73,9 @@ internal fun HomeReservationCard(
                     ),
             )
 
-            reservationState.scheduledAt?.let { scheduledAt ->
+            reservation.scheduledTimeText?.let { scheduledTimeText ->
                 ReservationTimeActions(
-                    scheduledAt = scheduledAt,
+                    scheduledTimeText = scheduledTimeText,
                     onTimeChangeClick = onTimeChangeClick,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -96,7 +95,7 @@ internal fun HomeReservationCard(
  */
 @Composable
 private fun ReservationDate(
-    reservationCount: Int,
+    reservationCountText: String,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -120,7 +119,7 @@ private fun ReservationDate(
         Spacer(modifier = Modifier.width(9.dp))
 
         Text(
-            text = "약속 ${reservationCount}건",
+            text = reservationCountText,
             color = CallTheme.colors.mainVariant1,
             style = CallTheme.typography.bodySmallBold,
         )
@@ -134,7 +133,7 @@ private fun ReservationDate(
  */
 @Composable
 private fun ReservationContent(
-    reservationState: HomeReservationState,
+    reservation: HomeReservationUiModel,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -142,22 +141,22 @@ private fun ReservationContent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         ProfileImageWithIcon(
-            profileImageUrl = reservationState.profileImageUrl,
+            profileImageUrl = reservation.profileImageUrl,
             showCallBadge = true,
         )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        val firstName = reservationState.firstName
-        val scheduledAt = reservationState.scheduledAt
+        val firstName = reservation.firstName
+        val scheduledAtText = reservation.scheduledAtText
 
-        if (firstName != null && scheduledAt != null) {
+        if (firstName != null && scheduledAtText != null) {
             Text(
                 text = buildAnnotatedString {
                     withStyle(CallTheme.typography.bodyMediumMedium.toSpanStyle()) {
                         append(firstName)
                     }
-                    append("님과 ${TimeUtil.toReservationTimeText(scheduledAt)}\n")
+                    append("님과 $scheduledAtText\n")
                     append("전화가 예정되어 있어요")
                 },
                 color = CallTheme.colors.black,
@@ -174,7 +173,7 @@ private fun ReservationContent(
  */
 @Composable
 private fun ReservationTimeActions(
-    scheduledAt: LocalDateTime,
+    scheduledTimeText: String,
     onTimeChangeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -193,7 +192,7 @@ private fun ReservationTimeActions(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = TimeUtil.toHourMinuteText(scheduledAt),
+                text = scheduledTimeText,
                 color = CallTheme.colors.mainVariant1,
                 style = CallTheme.typography.bodySmallBold,
             )
@@ -236,11 +235,13 @@ private fun ReservationTimeActions(
 private fun HomeReservationCardPreview() {
     CallFromAiTheme {
         HomeReservationCard(
-            reservationState = HomeReservationState(
-                reservationCount = 1,
+            reservation = HomeReservationUiModel(
+                hasReservation = true,
+                reservationCountText = "약속 1건",
                 profileImageUrl = null,
-                scheduledAt = LocalDateTime.of(2026, 7, 17, 21, 0),
                 firstName = "민준",
+                scheduledAtText = "오늘 오후 9시",
+                scheduledTimeText = "21:00",
             ),
         )
     }

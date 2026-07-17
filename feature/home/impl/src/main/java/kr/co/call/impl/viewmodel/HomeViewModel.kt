@@ -5,9 +5,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.mapper.toUiState
+import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.tab.HomeHistoryTab
-import kr.co.call.impl.viewmodel.state.CallHistoryState
 import kr.co.call.impl.viewmodel.state.HomeState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -57,17 +56,13 @@ class HomeViewModel @Inject constructor(
         try {
             val reservations = homeRepository.getReservations().getOrThrow()
             val callHistories = homeRepository.getCallHistories().getOrThrow()
-            val summary = homeRepository.getSummary(state.summary.characterId).getOrThrow()
+            val summary = homeRepository.getSummary(state.characterId).getOrThrow()
 
             reduce {
                 state.copy(
-                    summary = summary.toUiState(),
-                    reservation = reservations.toUiState(),
-                    callHistory = CallHistoryState(
-                        histories = callHistories.map { history ->
-                            history.toUiState()
-                        },
-                    ),
+                    summary = summary.toUiModel(),
+                    reservation = reservations.toUiModel(),
+                    callHistories = callHistories.map { history -> history.toUiModel() },
                     loadStatus = LoadStatus.Idle,
                 )
             }
