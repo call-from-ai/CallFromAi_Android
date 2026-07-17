@@ -57,8 +57,13 @@ fun AppScreen(modifier: Modifier = Modifier) {
 
     val currentTab = currentKey?.toMainTab() ?: MainTab.HOME
 
+    // Compose Density를 통해 px 값을 dp로 변환하기 위해 사용
     val density = LocalDensity.current
+
+    // BottomBar의 실제 렌더링 높이(px)를 저장
     var bottomBarHeightPx by remember { mutableIntStateOf(0) }
+
+    // 저장된 BottomBar 높이를 화면 padding에 사용할 dp 값으로 변환
     val bottomBarPadding = remember(bottomBarHeightPx) {
         with(density) { bottomBarHeightPx.toDp() }
     }
