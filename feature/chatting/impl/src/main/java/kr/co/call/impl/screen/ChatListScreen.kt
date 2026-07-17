@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,6 +47,7 @@ fun ChatListScreenContent(
     Column(
         modifier = modifier.fillMaxSize()
             .background(CallTheme.colors.mainVariant5Chat)
+            .statusBarsPadding()
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -85,12 +87,8 @@ fun ChatListScreenContent(
                         FrontRow(
                             isManager = true,
                             chatSummary = ChatSummary(
-                                image = "",
                                 name = "전화왔어 매니저",
-                                isMainCharacter = true,
                                 content = "오늘 저녁에 뭐해?",
-                                whenSubmitted = "30분 전",
-                                unReadMessageCount = "3",
                             )
                         )
                     }

@@ -10,14 +10,14 @@ package kr.co.call.domain.model.chatting
  * @property whenSubmitted 마지막 메시지가 전송된 시각.
  * @property unReadMessageCount 안읽은 메세지 수
  *
- *  */
+ */
 data class ChatSummary(
-    val chatRoomId: Int = 0,
-    val image: String = "",
-    val name: String,
-    val isMainCharacter: Boolean,
-    val content: String,
-    val whenSubmitted: String,
-    val unReadMessageCount: String,
+    val chatRoomId: Int = -1, // 매니저 챗방은 -1
+    val image: String = "", // 매니저의 경우에는 없음
+    val name: String = "",
+    val isMainCharacter: Boolean = false,
+    val content: String = "",
+    val whenSubmitted: String = "",
+    val unReadMessageCount: String = "0", // 매니저의 경우에는 ui출력 x
     val isAlarmEnabled: Boolean = false
 )
