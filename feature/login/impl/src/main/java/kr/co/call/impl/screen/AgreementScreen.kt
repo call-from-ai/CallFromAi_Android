@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,22 +29,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.Black
+import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.Gray100
 import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.Gray900
-import kr.co.call.designsystem.theme.Main
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.MainVariant2
-import kr.co.call.designsystem.theme.Pretendard
 import kr.co.call.designsystem.theme.White
 import kr.co.call.impl.component.AgreementItem
 import kr.co.call.impl.component.CheckBox
@@ -77,157 +74,173 @@ fun AgreementScreen(
     onAgreementViewClick:(AgreementType)->Unit,
     onNextClick:()->Unit,
 ) {
-    var checkedAgreements by remember{
+    var checkedAgreements by remember {
         mutableStateOf(emptySet<AgreementType>())
     }
-    val agreementTypes=AgreementType.entries
+    val agreementTypes = AgreementType.entries
     //약관 모두 동의했는지
-    val isAllChecked= agreementTypes.all{ agreementType ->
+    val isAllChecked = agreementTypes.all { agreementType ->
         agreementType in checkedAgreements
     }
     //필수약관 동의했는지
-    val isRequiredChecked=agreementTypes
-        .filter{agreementType ->
+    val isRequiredChecked = agreementTypes
+        .filter { agreementType ->
             agreementType.isRequired
         }
-        .all{agreementType ->
+        .all { agreementType ->
             agreementType in checkedAgreements
         }
-    val scrollState= rememberScrollState()
+    val scrollState = rememberScrollState()
     Column(
-        modifier=modifier
+        modifier = modifier
             .fillMaxSize()
             .background(White)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .padding(horizontal=23.dp),
-        horizontalAlignment=Alignment.CenterHorizontally,
-    ){
-        Spacer(modifier=Modifier.height(156.dp))
-        Row(
-            verticalAlignment=Alignment.CenterVertically,
-        ){
-            Image(
-                painter=painterResource(R.drawable.logo),
-                contentDescription="로고",
-                modifier=Modifier.size(70.dp),
-            )
-            Spacer(modifier=Modifier.width(14.dp))
+            .statusBarsPadding(),
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 23.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.height(156.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = "로고",
+                    modifier = Modifier.size(70.dp),
+                )
+                Spacer(modifier = Modifier.width(14.dp))
+                Text(
+                    text = "전화왔어",
+                    color = MainVariant1,
+                    style = typography.titleExtraLarge
+                )
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             Text(
-                text="전화왔어",
-                color= MainVariant1,
-                style=typography.titleExtraLarge
+                text = "전화왔어를 이용하려면\n약관에 동의가 필요해요",
+                color = Gray900,
+                style = typography.bodyMedium,
+                textAlign = TextAlign.Center,
             )
-        }
-        Spacer(modifier=Modifier.height(20.dp))
-        Text(
-            text="전화왔어를 이용하려면\n약관에 동의가 필요해요",
-            color= Gray900,
-            style=typography.bodyMedium,
-            textAlign = TextAlign.Center,
-        )
-        Spacer(modifier=Modifier.height(80.dp))
-        Surface(
-            modifier=Modifier.fillMaxWidth(),
-            shape=RoundedCornerShape(30.dp),
-            color=White,
-            border=BorderStroke(
-                width=1.dp,
-                color= Gray100,
-            ),
-        ){
-            Column(
-                modifier=Modifier.padding(
-                    horizontal=20.dp,
-                    vertical=30.dp,
+            Spacer(modifier = Modifier.height(80.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(30.dp),
+                color = White,
+                border = BorderStroke(
+                    width = 1.dp,
+                    color = Gray100,
                 ),
-            ){
-                Row(
-                    modifier=Modifier.fillMaxWidth(),
-                    verticalAlignment=Alignment.CenterVertically,
-                ){
-                    CheckBox(
-                        checked=isAllChecked,
-                        onCheckedChange={
-                            checked ->
-                            checkedAgreements=
-                                if (checked){
-                                    agreementTypes.toSet()
-                                }else {
-                                    emptySet()
-                                }
-                        },
-                    )
-                    Spacer(modifier=Modifier.width(10.dp))
-                    Column{
-                        Text(
-                            text="모두 동의",
-                            color=Black,
-                            style=typography.bodyMediumMedium
+            ) {
+                Column(
+                    modifier = Modifier.padding(
+                        horizontal = 20.dp,
+                        vertical = 30.dp,
+                    ),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        CheckBox(
+                            checked = isAllChecked,
+                            onCheckedChange = { checked ->
+                                checkedAgreements =
+                                    if (checked) {
+                                        agreementTypes.toSet()
+                                    } else {
+                                        emptySet()
+                                    }
+                            },
                         )
-                        Text(
-                            text="서비스 이용을위한 아래 약관에 모두 동의합니다",
-                            color=Gray600,
-                            style=typography.bodySmall
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column {
+                            Text(
+                                text = "모두 동의",
+                                color = Black,
+                                style = typography.bodyMediumMedium
+                            )
+                            Text(
+                                text = "서비스 이용을 위한 아래 약관에 모두 동의합니다",
+                                color = Gray600,
+                                style = typography.bodySmall
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Gray100,
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    agreementTypes.forEach { agreementType ->
+                        AgreementItem(
+                            title = agreementType.title,
+                            isRequired = agreementType.isRequired,
+                            isChecked = agreementType in checkedAgreements,
+                            onCheckedChange = { checked ->
+                                checkedAgreements =
+                                    if (checked) {
+                                        checkedAgreements + agreementType
+                                    } else {
+                                        checkedAgreements - agreementType
+                                    }
+                            },
+                            onViewClick = {
+                                onAgreementViewClick(agreementType)
+                            },
+                            modifier = Modifier.padding(vertical = 2.dp)
                         )
                     }
                 }
-                Spacer(modifier=Modifier.height(10.dp))
-                HorizontalDivider(
-                    thickness=1.dp,
-                    color=Gray100,
+            }
+            Spacer(modifier = Modifier.height(25.dp))
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(White)
+                .navigationBarsPadding()
+                .padding(
+                    start = 23.dp,
+                    end = 23.dp,
+                    bottom = 25.dp,
+                ),
+        ) {
+
+            if (isRequiredChecked) {
+                SecondaryButton(
+                    text = "동의하고 프로필 설정하기",
+                    onClick = onNextClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    containerColor = MainVariant2,
+                    contentColor = Black,
                 )
-                Spacer(modifier=Modifier.height(10.dp))
-                agreementTypes.forEach{agreementType ->
-                    AgreementItem(
-                        title=agreementType.title,
-                        isRequired=agreementType.isRequired,
-                        isChecked=agreementType in checkedAgreements,
-                        onCheckedChange={checked ->
-                            checkedAgreements=
-                                if (checked){
-                                    checkedAgreements+agreementType
-                                } else {
-                                    checkedAgreements-agreementType
-                                }
-                        },
-                        onViewClick={
-                            onAgreementViewClick(agreementType)
-                        },
-                        modifier=Modifier.padding(vertical=2.dp)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .background(
+                            color = MainVariant2,
+                            shape = RoundedCornerShape(percent = 10),
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "동의하고 프로필 설정하기",
+                        color = Black,
+                        style = typography.bodyLargeBold,
                     )
                 }
             }
         }
-        Spacer(modifier=Modifier.height(25.dp))
-
-        if (isRequiredChecked){
-            SecondaryButton(
-                text="동의하고 프로필 설정하기",
-                onClick=onNextClick,
-                modifier=Modifier.fillMaxWidth(),
-                containerColor=MainVariant2,
-                contentColor=Black,
-            )
-        }else{
-            Box(
-                modifier= Modifier
-                    .fillMaxWidth()
-                    .height(60.dp)
-                    .background(
-                        color= MainVariant2,
-                        shape=RoundedCornerShape(percent=10),
-                    ),
-                contentAlignment=Alignment.Center,
-            ){
-                Text(
-                    text="동의하고 프로필 설정하기",
-                    color=Black,
-                    style=typography.bodyLargeBold,
-                )
-            }
-        }
-        Spacer(modifier=Modifier.height(25.dp))
     }
 }
 
@@ -239,9 +252,11 @@ fun AgreementScreen(
 )
 @Composable
 private fun AgreementScreenPreview() {
-    AgreementScreen(
+    CallFromAiTheme {
+        AgreementScreen(
         modifier=Modifier,
         onAgreementViewClick = {},
         onNextClick = {},
     )
+}
 }
