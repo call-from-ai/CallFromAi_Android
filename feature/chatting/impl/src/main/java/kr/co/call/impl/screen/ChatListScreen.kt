@@ -35,8 +35,10 @@ fun ChatListScreen(
     onChatRoomClick: (Long) -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
+    // 상태 구독
     val state = viewModel.collectAsState().value
 
+    // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
