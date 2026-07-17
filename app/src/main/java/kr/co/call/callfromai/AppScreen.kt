@@ -1,9 +1,11 @@
 package kr.co.call.callfromai
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -26,7 +28,7 @@ import kr.co.call.callfromai.util.toMainTab
  * 단일 백스택으로 로그인/온보딩/탭 화면을 모두 관리하며,
  * 현재 백스택 최상단 키를 기준으로 BottomBar 표시 여부를 결정합니다.
  *
- * @param modifier 루트 [Scaffold]에 적용할 [Modifier]
+ * @param modifier 루트 [Box]에 적용할 [Modifier]
  */
 @Composable
 fun AppScreen(modifier: Modifier = Modifier) {
@@ -45,23 +47,13 @@ fun AppScreen(modifier: Modifier = Modifier) {
         else -> false
     }
 
-    val currentTab =
-        currentKey?.toMainTab() ?: MainTab.HOME
+    val currentTab = currentKey?.toMainTab() ?: MainTab.HOME
 
-    Scaffold(
-        modifier = modifier,
-        bottomBar = {
-            if (showBottomBar) {
-                MainBottomBar(
-                    currentTab = currentTab,
-                    onTabSelected = appNavigator::navigateToTab,
-                )
-            }
-        }
-    ) { innerPadding ->
+    Box(modifier = modifier.fillMaxSize()) {
         NavDisplay(
             backStack = backStack,
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .fillMaxSize(),
             entryProvider = entryProvider {
                 loginEntry()
                 onboardingEntry()
@@ -70,5 +62,12 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 myPageEntry()
             }
         )
+        if (showBottomBar) {
+            MainBottomBar(
+                currentTab = currentTab,
+                onTabSelected = appNavigator::navigateToTab,
+                modifier = Modifier.align(Alignment.BottomCenter),
+            )
+        }
     }
 }
