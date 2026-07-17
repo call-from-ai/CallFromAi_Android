@@ -16,4 +16,7 @@ dependencies {
     // android 의존성
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.compose.material3)
+
+    //timber
+    implementation(libs.timber)
 }
