@@ -23,6 +23,8 @@ val SubGray2 = Color(0xFFF7F3F3)
 val SubRed = Color(0xFFFF0000)
 val SubBlue = Color(0xFF4391FF)
 
+val SubYellow=Color(0xFFFDE500)
+
 val SubPressed = Color(0xFFED5988)
 val SubPressed2 = Color(0xFFFCB4C1)
 val SubPressed3 = Color(0xFF1F0A03)
@@ -71,6 +73,7 @@ data class CallColors(
     val subGray2: Color = SubGray2,
     val subRed: Color = SubRed,
     val subBlue: Color = SubBlue,
+    val subYellow: Color=SubYellow,
     val subPressed: Color = SubPressed,
     val subPressed2: Color = SubPressed2,
     val subPressed3: Color = SubPressed3,

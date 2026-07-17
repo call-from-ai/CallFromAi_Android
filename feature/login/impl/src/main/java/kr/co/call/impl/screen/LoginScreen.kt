@@ -31,13 +31,14 @@ import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.Pretendard
+import kr.co.call.designsystem.theme.SubYellow
 import kr.co.call.designsystem.theme.White
 import kr.co.call.login.impl.R
 
 @Composable
 fun LoginScreen(
+    modifier: Modifier,
     onKakaoLoginClick:()->Unit={},
-    modifier: Modifier=Modifier,
 ) {
     Column(
         modifier = modifier
@@ -89,8 +90,7 @@ fun LoginScreen(
 
 @Composable
 private fun KakaoLoginButton(
-    onClick:()->Unit,
-    modifier: Modifier=Modifier,
+    onClick:()->Unit={},
 ){
     Box(
         modifier=Modifier
@@ -101,9 +101,9 @@ private fun KakaoLoginButton(
                 .fillMaxWidth(),
             text="카카오로 3초 만에 시작하기",
             onClick=onClick,
-            containerColor =Color(0xFFFDE500),
+            containerColor = SubYellow,
             contentColor = Black,
-            pressedContainerColor = Color(0xFFFDE500),
+            pressedContainerColor =SubYellow,
         )
         Image(
             painter=painterResource(R.drawable.kakao),
@@ -127,6 +127,7 @@ private fun KakaoLoginButton(
 @Composable
 private fun LoginScreenPreview(){
     LoginScreen(
+        modifier=Modifier,
         onKakaoLoginClick={},
     )
 }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
@@ -72,9 +73,9 @@ enum class AgreementType(
 
 @Composable
 fun AgreementScreen(
+    modifier: Modifier,
     onAgreementViewClick:(AgreementType)->Unit,
     onNextClick:()->Unit,
-    modifier: Modifier=Modifier,
 ) {
     var checkedAgreements by remember{
         mutableStateOf(emptySet<AgreementType>())
@@ -92,6 +93,7 @@ fun AgreementScreen(
         .all{agreementType ->
             agreementType in checkedAgreements
         }
+    val scrollState= rememberScrollState()
     Column(
         modifier=modifier
             .fillMaxSize()
@@ -240,6 +242,7 @@ fun AgreementScreen(
 @Composable
 private fun AgreementScreenPreview() {
     AgreementScreen(
+        modifier=Modifier,
         onAgreementViewClick = {},
         onNextClick = {},
     )

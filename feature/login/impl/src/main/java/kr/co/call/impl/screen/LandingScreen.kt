@@ -29,7 +29,7 @@ import kr.co.call.designsystem.theme.*
 
 @Composable
 fun LandingScreen(
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
 ) {
     Box(
         modifier = modifier
@@ -79,8 +79,7 @@ fun LandingScreen(
             Text(
                 text="오늘, 기다리던 사람에게\n전화가 옵니다.",
                 color=Gray200,
-                fontSize=18.sp,
-                //fontWeight=FontWeight.Normal,
+                fontWeight=FontWeight.Normal,
                 lineHeight=25.sp, //18*140%
                 textAlign= TextAlign.Center,
                 modifier=Modifier.wrapContentWidth()
@@ -92,5 +91,7 @@ fun LandingScreen(
 @Preview
 @Composable
 private fun LandingScreenPreview() {
-    LandingScreen()
+    LandingScreen(
+        modifier = Modifier,
+    )
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -22,14 +23,16 @@ import kr.co.call.impl.component.BackTopBar
 
 @Composable
 fun AgreementDetailScreen(
+    modifier: Modifier,
     title: String,
     content: String,
     onBackClick:()->Unit,
-    modifier: Modifier =Modifier,
 ){
+    val scrollState=rememberScrollState()
     Column(
         modifier=modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .statusBarsPadding(),
     ){
         BackTopBar(
             onBackClick=onBackClick,
@@ -38,11 +41,11 @@ fun AgreementDetailScreen(
             modifier= Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(
-                    horizontal =34.dp ,
+                    horizontal =34.dp,
                     vertical=22.dp,
-                ),
+                    ),
         ){
             Text(
                 text=title,
@@ -56,6 +59,7 @@ fun AgreementDetailScreen(
             AgreementSection(
                 content=content,
             )
+            Spacer(modifier=Modifier.height(40.dp))
         }
     }
 }
@@ -68,6 +72,7 @@ fun AgreementDetailScreen(
 @Composable
 private fun AgreementDetailScreenPreview() {
     AgreementDetailScreen(
+        modifier=Modifier,
         title = "전화왔어 서비스 개선 활용 약관",
         content = """
 대화 데이터의 서비스 개선 활용 동의
