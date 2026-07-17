@@ -10,7 +10,7 @@ fun ChatRoomScreen(
     roomId: Long,
     name: String,
     modifier: Modifier = Modifier,
-    viewModel: ChatRoomViewModel = hiltViewModel(),
+    //viewModel: ChatRoomViewModel = hiltViewModel(),
     onBack: () -> Unit = {},
 ) {
 
