@@ -36,4 +36,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // coil
+    implementation(libs.coil.compose)
 }
