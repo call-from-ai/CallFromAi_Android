@@ -93,7 +93,7 @@ fun FrontRow(
 
                 Spacer(Modifier.size(8.dp))
 
-                if (chatSummary.isMainCharacter) {
+                if (chatSummary.isMainCharacter && !isManager) {
                     Icon(
                         painter = painterResource(R.drawable.ic_chat_pin),
                         contentDescription = "메인 캐릭터",
@@ -128,7 +128,6 @@ fun FrontRow(
                 Spacer(Modifier.height(16.dp))
 
                 if ((chatSummary.unReadMessageCount.toIntOrNull() ?: 0) > 0) {
-                    Spacer(modifier = Modifier.height(4.dp))
                     UnReadMessageCountBox(
                         unReadMessageCount = chatSummary.unReadMessageCount
                     )
