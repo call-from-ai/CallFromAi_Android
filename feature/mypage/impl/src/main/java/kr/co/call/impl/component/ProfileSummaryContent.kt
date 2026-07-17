@@ -47,7 +47,7 @@ fun ProfileSummaryContent(
         // 프로필 이미지
         AsyncImage(
             model = profileImageUrl,
-            contentDescription = if (profileImageUrl.isBlank()) null else "프로필 이미지",
+            contentDescription = "프로필 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(54.dp)
