@@ -116,9 +116,7 @@ fun AgreementScreen(
             Text(
                 text="전화왔어",
                 color= MainVariant1,
-                fontSize=35.sp,
-                fontFamily = Pretendard,
-                fontWeight = FontWeight.Bold
+                style=typography.titleExtraLarge
             )
         }
         Spacer(modifier=Modifier.height(20.dp))

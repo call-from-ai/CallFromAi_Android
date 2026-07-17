@@ -58,9 +58,7 @@ fun LoginScreen(
         Text(
             text = "전화왔어",
             color = MainVariant1,
-            fontSize = 34.sp,
-            fontFamily = Pretendard,
-            fontWeight = FontWeight.Bold,
+            style=typography.titleExtraLarge,
         )
         Spacer(modifier = Modifier.height(37.dp))
         Text(
