@@ -2,7 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kr.co.call.domain.model.home.HomeModel
+import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.toUiState
@@ -25,6 +25,10 @@ class HomeViewModel @Inject constructor(
         initialState = HomeState(),
     )
 
+    init {
+        loadHome()
+    }
+
     internal fun handleIntent(intent: HomeIntent) {
         when (intent) {
             is HomeIntent.SelectHistoryTab -> {
@@ -45,41 +49,31 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-
-    init {
-        loadHome()
-    }
-
     private fun loadHome() = intent {
         reduce {
             state.copy(loadStatus = LoadStatus.Loading)
         }
 
-        runCatching {
+        try {
             val reservations = homeRepository.getReservations().getOrThrow()
             val callHistories = homeRepository.getCallHistories().getOrThrow()
-
             val summary = homeRepository.getSummary(state.summary.characterId).getOrThrow()
 
-            HomeModel(
-                summary = summary,
-                reservations = reservations,
-                callHistories = callHistories,
-            )
-        }.onSuccess { home ->
             reduce {
                 state.copy(
-                    summary = home.summary.toUiState(),
-                    reservation = home.reservations.toUiState(),
+                    summary = summary.toUiState(),
+                    reservation = reservations.toUiState(),
                     callHistory = CallHistoryState(
-                        histories = home.callHistories.map { history ->
+                        histories = callHistories.map { history ->
                             history.toUiState()
                         },
                     ),
                     loadStatus = LoadStatus.Idle,
                 )
             }
-        }.onFailure { throwable ->
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
+        } catch (throwable: Throwable) {
             reduce {
                 state.copy(
                     loadStatus = LoadStatus.Error(

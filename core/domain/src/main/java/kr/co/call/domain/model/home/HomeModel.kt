@@ -32,15 +32,4 @@ data class HomeModel(
     enum class ReservationStatus {
         SCHEDULED,
     }
-
-    data class CallHistory(
-        val callId: Long,
-        val characterName: String,
-        val aiSummary: String,
-        val startedAt: LocalDateTime,
-        val sender: CallSender,
-        val callType: CallType,
-        val status: CallStatus,
-    )
-
 }
