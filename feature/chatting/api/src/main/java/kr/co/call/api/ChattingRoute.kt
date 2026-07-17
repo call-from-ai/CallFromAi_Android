@@ -9,4 +9,5 @@ data object ChattingNavKey: NavKey
 @Serializable
 data class ChatRoomNavKey(
     val roomId: Long,
+    val name: String,
 ): NavKey

@@ -22,9 +22,9 @@ import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.ChatListItem
 import kr.co.call.impl.component.FrontRow
 import kr.co.call.impl.component.LoadingColumn
-import kr.co.call.impl.model.ChatListIntent
-import kr.co.call.impl.model.ChatListSideEffect
-import kr.co.call.impl.model.ChatListState
+import kr.co.call.impl.viewmodel.ChatListIntent
+import kr.co.call.impl.viewmodel.ChatListSideEffect
+import kr.co.call.impl.viewmodel.ChatListState
 import kr.co.call.impl.viewmodel.ChatListViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -32,7 +32,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ChatListScreen(
     modifier: Modifier = Modifier,
-    onChatRoomClick: (Long) -> Unit,
+    onChatRoomClick: (Long, String) -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     // 상태 구독
@@ -41,7 +41,7 @@ fun ChatListScreen(
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
+            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId, sideEffect.name)
         }
     }
 
@@ -56,7 +56,7 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
-    onChatRoomClick: (Long) -> Unit,
+    onChatRoomClick: (Long, String) -> Unit,
     onIntent: (ChatListIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -99,7 +99,10 @@ fun ChatListScreenContent(
                             chatSummary = chatSummary,
                             onItemClick = {
                                 onIntent(
-                                    ChatListIntent.ClickChatRoom(chatSummary.chatRoomId)
+                                    ChatListIntent.ClickChatRoom(
+                                        roomId = chatSummary.chatRoomId,
+                                        name = chatSummary.name
+                                    )
                                 )
                             }
                         )
@@ -126,7 +129,7 @@ fun ChatListScreenContent(
 private fun ChatListScreenPreview() {
     CallFromAiTheme {
         ChatListScreenContent(
-            onChatRoomClick = {},
+            onChatRoomClick = {} as (Long, String) -> Unit,
             onIntent = {},
             state = ChatListState(
                 chatList = listOf(

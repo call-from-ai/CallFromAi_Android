@@ -4,9 +4,6 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.model.ChatListIntent
-import kr.co.call.impl.model.ChatListSideEffect
-import kr.co.call.impl.model.ChatListState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -50,12 +47,12 @@ class ChatListViewModel @Inject constructor(
 
     fun handleIntent(intent: ChatListIntent) {
         when (intent) {
-            is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
+            is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId, intent.name)
         }
     }
 
-    private fun emitNavigateToChatRoom(roomId: Long) = intent {
-        postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId))
+    private fun emitNavigateToChatRoom(roomId: Long, name: String) = intent {
+        postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId, name))
     }
 
 

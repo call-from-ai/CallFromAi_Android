@@ -60,8 +60,8 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 onboardingEntry()
                 homeEntry()
                 chattingEntry(
-                    navigateToChatRoom = {
-                        appNavigator.navigate(ChatRoomNavKey(it))
+                    navigateToChatRoom = { roomId, name ->
+                        appNavigator.navigate(ChatRoomNavKey(roomId = roomId, name = name))
                     },
                     onBack = {
                         appNavigator.popBackStack()
