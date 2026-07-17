@@ -44,9 +44,7 @@ fun MainBottomBar(
             .shadow(
                 elevation = 8.dp,
                 shape = shape,
-                clip = false,
             )
-            .clip(shape)
             .background(CallTheme.colors.white)
             .navigationBarsPadding()
             .padding(vertical = 20.dp),
