@@ -47,7 +47,7 @@ fun ProfileSummaryContent(
         // 프로필 이미지
         AsyncImage(
             model = profileImageUrl,
-            contentDescription = if (profileImageUrl.isNullOrBlank()) null else profileImageUrl,
+            contentDescription = if (profileImageUrl.isBlank()) null else "프로필 이미지",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(54.dp)
@@ -88,7 +88,7 @@ private fun TierBadge(
     modifier: Modifier= Modifier
 ){
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(RoundedCornerShape(30.dp))
             .background(CallTheme.colors.mainVariant2)
             .padding(horizontal = 13.dp, vertical = 3.dp)

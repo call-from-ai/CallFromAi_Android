@@ -81,7 +81,6 @@ private fun TicketActionButton(
     Box(
         modifier = modifier
             .height(46.dp)
-            .width(105.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(CallTheme.colors.gray100)
             .clickable(onClick = onClick),

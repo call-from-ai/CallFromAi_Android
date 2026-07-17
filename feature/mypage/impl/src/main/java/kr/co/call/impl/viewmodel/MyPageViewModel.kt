@@ -2,6 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.Container
@@ -53,6 +54,7 @@ class MyPageViewModel @Inject constructor(
                 }
             }
             .onFailure { e ->
+                if (e is CancellationException) throw e
                 reduce { state.copy(loadStatus = LoadStatus.Error(e.message ?: "내 프로필 불러오기 실패")) }
             }
     }
