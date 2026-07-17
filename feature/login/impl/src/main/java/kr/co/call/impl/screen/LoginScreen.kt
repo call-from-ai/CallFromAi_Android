@@ -75,8 +75,7 @@ fun LoginScreen(
             },
             fontSize = 22.sp,
             color = Gray900,
-            fontFamily = Pretendard,
-            fontWeight = FontWeight.Normal,
+            style=typography.titleSmallBold,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(51.dp))

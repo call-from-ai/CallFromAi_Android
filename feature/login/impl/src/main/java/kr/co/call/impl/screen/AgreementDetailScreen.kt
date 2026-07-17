@@ -49,9 +49,7 @@ fun AgreementDetailScreen(
         ){
             Text(
                 text=title,
-                fontSize =15.sp,
-                fontFamily = Pretendard,
-                fontWeight=FontWeight.Medium,
+                style=typography.bodyMediumMedium
             )
             Spacer(
                 modifier=Modifier.height(22.dp),

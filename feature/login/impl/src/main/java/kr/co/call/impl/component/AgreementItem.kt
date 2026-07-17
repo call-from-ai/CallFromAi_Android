@@ -54,8 +54,7 @@ fun AgreementItem(
         Text(
             text=title,
             modifier=Modifier.weight(1f),
-            fontFamily = Pretendard,
-            fontWeight = FontWeight.Normal,
+            style=typography.bodySmall,
             color= Black,
         )
         TextButton(
