@@ -23,8 +23,8 @@ import kr.co.call.designsystem.theme.CallTheme
 @Composable
 fun CommonTopAppBar(
     modifier: Modifier = Modifier,
-    title: String? = null,
-    onBackClick: (() -> Unit),
+    title: String = "",
+    onBackClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -41,7 +41,7 @@ fun CommonTopAppBar(
         }
 
         // 상단 타이틀
-        if (title != null) {
+        if (title.isNotEmpty()) {
             Text(
                 text = title,
                 style = CallTheme.typography.bodyLargeBold,

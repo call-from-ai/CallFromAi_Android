@@ -40,7 +40,7 @@ class MyPageViewModel @Inject constructor(
 
     private fun loadMyProfile() = intent {
         reduce { state.copy(loadStatus = LoadStatus.Loading) }
-        runCatching { myPageRepository.getMyProfile() }
+        myPageRepository.getMyProfile()
             .onSuccess { profile ->
                 reduce {
                     state.copy(

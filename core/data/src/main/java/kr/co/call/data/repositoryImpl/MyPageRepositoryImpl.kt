@@ -8,15 +8,17 @@ import javax.inject.Inject
 // TODO: API 연동 전 임시 구현체
 class MyPageRepositoryImpl @Inject constructor() : MyPageRepository {
 
-    override suspend fun getMyProfile(): MyPageProfile {
+    override suspend fun getMyProfile(): Result<MyPageProfile> {
         delay(500)
-        return MyPageProfile(
-            profileImageUrl = "",
-            nickname = "김수현",
-            tier = "Basic",
-            remainingTicketCount = 18,
-            appVersion = "1.0.0",
-        )
+        return runCatching {
+            MyPageProfile(
+                profileImageUrl = "",
+                nickname = "김수현",
+                tier = "Basic",
+                remainingTicketCount = 18,
+                appVersion = "1.0.0",
+            )
+        }
     }
 
     override suspend fun logout() {
