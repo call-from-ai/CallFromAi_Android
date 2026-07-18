@@ -40,7 +40,7 @@ fun NextButton (
     ){
     val interactionSource = remember { MutableInteractionSource()}
     val isPressed by interactionSource.collectIsPressedAsState()
-        Box(
+    Box(
             modifier = modifier
                 .fillMaxWidth()
                 .height(60.dp)
