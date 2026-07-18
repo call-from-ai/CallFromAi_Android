@@ -5,14 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,7 +37,7 @@ internal fun CallHistoryList(
     modifier: Modifier = Modifier,
     onRecordClick: (Long) -> Unit = {},
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "최근 20건의 기록만 표시됩니다.",
             modifier = Modifier.padding(
@@ -52,20 +49,11 @@ internal fun CallHistoryList(
             style = CallTheme.typography.bodySmall,
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-        ) {
-            items(
-                items = histories,
-                key = { history -> history.callId },
-            ) { history ->
-                CallHistoryCard(
-                    callHistory = history,
-                    onRecordClick = { onRecordClick(history.callId) },
-                )
-            }
+        histories.forEach { history ->
+            CallHistoryCard(
+                callHistory = history,
+                onRecordClick = { onRecordClick(history.callId) },
+            )
         }
     }
 }

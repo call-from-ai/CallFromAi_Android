@@ -8,13 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -28,11 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.PagingData
-import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import java.time.LocalDateTime
-import kotlinx.coroutines.flow.Flow
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -43,52 +40,50 @@ import kr.co.call.impl.viewmodel.state.HomeNotificationState
 import kr.co.call.impl.viewmodel.NotificationType
 
 /**
- * 알림 리스트
- * - 커서 페이징
+ * 알림 리스트 안내 문구
  */
 @Composable
-internal fun NotificationList(
-    notifications: Flow<PagingData<HomeNotificationState>>,
+internal fun NotificationListHeader(
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
-        Text(
-            text = "최근 7일 간의 알림만 표시됩니다.",
-            modifier = Modifier.padding(
-                start = 16.dp,
-                top = 16.dp,
-                bottom = 18.dp,
-            ),
-            color = CallTheme.colors.gray800,
-            style = CallTheme.typography.bodySmall,
-        )
+    Text(
+        text = "최근 7일 간의 알림만 표시됩니다.",
+        modifier = modifier.padding(
+            start = 16.dp,
+            top = 16.dp,
+            bottom = 18.dp,
+        ),
+        color = CallTheme.colors.gray800,
+        style = CallTheme.typography.bodySmall,
+    )
+}
 
-        val notificationItems = notifications.collectAsLazyPagingItems()
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                bottom = 24.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            items(
-                count = notificationItems.itemCount,
-                key = notificationItems.itemKey { it.notificationId },
-            ) { index ->
-                notificationItems[index]?.let { notification ->
-                    NotificationCard(
-                        notificationState = notification,
-                        onCallClick = {},
-                    )
-                }
-            }
+/**
+ * 홈 LazyColumn에 Paging 알림 아이템 추가
+ */
+internal fun LazyListScope.notificationItems(
+    notifications: LazyPagingItems<HomeNotificationState>,
+) {
+    items(
+        count = notifications.itemCount,
+        key = notifications.itemKey { notification -> notification.notificationId },
+    ) { index ->
+        notifications[index]?.let { notification ->
+            NotificationCard(
+                notificationState = notification,
+                onCallClick = {},
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 12.dp,
+                ),
+            )
         }
     }
+
+//    item {
+//        Spacer(modifier = Modifier.height(12.dp))
+//    }
 }
 
 /**
@@ -126,6 +121,7 @@ private fun NotificationCard(
                 shape = cardShape,
             ),
     ) {
+        // 기념일, 예약통화, 부재중 통화에 따라 분기
         when (notificationState.type) {
             NotificationType.ANNIVERSARY -> {
                 AnniversaryNotificationContent(
@@ -173,6 +169,7 @@ private fun NotificationCard(
         }
 
         if (notificationState.type == NotificationType.MISSED_CALL) {
+            // 부재중이라면 다시 전화하기 버튼 표시
             Button(
                 onClick = onCallClick,
                 modifier = Modifier
@@ -211,7 +208,7 @@ private fun NotificationCard(
             }
         }
 
-        // n 분 전 표시
+        // n분 전 표시
         Text(
             text = TimeUtil.toTimeAgoText(notificationState.createdAt),
             modifier = Modifier

@@ -198,31 +198,30 @@ private fun ReservationTimeActions(
             )
         }
 
-        CompositionLocalProvider(
-            LocalMinimumInteractiveComponentSize provides 0.dp,
+        // 시간 변경 버튼
+        Button(
+            onClick = onTimeChangeClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(27.dp),
+            shape = RoundedCornerShape(50.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = CallTheme.colors.white,
+                contentColor = CallTheme.colors.gray900,
+            ),
+            border = BorderStroke(
+                width = 1.dp,
+                color = CallTheme.colors.gray100,
+            ),
+            contentPadding = PaddingValues(0.dp),
         ) {
-            Button(
-                onClick = onTimeChangeClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(27.dp),
-                shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CallTheme.colors.white,
-                    contentColor = CallTheme.colors.gray900,
-                ),
-                border = BorderStroke(
-                    width = 1.dp,
-                    color = CallTheme.colors.gray100,
-                ),
-                contentPadding = PaddingValues(0.dp),
-            ) {
-                Text(
-                    text = "시간 변경",
-                    style = CallTheme.typography.bodySmallBold,
-                )
-            }
+            Text(
+                text = "시간 변경",
+                style = CallTheme.typography.bodySmallBold,
+            )
         }
+
+
     }
 }
 
