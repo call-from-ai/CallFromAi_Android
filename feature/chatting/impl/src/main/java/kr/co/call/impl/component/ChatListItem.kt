@@ -16,7 +16,7 @@ fun ChatListItem(
     onDeleteClick: () -> Unit = {},
     chatSummary: ChatSummary
 ) {
-    val state = remember { AnchoredDraggableState(initialValue = SwipeState.Closed) }
+    val state = remember { AnchoredDraggableState(initialValue = SwipeState.CLOSED) }
 
     SwipeableBox(
         swipeState = state,

@@ -42,8 +42,8 @@ fun SwipeableBox(
     LaunchedEffect(Unit) {
         swipeState.updateAnchors(
             DraggableAnchors {
-                SwipeState.Closed at 0f
-                SwipeState.Opened at -swipeWidthPx
+                SwipeState.CLOSED at 0f
+                SwipeState.OPENED at -swipeWidthPx
             }
         )
     }

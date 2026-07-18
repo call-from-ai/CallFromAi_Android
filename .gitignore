@@ -11,6 +11,7 @@
 .idea/deploymentTargetSelector.xml
 .idea/gradle.xml
 .idea/misc.xml
+.idea/planningMode.xml
 .DS_Store
 /build
 /captures
