@@ -8,7 +8,6 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.CallReservation
 import kr.co.call.domain.model.home.CallReservations
 import kr.co.call.domain.model.home.HomeSummary
-import kr.co.call.domain.model.home.ReservationStatus
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.mock.CallMockData
 import kr.co.call.impl.viewmodel.NotificationType
@@ -45,7 +44,6 @@ internal fun createHomeMockData(
 ): HomeMockData =
     HomeMockData(
         summary = HomeSummary(
-            characterId = 2L,
             firstName = "수현",
             relationshipDays = 30,
             totalCallCount = 24,
@@ -60,7 +58,6 @@ internal fun createHomeMockData(
                     firstName = "민준",
                     imageUrl = null,
                     scheduledAt = now.withHour(21).withMinute(0).withSecond(0),
-                    status = ReservationStatus.SCHEDULED,
                 ),
             ),
         ),

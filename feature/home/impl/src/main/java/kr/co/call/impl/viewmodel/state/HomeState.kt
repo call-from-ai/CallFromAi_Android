@@ -7,7 +7,6 @@ import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 data class HomeState(
-    val characterId: Long = 0L,
     val summary: HomeSummaryUiModel = HomeSummaryUiModel(),
     val reservation: HomeReservationUiModel = HomeReservationUiModel(),
     val callHistories: List<CallHistoryUiModel> = emptyList(),

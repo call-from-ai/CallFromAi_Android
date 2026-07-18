@@ -16,5 +16,5 @@ interface HomeApi {
     suspend fun getCallHistories(@Query("size") size: Int = 20): CallHistoryListResponseDto
 
     @GET("api/v1/home/summary")
-    suspend fun getSummary(@Query("characterId") characterId: Long): HomeSummaryResponseDto
+    suspend fun getSummary(): HomeSummaryResponseDto
 }

@@ -3,7 +3,7 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kr.co.call.domain.repository.HomeRepository
+import kr.co.call.domain.usecase.home.HomeUseCase
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.tab.HomeHistoryTab
@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeRepository: HomeRepository,
+    private val homeUseCase: HomeUseCase,
 ) :
     ViewModel(),
     ContainerHost<HomeState, HomeSideEffect> {
@@ -54,15 +54,13 @@ class HomeViewModel @Inject constructor(
         }
 
         try {
-            val reservations = homeRepository.getReservations().getOrThrow()
-            val callHistories = homeRepository.getCallHistories().getOrThrow()
-            val summary = homeRepository.getSummary(state.characterId).getOrThrow()
-
+            // 데이터 한번에 불러오기
+            val home = homeUseCase()
             reduce {
                 state.copy(
-                    summary = summary.toUiModel(),
-                    reservation = reservations.toUiModel(),
-                    callHistories = callHistories.map { history -> history.toUiModel() },
+                    summary = home.summary.toUiModel(),
+                    reservation = home.reservations.toUiModel(),
+                    callHistories = home.callHistories.map { history -> history.toUiModel() },
                     loadStatus = LoadStatus.Idle,
                 )
             }

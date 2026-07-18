@@ -6,7 +6,6 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.CallReservation
 import kr.co.call.domain.model.home.CallReservations
 import kr.co.call.domain.model.home.HomeSummary
-import kr.co.call.domain.model.home.ReservationStatus
 import kr.co.call.domain.repository.HomeRepository
 
 class HomeRepositoryImpl @Inject constructor() : HomeRepository {
@@ -22,7 +21,6 @@ class HomeRepositoryImpl @Inject constructor() : HomeRepository {
                         firstName = "민준",
                         imageUrl = null,
                         scheduledAt = LocalDateTime.of(2026, 6, 30, 21, 0),
-                        status = ReservationStatus.SCHEDULED,
                     ),
                 ),
             ),
@@ -52,14 +50,32 @@ class HomeRepositoryImpl @Inject constructor() : HomeRepository {
             },
         )
 
-    override suspend fun getSummary(characterId: Long): Result<HomeSummary> =
+    override suspend fun getSummary(): Result<HomeSummary> =
         Result.success(
             HomeSummary(
-                characterId = characterId,
                 firstName = "수현",
                 relationshipDays = 30,
                 totalCallCount = 24,
                 callStreakDays = 12,
+            ),
+        )
+
+    override suspend fun changeReservationTime(
+        reservationId: Long,
+        scheduledAt: LocalDateTime,
+    ): Result<CallReservations> =
+        Result.success(
+            CallReservations(
+                totalCount = 1,
+                items = listOf(
+                    CallReservation(
+                        id = reservationId,
+                        characterId = 2L,
+                        firstName = "민준",
+                        imageUrl = null,
+                        scheduledAt = scheduledAt,
+                    ),
+                ),
             ),
         )
 

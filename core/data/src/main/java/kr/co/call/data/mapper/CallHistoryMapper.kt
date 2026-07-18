@@ -6,7 +6,6 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.CallReservation
 import kr.co.call.domain.model.home.CallReservations
 import kr.co.call.domain.model.home.HomeSummary
-import kr.co.call.domain.model.home.ReservationStatus
 import kr.co.call.network.dto.CallHistoryDto
 import kr.co.call.network.dto.HomeSummaryDto
 import kr.co.call.network.dto.ReservationListDto
@@ -52,12 +51,10 @@ private fun ReservationDto.toDomain(): CallReservation =
         firstName = firstName,
         imageUrl = imageUrl,
         scheduledAt = LocalDateTime.parse(scheduledAt),
-        status = ReservationStatus.valueOf(status),
     )
 
-internal fun HomeSummaryDto.toDomain(characterId: Long): HomeSummary =
+internal fun HomeSummaryDto.toDomain(): HomeSummary =
     HomeSummary(
-        characterId = characterId,
         firstName = firstName,
         relationshipDays = relationshipDays,
         totalCallCount = totalCallCount,

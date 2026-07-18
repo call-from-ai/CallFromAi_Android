@@ -8,9 +8,4 @@ data class CallReservation(
     val firstName: String,
     val imageUrl: String?,
     val scheduledAt: LocalDateTime,
-    val status: ReservationStatus,
 )
-
-enum class ReservationStatus {
-    SCHEDULED,
-}
