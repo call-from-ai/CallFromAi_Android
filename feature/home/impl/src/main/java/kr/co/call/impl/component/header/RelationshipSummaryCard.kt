@@ -26,7 +26,7 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
  * - 연속 통화 일수 표시
  */
 @Composable
-internal fun RelationshipSummaryCard(
+fun RelationshipSummaryCard(
     summary: HomeSummaryUiModel,
     modifier: Modifier = Modifier,
 ) {

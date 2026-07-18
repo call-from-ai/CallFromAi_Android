@@ -46,7 +46,7 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
  * - 전화 버튼과 관계 요약 카드 포함
  */
 @Composable
-internal fun HomeHeader(
+fun HomeHeader(
     summary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
     modifier: Modifier = Modifier,

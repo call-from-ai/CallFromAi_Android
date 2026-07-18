@@ -5,7 +5,7 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.impl.viewmodel.model.CallHistoryIconType
 import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
-internal fun CallHistory.toUiModel(): CallHistoryUiModel =
+fun CallHistory.toUiModel(): CallHistoryUiModel =
     CallHistoryUiModel(
         callId = callId,
         characterName = characterName,
