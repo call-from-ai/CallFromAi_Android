@@ -19,7 +19,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 
 @Composable
-internal fun HomeHistoryTabBar(
+fun HomeHistoryTabBar(
     selectedTab: HomeHistoryTab,
     onTabClick: (HomeHistoryTab) -> Unit,
     modifier: Modifier = Modifier,

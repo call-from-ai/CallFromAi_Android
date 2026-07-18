@@ -5,7 +5,7 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
-internal object CallMockData {
+object CallMockData {
     val histories: List<CallHistory> = listOf(
         CallHistory(
             callId = 1L,

@@ -28,7 +28,7 @@ class HomeViewModel @Inject constructor(
         loadHome()
     }
 
-    internal fun handleIntent(intent: HomeIntent) {
+    fun handleIntent(intent: HomeIntent) {
         when (intent) {
             is HomeIntent.SelectHistoryTab -> {
                 selectHistoryTab(intent.tab)

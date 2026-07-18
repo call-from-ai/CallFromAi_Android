@@ -2,7 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import kr.co.call.impl.tab.HomeHistoryTab
 
-internal sealed interface HomeIntent {
+sealed interface HomeIntent {
     data class SelectHistoryTab(
         val tab: HomeHistoryTab,
     ) : HomeIntent

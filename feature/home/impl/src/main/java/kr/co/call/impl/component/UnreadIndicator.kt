@@ -16,7 +16,7 @@ import kr.co.call.designsystem.theme.CallTheme
  * - 홈 헤더와 알림 목록에서 공통 사용
  */
 @Composable
-internal fun UnreadIndicator(
+fun UnreadIndicator(
     modifier: Modifier = Modifier,
 ) {
     Box(

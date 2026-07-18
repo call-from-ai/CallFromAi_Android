@@ -69,7 +69,7 @@ fun HomeScreen(
  * - 배경과 영역 구분선 표시
  */
 @Composable
-internal fun HomeScreenContent(
+fun HomeScreenContent(
     homeSummary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
     homeReservation: HomeReservationUiModel,

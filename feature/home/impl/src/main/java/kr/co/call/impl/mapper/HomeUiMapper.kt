@@ -6,7 +6,7 @@ import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
-internal fun HomeSummary.toUiModel(): HomeSummaryUiModel =
+fun HomeSummary.toUiModel(): HomeSummaryUiModel =
     HomeSummaryUiModel(
         firstName = firstName,
         relationshipDaysText = relationshipDays.withSuffixOrDash("일째"),
@@ -14,7 +14,7 @@ internal fun HomeSummary.toUiModel(): HomeSummaryUiModel =
         callStreakDaysText = callStreakDays.withSuffixOrDash("일"),
     )
 
-internal fun CallReservations.toUiModel(): HomeReservationUiModel {
+fun CallReservations.toUiModel(): HomeReservationUiModel {
     val reservation = items.firstOrNull()
 
     return HomeReservationUiModel(
