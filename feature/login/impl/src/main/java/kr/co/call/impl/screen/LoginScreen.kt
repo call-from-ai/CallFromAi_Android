@@ -15,22 +15,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.theme.Black
 import kr.co.call.designsystem.theme.CallTheme.typography
-import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
-import kr.co.call.designsystem.theme.Pretendard
 import kr.co.call.designsystem.theme.SubYellow
 import kr.co.call.designsystem.theme.White
 import kr.co.call.login.impl.R
@@ -63,19 +57,18 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(37.dp))
         Text(
             text = buildAnnotatedString {
-                append("AI가 먼저 전화하고 관계를 이어가는,\n")
                 withStyle(
-                    style = SpanStyle(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                ) {
+                    style=typography.titleSmall.toSpanStyle(),
+                    ) {
+                        append("AI가 먼저 전화하고 관계를 이어가는,\n")
+                    }
+                    withStyle(
+                        style = typography.titleSmallBold.toSpanStyle(),
+                    ){
                     append("나만의 연애 시뮬레이션")
                 }
                 append("\uD83D\uDC9E")
             },
-            fontSize = 22.sp,
-            color = Gray900,
-            style=typography.titleSmallBold,
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(51.dp))

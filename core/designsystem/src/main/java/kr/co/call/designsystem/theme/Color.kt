@@ -2,6 +2,7 @@ package kr.co.call.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
@@ -44,15 +45,18 @@ val MainGradient = Brush.horizontalGradient(
     listOf(
         Color(0xFFFFA8CF),
         Color(0xFFFFE0B8)
-    )
+    ),
 )
 
-val ChatGradient = Brush.horizontalGradient(
+val ChatGradient = Brush.linearGradient(
     listOf(
         Color(0xFFFF789F),
         Color(0xFFFFA3BD)
-    )
+    ),
+    start=Offset.Zero,
+    end=Offset.Infinite
 )
+
 
 // ---------- Design System Colors ----------
 @Immutable

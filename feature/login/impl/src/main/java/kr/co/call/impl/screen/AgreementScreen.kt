@@ -3,7 +3,6 @@ package kr.co.call.impl.screen
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -22,17 +21,12 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.Black
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme.typography
@@ -40,10 +34,11 @@ import kr.co.call.designsystem.theme.Gray100
 import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
-import kr.co.call.designsystem.theme.MainVariant2
 import kr.co.call.designsystem.theme.White
 import kr.co.call.impl.component.AgreementItem
 import kr.co.call.impl.component.CheckBox
+import kr.co.call.impl.component.NextButton
+import kr.co.call.impl.viewmodel.AgreementUiState
 import kr.co.call.login.impl.R
 
 enum class AgreementType(
@@ -71,25 +66,13 @@ enum class AgreementType(
 @Composable
 fun AgreementScreen(
     modifier: Modifier,
-    onAgreementViewClick:(AgreementType)->Unit,
+    uiState: AgreementUiState,
     onNextClick:()->Unit,
+    onAgreementViewClick:(AgreementType)->Unit,
+    onAgreementToggle: (AgreementType)->Unit,
+    onAllAgreementsCheckedChange: (Boolean) -> Unit
 ) {
-    var checkedAgreements by remember {
-        mutableStateOf(emptySet<AgreementType>())
-    }
-    val agreementTypes = AgreementType.entries
-    //약관 모두 동의했는지
-    val isAllChecked = agreementTypes.all { agreementType ->
-        agreementType in checkedAgreements
-    }
-    //필수약관 동의했는지
-    val isRequiredChecked = agreementTypes
-        .filter { agreementType ->
-            agreementType.isRequired
-        }
-        .all { agreementType ->
-            agreementType in checkedAgreements
-        }
+    val agreementTypes= AgreementType.entries
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -118,7 +101,7 @@ fun AgreementScreen(
                 Text(
                     text = "전화왔어",
                     color = MainVariant1,
-                    style = typography.titleExtraLarge
+                    style = typography.titleExtraLargeBold
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -149,15 +132,8 @@ fun AgreementScreen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         CheckBox(
-                            checked = isAllChecked,
-                            onCheckedChange = { checked ->
-                                checkedAgreements =
-                                    if (checked) {
-                                        agreementTypes.toSet()
-                                    } else {
-                                        emptySet()
-                                    }
-                            },
+                            checked = uiState.isAllChecked,
+                            onCheckedChange = onAllAgreementsCheckedChange,
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
@@ -183,14 +159,9 @@ fun AgreementScreen(
                         AgreementItem(
                             title = agreementType.title,
                             isRequired = agreementType.isRequired,
-                            isChecked = agreementType in checkedAgreements,
-                            onCheckedChange = { checked ->
-                                checkedAgreements =
-                                    if (checked) {
-                                        checkedAgreements + agreementType
-                                    } else {
-                                        checkedAgreements - agreementType
-                                    }
+                            isChecked = agreementType in uiState.checkedAgreements,
+                            onCheckedChange = {
+                                onAgreementToggle(agreementType)
                             },
                             onViewClick = {
                                 onAgreementViewClick(agreementType)
@@ -213,33 +184,13 @@ fun AgreementScreen(
                     bottom = 25.dp,
                 ),
         ) {
-
-            if (isRequiredChecked) {
-                SecondaryButton(
-                    text = "동의하고 프로필 설정하기",
-                    onClick = onNextClick,
-                    modifier = Modifier.fillMaxWidth(),
-                    containerColor = MainVariant2,
-                    contentColor = Black,
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                        .background(
-                            color = MainVariant2,
-                            shape = RoundedCornerShape(percent = 10),
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = "동의하고 프로필 설정하기",
-                        color = Black,
-                        style = typography.bodyLargeBold,
-                    )
-                }
-            }
+            NextButton(
+                modifier=Modifier
+                    .fillMaxWidth(),
+                text="동의하고 프로필 설정하기",
+                onClick = onNextClick,
+                enabled = uiState.isRequiredChecked,
+            )
         }
     }
 }
@@ -254,9 +205,12 @@ fun AgreementScreen(
 private fun AgreementScreenPreview() {
     CallFromAiTheme {
         AgreementScreen(
-        modifier=Modifier,
-        onAgreementViewClick = {},
-        onNextClick = {},
-    )
-}
+            modifier = Modifier,
+            uiState = AgreementUiState(),
+            onAgreementToggle = {},
+            onAllAgreementsCheckedChange = {},
+            onAgreementViewClick = {},
+            onNextClick = {},
+        )
+    }
 }

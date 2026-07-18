@@ -1,6 +1,5 @@
 package kr.co.call.impl.component
 
-import android.widget.CheckBox
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.Black
@@ -25,7 +23,6 @@ import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
-import kr.co.call.designsystem.theme.Pretendard
 
 @Composable
 fun AgreementItem(

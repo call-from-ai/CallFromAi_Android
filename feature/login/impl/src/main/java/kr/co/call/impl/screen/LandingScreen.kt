@@ -15,15 +15,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+
 import kr.co.call.login.impl.R
 import kr.co.call.designsystem.theme.*
 
@@ -62,16 +59,9 @@ fun LandingScreen(
 
                 Text(
                     text="전화왔어",
-                    style= TextStyle(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                MainVariant1,
-                                Main
-                            )
-                        ),
-                        fontSize = 34.sp,
-                        fontWeight= FontWeight.Bold,
-                    )
+                    style= CallTheme.typography.titleExtraLargeBold.copy(
+                        brush=CallTheme.colors.chatGradient,
+                    ),
                 )
             }
             Spacer(modifier= Modifier.height(22.dp))
@@ -79,8 +69,7 @@ fun LandingScreen(
             Text(
                 text="오늘, 기다리던 사람에게\n전화가 옵니다.",
                 color=Gray200,
-                fontWeight=FontWeight.Normal,
-                lineHeight=25.sp, //18*140%
+                style= CallTheme.typography.titleExtraSmall,
                 textAlign= TextAlign.Center,
                 modifier=Modifier.wrapContentWidth()
             )
