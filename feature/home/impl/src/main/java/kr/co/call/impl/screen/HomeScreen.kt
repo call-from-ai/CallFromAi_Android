@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.impl.component.header.HomeHeader
 import kr.co.call.impl.component.header.HomeReservationCard
 import kr.co.call.impl.component.history.CallHistoryList
@@ -29,7 +30,6 @@ import kr.co.call.impl.component.history.NotificationListHeader
 import kr.co.call.impl.component.history.notificationItems
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.HomeIntent
-import kr.co.call.impl.viewmodel.state.HomeNotificationState
 import kr.co.call.impl.viewmodel.HomeViewModel
 import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
@@ -75,7 +75,7 @@ internal fun HomeScreenContent(
     homeReservation: HomeReservationUiModel,
     callHistories: List<CallHistoryUiModel>,
     selectedHistoryTab: HomeHistoryTab,
-    notifications: Flow<PagingData<HomeNotificationState>>,
+    notifications: Flow<PagingData<HomeNotification>>,
     onHistoryTabClick: (HomeHistoryTab) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -114,6 +114,7 @@ internal fun HomeScreenContent(
                 onTabClick = onHistoryTabClick,
             )
         }
+        
         // 탭 선택 상태에 따라서 표시
         when (selectedHistoryTab) {
             HomeHistoryTab.NOTIFICATION -> {

@@ -25,7 +25,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
  * - 통화 배지 표시 여부 설정 가능
  */
 @Composable
-fun ProfileImageWithIcon(
+fun ProfileImage(
     profileImageUrl: String?,
     modifier: Modifier = Modifier,
     showCallBadge: Boolean = false,
@@ -71,7 +71,7 @@ fun ProfileImageWithIcon(
 @Composable
 private fun ProfileImagePreview() {
     CallFromAiTheme {
-        ProfileImageWithIcon(
+        ProfileImage(
             profileImageUrl = null,
             showCallBadge = true,
         )

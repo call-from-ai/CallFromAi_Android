@@ -30,7 +30,7 @@ import java.time.LocalDate
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.designsystem.component.ProfileImageWithIcon
+import kr.co.call.designsystem.component.ProfileImage
 import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 
 /**
@@ -39,7 +39,7 @@ import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
  * - 약속이 있으면 상대 정보와 시간 변경 버튼 표시
  */
 @Composable
-internal fun HomeReservationCard(
+fun HomeReservationCard(
     reservation: HomeReservationUiModel,
     modifier: Modifier = Modifier,
     onTimeChangeClick: () -> Unit = {},
@@ -140,7 +140,7 @@ private fun ReservationContent(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ProfileImageWithIcon(
+        ProfileImage(
             profileImageUrl = reservation.profileImageUrl,
             showCallBadge = true,
         )

@@ -32,7 +32,7 @@ import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
  * - 완료 여부에 따라 AI 요약과 기록 아이콘 노출
  */
 @Composable
-internal fun CallHistoryList(
+fun CallHistoryList(
     histories: List<CallHistoryUiModel>,
     modifier: Modifier = Modifier,
     onRecordClick: (Long) -> Unit = {},

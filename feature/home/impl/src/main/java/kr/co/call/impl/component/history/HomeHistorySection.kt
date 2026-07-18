@@ -10,7 +10,7 @@ import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.tab.HomeHistoryTabBar
 
 @Composable
-internal fun HomeHistorySection(
+fun HomeHistorySection(
     selectedTab: HomeHistoryTab,
     onTabClick: (HomeHistoryTab) -> Unit,
     modifier: Modifier = Modifier,

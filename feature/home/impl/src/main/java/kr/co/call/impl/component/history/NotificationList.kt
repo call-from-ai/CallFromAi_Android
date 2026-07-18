@@ -30,20 +30,21 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import java.time.LocalDateTime
-import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.designsystem.component.ProfileImageWithIcon
+import kr.co.call.designsystem.component.ProfileImage
+import kr.co.call.domain.model.home.HomeNotification
+import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.component.UnreadIndicator
-import kr.co.call.impl.viewmodel.state.HomeNotificationState
-import kr.co.call.impl.viewmodel.NotificationType
+import kr.co.call.impl.mapper.toUiModel
+import kr.co.call.impl.viewmodel.model.HomeNotificationUiModel
 
 /**
  * 알림 리스트 안내 문구
  */
 @Composable
-internal fun NotificationListHeader(
+fun NotificationListHeader(
     modifier: Modifier = Modifier,
 ) {
     Text(
@@ -61,8 +62,8 @@ internal fun NotificationListHeader(
 /**
  * 홈 LazyColumn에 Paging 알림 아이템 추가
  */
-internal fun LazyListScope.notificationItems(
-    notifications: LazyPagingItems<HomeNotificationState>,
+fun LazyListScope.notificationItems(
+    notifications: LazyPagingItems<HomeNotification>,
 ) {
     items(
         count = notifications.itemCount,
@@ -70,7 +71,7 @@ internal fun LazyListScope.notificationItems(
     ) { index ->
         notifications[index]?.let { notification ->
             NotificationCard(
-                notificationState = notification,
+                notificationState = notification.toUiModel(),
                 onCallClick = {},
                 modifier = Modifier.padding(
                     start = 16.dp,
@@ -81,9 +82,9 @@ internal fun LazyListScope.notificationItems(
         }
     }
 
-//    item {
-//        Spacer(modifier = Modifier.height(12.dp))
-//    }
+    item {
+        Spacer(modifier = Modifier.height(12.dp))
+    }
 }
 
 /**
@@ -91,7 +92,7 @@ internal fun LazyListScope.notificationItems(
  */
 @Composable
 private fun NotificationCard(
-    notificationState: HomeNotificationState,
+    notificationState: HomeNotificationUiModel,
     onCallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -210,7 +211,7 @@ private fun NotificationCard(
 
         // n분 전 표시
         Text(
-            text = TimeUtil.toTimeAgoText(notificationState.createdAt),
+            text = notificationState.createdAtText,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -295,7 +296,7 @@ private fun CallNotificationContent(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        ProfileImageWithIcon(
+        ProfileImage(
             profileImageUrl = profileImageUrl,
             showCallBadge = true,
         )
@@ -330,7 +331,7 @@ private fun NotificationCardPreview() {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             NotificationCard(
-                notificationState = HomeNotificationState(
+                notificationState = HomeNotification(
                     notificationId = 1,
                     type = NotificationType.CALL_RESERVATION,
                     title = "통화 약속",
@@ -339,12 +340,12 @@ private fun NotificationCardPreview() {
                     createdAt = now.minusMinutes(1),
                     characterName = "민준",
                     profileImageUrl = null,
-                ),
+                ).toUiModel(),
                 onCallClick = {},
             )
 
             NotificationCard(
-                notificationState = HomeNotificationState(
+                notificationState = HomeNotification(
                     notificationId = 2,
                     type = NotificationType.MISSED_CALL,
                     title = "부재중 전화",
@@ -353,12 +354,12 @@ private fun NotificationCardPreview() {
                     createdAt = now.minusMinutes(30),
                     characterName = "민준",
                     profileImageUrl = null,
-                ),
+                ).toUiModel(),
                 onCallClick = {},
             )
 
             NotificationCard(
-                notificationState = HomeNotificationState(
+                notificationState = HomeNotification(
                     notificationId = 3,
                     type = NotificationType.ANNIVERSARY,
                     title = "기념일",
@@ -367,7 +368,7 @@ private fun NotificationCardPreview() {
                     createdAt = now.minusHours(1),
                     characterName = "민준",
                     profileImageUrl = null,
-                ),
+                ).toUiModel(),
                 onCallClick = {},
             )
         }

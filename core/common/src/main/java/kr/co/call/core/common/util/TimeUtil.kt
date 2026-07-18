@@ -6,10 +6,19 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+/**
+ * 날짜 및 시간과 관련된 변환 및 포맷팅 처리를 담당하는 유틸리티 객체입니다.
+ *
+ * 주로 한국어 로케일을 기반으로 통화 내역, 홈 화면, 예약 시간 등에 사용되는
+ * 다양한 형식의 문자열 변환 기능을 제공합니다.
+ */
 object TimeUtil {
+
+    // LocalDateTime을 String으로 변환
     fun parseLocalDateTime(value: String): LocalDateTime =
         LocalDateTime.parse(value)
 
+    // LocalDate를 String으로 변환
     fun toCallHistoryDateText(dateTime: LocalDateTime): String =
         dateTime.format(
             DateTimeFormatter.ofPattern(
@@ -18,6 +27,7 @@ object TimeUtil {
             ),
         )
 
+    // LocalDateTime을 "n분 전" 형식의 문자열로 변환
     fun toTimeAgoText(
         dateTime: LocalDateTime,
         now: LocalDateTime = LocalDateTime.now(),
@@ -33,6 +43,7 @@ object TimeUtil {
         }
     }
 
+    // LocalDate를 "M월 d일 EEEE" 형식의 문자열로 변환
     fun toHomeDateText(date: LocalDate): String =
         date.format(
             DateTimeFormatter.ofPattern(
@@ -41,6 +52,7 @@ object TimeUtil {
             ),
         )
 
+    // LocalDateTime을 "오늘/내일 + 시간" 형식의 문자열로 변환
     fun toReservationTimeText(
         dateTime: LocalDateTime,
         today: LocalDate = LocalDate.now(),

@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.flowOf
 import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.CallReservation
 import kr.co.call.domain.model.home.CallReservations
+import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
+import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.mock.CallMockData
-import kr.co.call.impl.viewmodel.NotificationType
-import kr.co.call.impl.viewmodel.state.HomeNotificationState
 import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
@@ -19,12 +19,12 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 /**
  * 홈화면에서 사용하는 Mock Data
  */
-internal data class HomeMockData(
+data class HomeMockData(
     val summary: HomeSummary,
     val reservations: CallReservations,
     val callHistories: List<CallHistory>,
     val hasUnreadNotification: Boolean,
-    val notifications: List<HomeNotificationState>,
+    val notifications: List<HomeNotification>,
 ) {
     val summaryUiModel: HomeSummaryUiModel
         get() = summary.toUiModel()
@@ -35,11 +35,11 @@ internal data class HomeMockData(
     val callHistoryUiModels: List<CallHistoryUiModel>
         get() = callHistories.map { callHistory -> callHistory.toUiModel() }
 
-    fun notificationFlow(): Flow<PagingData<HomeNotificationState>> =
+    fun notificationFlow(): Flow<PagingData<HomeNotification>> =
         flowOf(PagingData.from(notifications))
 }
 
-internal fun createHomeMockData(
+fun createHomeMockData(
     now: LocalDateTime = LocalDateTime.now(),
 ): HomeMockData =
     HomeMockData(
@@ -64,7 +64,7 @@ internal fun createHomeMockData(
         callHistories = CallMockData.histories,
         hasUnreadNotification = true,
         notifications = listOf(
-            HomeNotificationState(
+            HomeNotification(
                 notificationId = 42L,
                 type = NotificationType.CALL_RESERVATION,
                 title = "통화 약속",
@@ -74,7 +74,7 @@ internal fun createHomeMockData(
                 characterName = "민준",
                 profileImageUrl = "https://cdn.lovecall.com/presets/male/1.jpg",
             ),
-            HomeNotificationState(
+            HomeNotification(
                 notificationId = 41L,
                 type = NotificationType.MISSED_CALL,
                 title = "부재중 전화",
@@ -84,7 +84,7 @@ internal fun createHomeMockData(
                 characterName = "민준",
                 profileImageUrl = "https://cdn.lovecall.com/presets/male/1.jpg",
             ),
-            HomeNotificationState(
+            HomeNotification(
                 notificationId = 40L,
                 type = NotificationType.ANNIVERSARY,
                 title = "기념일",

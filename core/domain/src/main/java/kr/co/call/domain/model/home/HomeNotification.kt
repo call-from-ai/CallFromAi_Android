@@ -1,12 +1,8 @@
-package kr.co.call.impl.viewmodel.state
+package kr.co.call.domain.model.home
 
-import kr.co.call.impl.viewmodel.NotificationType
 import java.time.LocalDateTime
 
-/**
- * 알림
- */
-data class HomeNotificationState(
+data class HomeNotification(
     val notificationId: Long,
     val type: NotificationType,
     val title: String,
@@ -16,3 +12,11 @@ data class HomeNotificationState(
     val characterName: String?,
     val profileImageUrl: String?,
 )
+
+enum class NotificationType(
+    val title: String,
+) {
+    MISSED_CALL(title = "부재중 전화"),
+    ANNIVERSARY(title = "기념일"),
+    CALL_RESERVATION(title = "통화 약속"),
+}
