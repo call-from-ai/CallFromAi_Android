@@ -1,8 +1,14 @@
 package kr.co.call.callfromai
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -69,13 +75,30 @@ fun AppScreen(modifier: Modifier = Modifier) {
         with(density) { bottomBarHeightPx.toDp() }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        bottomBar = {
+            if (showBottomBar) {
+            MainBottomBar(
+                currentTab = currentTab,
+                onTabSelected = appNavigator::navigateToTab,
+                modifier = Modifier
+                    .onSizeChanged { bottomBarHeightPx = it.height },
+            )
+            }
+        },
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+        ),
+
+    ) {
+        padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
             NavDisplay(
                 backStack = backStack,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().padding(padding),
                 entryProvider = entryProvider {
                     loginEntry()
                     onboardingEntry()
@@ -90,15 +113,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     )
                     myPageEntry()
                 }
-            )
-        }
-        if (showBottomBar) {
-            MainBottomBar(
-                currentTab = currentTab,
-                onTabSelected = appNavigator::navigateToTab,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .onSizeChanged { bottomBarHeightPx = it.height },
             )
         }
     }
