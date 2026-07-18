@@ -4,6 +4,8 @@ import dagger.Module
 import dagger.Binds
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
+import kr.co.call.domain.repository.ChatRepository
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.domain.repository.HomeRepository
@@ -14,6 +16,11 @@ import kr.co.call.domain.repository.MyPageRepository
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
 
+    @Binds
+    @Singleton
+    abstract fun bindChatRepository(
+        chatRepositoryImpl: ChatRepositoryImpl
+    ): ChatRepository
     @Binds
     @Singleton
     abstract fun bindHomeRepository(
