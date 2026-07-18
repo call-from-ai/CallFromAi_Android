@@ -2,8 +2,9 @@ package kr.co.call.domain.usecase.home
 
 import kr.co.call.domain.model.home.HomeOverview
 import kr.co.call.domain.repository.HomeRepository
+import javax.inject.Inject
 
-class HomeUseCase(
+class HomeUseCase @Inject constructor(
     private val homeRepository: HomeRepository,
 ) {
     suspend operator fun invoke(): HomeOverview {
