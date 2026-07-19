@@ -48,6 +48,7 @@ class ChatListViewModel @Inject constructor(
     fun handleIntent(intent: ChatListIntent) {
         when (intent) {
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
+            ChatListIntent.ClickManagerChatRoom -> TODO()
         }
     }
 
@@ -55,7 +56,8 @@ class ChatListViewModel @Inject constructor(
         postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId))
     }
 
-
-
+    private fun emitNavigateToManagerChatRoom() = intent {
+        postSideEffect(ChatListSideEffect.NavigateToManagerChatRoom)
+    }
 
 }

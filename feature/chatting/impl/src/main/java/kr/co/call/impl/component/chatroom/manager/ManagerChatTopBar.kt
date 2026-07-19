@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -26,11 +27,11 @@ import kr.co.call.designsystem.theme.CallTheme
 @Composable
 fun ManagerChatTopBar(
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onBack: () -> Unit = {}
 ) {
     Row(
         modifier = modifier.background(CallTheme.colors.mainVariant5Chat)
-            .padding(start = 17.dp, end = 17.dp, top = 6.dp, bottom = 12.dp),
+            .padding(start = 17.dp, end = 17.dp, top = 6.dp, bottom = 20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -38,7 +39,7 @@ fun ManagerChatTopBar(
             contentDescription = "뒤로가기",
             tint = Color.Unspecified,
             modifier = Modifier.noRippleClickable(
-                onClick = onClick
+                onClick = onBack
             )
         )
 
@@ -47,7 +48,8 @@ fun ManagerChatTopBar(
         Image(
             painter = painterResource(R.drawable.ic_chat_manager),
             contentDescription = "매니저",
-            modifier = Modifier.clip(CircleShape),
+            modifier = Modifier.clip(CircleShape)
+                .size(40.dp),
             contentScale = ContentScale.Crop
         )
 

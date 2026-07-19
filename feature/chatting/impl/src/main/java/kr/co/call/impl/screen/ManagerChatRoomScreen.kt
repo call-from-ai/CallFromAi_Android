@@ -27,6 +27,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 @Composable
 fun ManagerChatRoomScreen(
     modifier: Modifier = Modifier,
+    onBack: () -> Unit,
     viewModel: ManagerChatRoomViewModel = hiltViewModel()
 ) {
     // 상태 구독
@@ -34,6 +35,7 @@ fun ManagerChatRoomScreen(
 
     ManagerChatRoomScreenContent(
         modifier = modifier,
+        onBack = onBack,
         state = state // 상태 호이스팅
     )
 }
@@ -41,6 +43,7 @@ fun ManagerChatRoomScreen(
 @Composable
 fun ManagerChatRoomScreenContent(
     modifier: Modifier = Modifier,
+    onBack: () -> Unit,
     state: ManagerChatRoomUiState,
 ) {
     Column(
@@ -51,7 +54,10 @@ fun ManagerChatRoomScreenContent(
     ) {
         Spacer(Modifier.height(8.dp))
 
-        ManagerChatTopBar(modifier = Modifier.fillMaxWidth())
+        ManagerChatTopBar(
+            modifier = Modifier.fillMaxWidth(),
+            onBack = onBack
+        )
 
         ManagerChatLazyColumn(
             modifier = Modifier.fillMaxWidth()
@@ -79,7 +85,8 @@ private fun ManagerChatRoomScreenContentPreview() {
                         time = "오전 10:00"
                     )
                 )
-            )
+            ),
+            onBack = {}
         )
     }
 }

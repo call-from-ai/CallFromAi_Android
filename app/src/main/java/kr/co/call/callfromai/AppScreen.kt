@@ -26,6 +26,7 @@ import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.HomeNavKey
+import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
@@ -58,7 +59,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
         is HomeNavKey,
         is ChattingNavKey,
         is MyPageNavKey -> true
-
+        is ManagerChatRoomNayKey -> false
         else -> false
     }
 
@@ -106,6 +107,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
+                        },
+                        navigateToManagerChatRoom = {
+                            appNavigator.navigate(ManagerChatRoomNayKey)
                         },
                         onBack = {
                             appNavigator.popBackStack()

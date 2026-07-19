@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ fun ChatGrayBubble(
 ) {
     // Modifier는 bubbleModifier 변수로 분리해 두 분기가 공유하도록 함
     val bubbleModifier = Modifier
+        .widthIn(max = 280.dp)
         .background(
             color = CallTheme.colors.gray100,
             shape = RoundedCornerShape(
