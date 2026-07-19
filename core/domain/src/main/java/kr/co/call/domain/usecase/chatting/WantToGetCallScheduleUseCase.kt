@@ -11,7 +11,7 @@ import javax.inject.Inject
  * 사용자가 "전화는 언제 오나요?" 프롬프트를 선택했을 때
  * 매니저가 제공하는 전화 예정 시간 안내 메시지를 제공합니다.
  */
-class GetCallScheduleUseCase @Inject constructor() {
+class WantToGetCallScheduleUseCase @Inject constructor() {
 
     /**
      * 전화 예정 시간 관련 매니저 메시지를 반환합니다.

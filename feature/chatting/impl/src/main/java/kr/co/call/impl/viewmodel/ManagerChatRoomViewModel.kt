@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kr.co.call.domain.usecase.chatting.FirstManagerChatUseCase
-import kr.co.call.domain.usecase.chatting.GetCallScheduleUseCase
+import kr.co.call.domain.usecase.chatting.WantToGetCallScheduleUseCase
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import org.orbitmvi.orbit.Container
@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @HiltViewModel
 class ManagerChatRoomViewModel @Inject constructor(
     private val firstManagerChatUseCase: FirstManagerChatUseCase,
-    private val getCallScheduleUseCase: GetCallScheduleUseCase,
+    private val wantToGetCallScheduleUseCase: WantToGetCallScheduleUseCase
 ): ViewModel(), ContainerHost<ManagerChatRoomUiState, Nothing> {
 
     override val container: Container<ManagerChatRoomUiState, Nothing> = container(
