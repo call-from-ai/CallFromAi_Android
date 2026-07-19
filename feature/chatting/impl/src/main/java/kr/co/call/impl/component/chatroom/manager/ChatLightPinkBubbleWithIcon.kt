@@ -22,38 +22,48 @@ import kr.co.call.designsystem.theme.CallTheme
 
 @Composable
 fun ChatLightPinkBubbleWithIcon(
-    text: AnnotatedString
+    text: AnnotatedString,
+    time: String
 ) {
-    Row(
-        modifier = Modifier
-            .background(
-                color = CallTheme.colors.mainVariant5Chat,
-                shape = RoundedCornerShape(
-                    topStart = 0.dp,
-                    topEnd = 20.dp,
-                    bottomStart = 20.dp,
-                    bottomEnd = 20.dp
+    Row(verticalAlignment = Alignment.Bottom) {
+        Row(
+            modifier = Modifier
+                .background(
+                    color = CallTheme.colors.mainVariant5Chat,
+                    shape = RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = 20.dp,
+                        bottomStart = 20.dp,
+                        bottomEnd = 20.dp
+                    )
+                )
+                .padding(
+                    start = 23.dp,
+                    end = 21.dp,
+                    top = 9.dp,
+                    bottom = 9.dp
+                ),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chat_telephone),
+                contentDescription = "전화기 이미지",
+                modifier = Modifier.size(width = 22.dp, height = 21.dp),
+                tint = CallTheme.colors.mainVariant1
+            )
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                text = text,
+                style = CallTheme.typography.bodyMediumMedium.copy(
+                    color = CallTheme.colors.black
                 )
             )
-            .padding(
-                start = 23.dp,
-                end = 21.dp,
-                top = 9.dp,
-                bottom = 9.dp
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chat_telephone),
-            contentDescription = "전화기 이미지",
-            modifier = Modifier.size(width = 22.dp, height = 21.dp),
-            tint = CallTheme.colors.mainVariant1
-        )
-        Spacer(modifier = Modifier.width(10.dp))
+        }
+        Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = text,
-            style = CallTheme.typography.bodyMediumMedium.copy(
-                color = CallTheme.colors.black
+            text = time,
+            style = CallTheme.typography.caption.copy(
+                color = CallTheme.colors.gray400
             )
         )
     }
@@ -67,7 +77,8 @@ fun ChatLightPinkBubbleWithIcon(
 private fun ChatLightPinkBubblePreview() {
     CallFromAiTheme {
         ChatLightPinkBubbleWithIcon(
-            text = AnnotatedString("대화를 많이 나눌수록,\n더 자연스러운 관계가 생성돼요.")
+            text = AnnotatedString("대화를 많이 나눌수록,\n더 자연스러운 관계가 생성돼요."),
+            time = "12:01"
         )
     }
 }

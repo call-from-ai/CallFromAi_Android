@@ -1,23 +1,24 @@
 package kr.co.call.domain.usecase.chatting
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * 사용자가 매니저 채팅을 처음 시작할 때 매니저(AI)가 보내는 초기 메시지 세트를 제공하는 유스케이스입니다.
- *
- * 환영 인사, 서비스 소개, 관계 형성 설명 및 일반적인 안내 사항을 포함하는
- * 미리 정의된 메시지 시퀀스를 반환합니다.
- *
- * @return 매니저의 오프닝 대화를 나타내는 [ManagerFirstMessage] 리스트.
+ * 사용자가 매니저 채팅을 처음 시작할 때 매니저(AI)가 보내는 초기 메시지를
+ * 순차적으로 방출하는 유스케이스입니다.
  */
 class FirstManagerChatUseCase @Inject constructor() {
-    suspend operator fun invoke(): List<ManagerFirstMessage> {
+
+    operator fun invoke(): Flow<ManagerFirstMessage> = flow {
         val now = LocalDateTime.now()
 
-        return listOf(
+        val messages = listOf(
             ManagerFirstMessage(
                 id = "welcome",
                 content = "수현님, 반가워요! 👋🏻",
@@ -43,6 +44,12 @@ class FirstManagerChatUseCase @Inject constructor() {
                 createdAt = now
             )
         )
-    }
 
+        messages.forEachIndexed { index, message ->
+            if (index != 0) {
+                delay(1500.milliseconds)
+            }
+            emit(message)
+        }
+    }
 }
