@@ -1,10 +1,13 @@
 package kr.co.call.impl.mapper
 
 import kr.co.call.domain.model.chatting.ChatMessage
+import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
 import kr.co.call.impl.model.SendStatus
+import kr.co.call.impl.viewmodel.ManagerChatUiItem
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -12,6 +15,17 @@ import java.util.UUID
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 object UiModelMapper {
+
+    fun ManagerChatItem.toUiItem(
+        loadStatus: LoadStatus = LoadStatus.Idle,
+    ): ManagerChatUiItem =
+        ManagerChatUiItem(
+            message = this,
+            loadStatus = loadStatus,
+            time = this.createdAt.format(timeFormatter),
+        )
+
+
     /** 도메인 메시지 → 말풍선 UI 모델. 항상 SENT. */
     fun ChatMessage.toUiModel(): ChatItemUiModel =
         ChatItemUiModel(

@@ -19,47 +19,60 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.impl.component.chatroom.LoadingIndicator
 
 @Composable
 fun ChatLightPinkBubbleWithIcon(
     text: AnnotatedString,
-    time: String
+    time: String,
+    isLoading: Boolean = false,
 ) {
+    // Modifier는 bubbleModifier 변수로 분리해 두 분기가 공유하도록 함
+    val bubbleModifier = Modifier
+        .background(
+            color = CallTheme.colors.mainVariant5Chat,
+            shape = RoundedCornerShape(
+                topStart = 0.dp,
+                topEnd = 20.dp,
+                bottomStart = 20.dp,
+                bottomEnd = 20.dp
+            )
+        )
+        .padding(
+            start = 23.dp,
+            end = 21.dp,
+            top = 9.dp,
+            bottom = 9.dp
+        )
+
     Row(verticalAlignment = Alignment.Bottom) {
-        Row(
-            modifier = Modifier
-                .background(
-                    color = CallTheme.colors.mainVariant5Chat,
-                    shape = RoundedCornerShape(
-                        topStart = 0.dp,
-                        topEnd = 20.dp,
-                        bottomStart = 20.dp,
-                        bottomEnd = 20.dp
+        if (isLoading) {
+            LoadingIndicator(modifier = bubbleModifier)
+        } else {
+            Row(
+                modifier = bubbleModifier,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_chat_telephone),
+                    contentDescription = "전화기 이미지",
+                    modifier = Modifier.size(width = 22.dp, height = 21.dp),
+                    tint = CallTheme.colors.mainVariant1
+                )
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                Text(
+                    text = text,
+                    style = CallTheme.typography.bodyMediumMedium.copy(
+                        color = CallTheme.colors.black
                     )
                 )
-                .padding(
-                    start = 23.dp,
-                    end = 21.dp,
-                    top = 9.dp,
-                    bottom = 9.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_chat_telephone),
-                contentDescription = "전화기 이미지",
-                modifier = Modifier.size(width = 22.dp, height = 21.dp),
-                tint = CallTheme.colors.mainVariant1
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Text(
-                text = text,
-                style = CallTheme.typography.bodyMediumMedium.copy(
-                    color = CallTheme.colors.black
-                )
-            )
+            }
         }
+
         Spacer(modifier = Modifier.width(6.dp))
+
         Text(
             text = time,
             style = CallTheme.typography.caption.copy(
@@ -79,6 +92,21 @@ private fun ChatLightPinkBubblePreview() {
         ChatLightPinkBubbleWithIcon(
             text = AnnotatedString("대화를 많이 나눌수록,\n더 자연스러운 관계가 생성돼요."),
             time = "12:01"
+        )
+    }
+}
+
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFF000000
+)
+@Composable
+private fun ChatLightPinkBubbleLoadingPreview() {
+    CallFromAiTheme {
+        ChatLightPinkBubbleWithIcon(
+            text = AnnotatedString(""),
+            time = "12:01",
+            isLoading = true
         )
     }
 }

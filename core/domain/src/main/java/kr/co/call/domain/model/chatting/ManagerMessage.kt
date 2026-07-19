@@ -2,12 +2,17 @@ package kr.co.call.domain.model.chatting
 
 import java.time.LocalDateTime
 
+sealed interface ManagerChatItem {
+    val id: String
+    val createdAt: LocalDateTime
+}
+
 data class ManagerFirstMessage(
-    val id: String,
+    override val id: String,
     val content: String,
     val type: ManagerFirstMessageType,
-    val createdAt: LocalDateTime,
-)
+    override val createdAt: LocalDateTime,
+): ManagerChatItem
 
 enum class ManagerFirstMessageType {
     NORMAL,
