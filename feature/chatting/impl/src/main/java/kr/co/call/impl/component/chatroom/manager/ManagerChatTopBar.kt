@@ -1,4 +1,4 @@
-package kr.co.call.impl.component.chatroom
+package kr.co.call.impl.component.chatroom.manager
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
