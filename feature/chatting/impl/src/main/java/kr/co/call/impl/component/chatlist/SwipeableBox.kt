@@ -1,4 +1,4 @@
-package kr.co.call.impl.component
+package kr.co.call.impl.component.chatlist
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors

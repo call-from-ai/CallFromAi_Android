@@ -19,9 +19,9 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ChatSummary
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.component.ChatListItem
-import kr.co.call.impl.component.FrontRow
-import kr.co.call.impl.component.LoadingColumn
+import kr.co.call.impl.component.chatlist.ChatListItem
+import kr.co.call.impl.component.chatlist.FrontRow
+import kr.co.call.impl.component.chatlist.LoadingColumn
 import kr.co.call.impl.viewmodel.ChatListIntent
 import kr.co.call.impl.viewmodel.ChatListSideEffect
 import kr.co.call.impl.viewmodel.ChatListState

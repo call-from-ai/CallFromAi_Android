@@ -1,4 +1,4 @@
-package kr.co.call.impl.component
+package kr.co.call.impl.component.chatlist
 
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.runtime.Composable
@@ -31,7 +31,7 @@ fun ChatListItem(
     ) {
         FrontRow(
             chatSummary = chatSummary,
-            onClick = onItemClick 
+            onClick = onItemClick
         )
     }
 }

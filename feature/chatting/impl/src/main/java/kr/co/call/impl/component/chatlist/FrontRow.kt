@@ -1,4 +1,4 @@
-package kr.co.call.impl.component
+package kr.co.call.impl.component.chatlist
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
