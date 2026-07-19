@@ -47,7 +47,7 @@ fun CheckBox(
             if (checked) {
                 Icon(
                     painter = painterResource(R.drawable.ic_check),
-                    contentDescription = "check",
+                    contentDescription = null,
                     tint = White,
                     modifier = Modifier.size(13.dp)
                 )
