@@ -48,8 +48,15 @@ val MainGradient = Brush.horizontalGradient(
     ),
 )
 
-val ChatGradient = Brush.linearGradient(
+val ChatGradient = Brush.horizontalGradient(
     listOf(
+        Color(0xFFFF789F),
+        Color(0xFFFFA3BD)
+    ),
+)
+
+val LandingGradient=Brush.linearGradient(
+    colors=listOf(
         Color(0xFFFF789F),
         Color(0xFFFFA3BD)
     ),
@@ -95,6 +102,7 @@ data class CallColors(
     // Gradient
     val mainGradient: Brush = MainGradient,
     val chatGradient: Brush = ChatGradient,
+    val landingGradient: Brush=LandingGradient,
 )
 
 val LocalCallColors = staticCompositionLocalOf { CallColors() }

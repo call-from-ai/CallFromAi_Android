@@ -8,8 +8,6 @@ import kr.co.call.impl.screen.LoginScreen
 
 fun EntryProviderScope<NavKey>.loginEntry() {
     entry<LoginNavKey> {
-        LoginScreen(
-            modifier= Modifier,
-        )
+        LoginScreen()
     }
 }

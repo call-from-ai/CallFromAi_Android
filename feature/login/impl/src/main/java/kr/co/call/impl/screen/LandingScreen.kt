@@ -60,7 +60,7 @@ fun LandingScreen(
                 Text(
                     text="전화왔어",
                     style= CallTheme.typography.titleExtraLargeBold.copy(
-                        brush=CallTheme.colors.chatGradient,
+                        brush=CallTheme.colors.landingGradient,
                     ),
                 )
             }

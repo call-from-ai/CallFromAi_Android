@@ -2,34 +2,38 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kr.co.call.impl.screen.AgreementType
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 
 @HiltViewModel
-class AgreementViewModel @Inject constructor() : ViewModel() {
-    private val mutableUiState = MutableStateFlow(AgreementUiState())
-    val uiState: StateFlow<AgreementUiState> = mutableUiState.asStateFlow()
+class AgreementViewModel @Inject constructor() :
+    ViewModel(),
+    ContainerHost<AgreementUiState, Nothing> {
+    override val container=
+        container<AgreementUiState, Nothing>(
+            initialState= AgreementUiState(),
+        )
+
     //동의 개별 변경
-    fun toggleAgreement(agreementType: AgreementType){
-        mutableUiState.update {currentState ->
-            currentState.copy(
-                checkedAgreements=
-                    if (agreementType in currentState.checkedAgreements){
-                        currentState.checkedAgreements-agreementType
+    fun toggleAgreement(agreementType: AgreementType)=intent {
+        reduce{
+            state.copy(
+                checkedAgreements =
+                    if (agreementType in state.checkedAgreements){
+                        state.checkedAgreements-agreementType
                     } else {
-                        currentState.checkedAgreements+agreementType
+                        state.checkedAgreements + agreementType
                     },
             )
         }
     }
+
     //동의 일괄 변경
-    fun toggleAllAgreements(isChecked: Boolean){
-        mutableUiState.update {currentState ->
-            currentState.copy(
+    fun toggleAllAgreements(isChecked: Boolean)= intent {
+        reduce {
+            state.copy(
                 checkedAgreements=
                     if (isChecked){
                         AgreementType.entries.toSet()

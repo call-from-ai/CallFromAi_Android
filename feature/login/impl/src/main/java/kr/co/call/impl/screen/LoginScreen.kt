@@ -31,7 +31,7 @@ import kr.co.call.login.impl.R
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier,
+    modifier: Modifier= Modifier,
     onKakaoLoginClick:()->Unit={},
 ) {
     Column(
