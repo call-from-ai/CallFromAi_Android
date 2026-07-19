@@ -9,6 +9,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import kr.co.call.designsystem.theme.MainVariant1
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
@@ -44,8 +48,31 @@ fun ManagerChatLazyColumn(
                     when (message.type) {
 
                         ManagerFirstMessageType.NORMAL -> {
+                            // "전화왔어"가 포함된 경우 해당 단어만 브랜드 컬러로 강조
+                            val highlightWord = "전화왔어"
+
+                            val annotated = buildAnnotatedString {
+                                // 강조할 키워드의 시작 위치
+                                val startIndex = message.content.indexOf(highlightWord)
+
+                                if (startIndex >= 0) {
+                                    // 키워드 앞부분은 기본 스타일로 추가
+                                    append(message.content.substring(0, startIndex))
+
+                                    // 키워드에만 강조 색상을 적용
+                                    withStyle(SpanStyle(color = MainVariant1)) {
+                                        append(highlightWord)
+                                    }
+
+                                    // 키워드 이후 문자열을 이어서 추가
+                                    append(message.content.substring(startIndex + highlightWord.length))
+                                } else {
+                                    // 키워드가 없는 경우 원본 문자열을 그대로 표시
+                                    append(message.content)
+                                }
+                            }
                             ChatGrayBubble(
-                                text = AnnotatedString(message.content),
+                                text = annotated,
                                 time = item.time,
                                 isLoading = item.loadStatus == LoadStatus.Loading
                             )

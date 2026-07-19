@@ -1,12 +1,15 @@
 package kr.co.call.impl.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,8 +20,10 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
+import kr.co.call.impl.component.chatroom.manager.ManagerChatField
 import kr.co.call.impl.component.chatroom.manager.ManagerChatLazyColumn
 import kr.co.call.impl.component.chatroom.manager.ManagerChatTopBar
+import kr.co.call.impl.component.chatroom.manager.ManagerPromptSlide
 import kr.co.call.impl.viewmodel.ManagerChatRoomUiState
 import kr.co.call.impl.viewmodel.ManagerChatRoomViewModel
 import kr.co.call.impl.viewmodel.ManagerChatUiItem
@@ -46,25 +51,48 @@ fun ManagerChatRoomScreenContent(
     onBack: () -> Unit,
     state: ManagerChatRoomUiState,
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
             .background(CallTheme.colors.mainVariant5Chat)
             .statusBarsPadding()
     ) {
-        Spacer(Modifier.height(8.dp))
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(Modifier.height(8.dp))
 
-        ManagerChatTopBar(
-            modifier = Modifier.fillMaxWidth(),
-            onBack = onBack
-        )
+            ManagerChatTopBar(
+                modifier = Modifier.fillMaxWidth(),
+                onBack = onBack
+            )
 
-        ManagerChatLazyColumn(
-            modifier = Modifier.fillMaxWidth()
-                .weight(1f)
-                .background(CallTheme.colors.background),
-            chatItems = state.chatItems
-        )
+            ManagerChatLazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(CallTheme.colors.background),
+                chatItems = state.chatItems
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        ) {
+            ManagerPromptSlide(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(Modifier.height(15.dp))
+
+            ManagerChatField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(Modifier.height(15.dp))
+        }
     }
 }
 

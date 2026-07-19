@@ -38,6 +38,7 @@ import kr.co.call.designsystem.theme.CallTheme
 
 @Composable
 fun ManagerPromptSlide(
+    modifier: Modifier = Modifier,
     onCallTimeClick: () -> Unit = {},
     onChangePartnerClick: () -> Unit = {},
     onEditRecordClick: () -> Unit = {},
@@ -46,10 +47,10 @@ fun ManagerPromptSlide(
     var isExpanded by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = 8.dp,
+                elevation = 4.dp,
                 shape = RoundedCornerShape(30.dp),
             )
             .background(Color.White, RoundedCornerShape(30.dp))
