@@ -10,8 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.compose.ui.unit.dp
@@ -55,6 +61,9 @@ fun ManagerChatRoomScreenContent(
     state: ManagerChatRoomUiState,
     onIntent: (ManagerChatRoomIntent) -> Unit
 ) {
+    val density = LocalDensity.current
+    var overlayHeight by remember { mutableStateOf(0.dp) }
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -71,10 +80,10 @@ fun ManagerChatRoomScreenContent(
 
             ManagerChatLazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                    .fillMaxSize()
                     .background(CallTheme.colors.background),
-                chatItems = state.chatItems
+                chatItems = state.chatItems,
+                bottomPadding = overlayHeight,       // 측정한 높이 주입
             )
         }
 
@@ -82,6 +91,9 @@ fun ManagerChatRoomScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
+                .onSizeChanged {                     // 오버레이 실제 높이 측정
+                    overlayHeight = with(density) { it.height.toDp() }
+                }
         ) {
             ManagerPromptSlide(
                 onIntent = onIntent,
@@ -118,6 +130,30 @@ private fun ManagerChatRoomScreenContentPreview() {
                         time = "오전 10:00"
                     )
                 )
+            ),
+            onBack = {},
+            onIntent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ManagerChatRoomScreenContentTestPreview() {
+    CallFromAiTheme {
+        ManagerChatRoomScreenContent(
+            state = ManagerChatRoomUiState(
+                chatItems = List(40) { i ->
+                    ManagerChatUiItem(
+                        message = ManagerFirstMessage(
+                            id = "$i",                       // 유니크해야 함
+                            content = "메시지 $i - 스크롤 테스트용 더미 데이터입니다.",
+                            type = ManagerFirstMessageType.NORMAL,
+                            createdAt = LocalDateTime.now()
+                        ),
+                        time = "오전 10:${(i % 60).toString().padStart(2, '0')}"
+                    )
+                }
             ),
             onBack = {},
             onIntent = {}

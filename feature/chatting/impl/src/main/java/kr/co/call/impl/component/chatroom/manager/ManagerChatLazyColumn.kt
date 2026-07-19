@@ -16,6 +16,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import kr.co.call.designsystem.theme.MainVariant1
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -38,15 +39,17 @@ fun ManagerChatLazyColumn(
     chatItems: List<ManagerChatUiItem>,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
+    bottomPadding: Dp = 0.dp,
 ) {
     LazyColumn(
         state = listState,
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(11.dp),
         contentPadding = PaddingValues(
-            horizontal = 16.dp,
-            vertical = 13.dp
-        )
+            start = 16.dp, end = 16.dp,
+            top = 13.dp,
+            bottom = 13.dp + bottomPadding,   // 오버레이 높이만큼 확보
+        ),
     ) {
         items(
             items = chatItems,
