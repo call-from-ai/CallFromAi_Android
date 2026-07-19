@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.WhenCallMessage
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -23,7 +24,7 @@ class WantToGetCallScheduleUseCase @Inject constructor() {
 
         emit(
             WhenCallMessage(
-                id = "call_schedule",
+                id = UUID.randomUUID().toString(),
                 content = "설정한 시간대를 기준으로 먼저 전화가 와요 ☎️",
                 createdAt = now
             )
@@ -31,7 +32,7 @@ class WantToGetCallScheduleUseCase @Inject constructor() {
 
         emit(
             WhenCallMessage(
-                id = "call_schedule_setting",
+                id = UUID.randomUUID().toString(),
                 content = "원하는 시간은 마이페이지 > 연락시간 설정에서\n언제든지 변경할 수 있어요.",
                 createdAt = now
             )

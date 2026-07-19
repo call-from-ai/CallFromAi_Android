@@ -6,6 +6,7 @@ import kr.co.call.domain.model.chatting.ChangePartnerInfoMessage
 import kr.co.call.domain.model.chatting.ChangePartnerInfoMessageType
 import kr.co.call.domain.model.chatting.ManagerChatItem
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -24,7 +25,7 @@ class WantToUpdatePartnerInfoUseCase @Inject constructor() {
 
         emit(
             ChangePartnerInfoMessage(
-                id = "update_partner_info",
+                id = UUID.randomUUID().toString(),
                 content = "상대방 정보는 마이페이지 > 이상형 정보 수정에서\n변경할 수 있어요. 👤",
                 type = ChangePartnerInfoMessageType.NORMAL,
                 createdAt = now
@@ -33,7 +34,7 @@ class WantToUpdatePartnerInfoUseCase @Inject constructor() {
 
         emit(
             ChangePartnerInfoMessage(
-                id = "update_partner_info_detail",
+                id = UUID.randomUUID().toString(),
                 content = "이름, 성격, 관계 설정까지 언제든 수정 가능해요!",
                 type = ChangePartnerInfoMessageType.NORMAL,
                 createdAt = now
@@ -42,7 +43,7 @@ class WantToUpdatePartnerInfoUseCase @Inject constructor() {
 
         emit(
             ChangePartnerInfoMessage(
-                id = "update_partner_info_apply",
+                id = UUID.randomUUID().toString(),
                 content = "변경한 설정은\n다음 대화와 전화부터 바로 반영 돼요.",
                 type = ChangePartnerInfoMessageType.NEXT_CONVERSATION,
                 createdAt = now

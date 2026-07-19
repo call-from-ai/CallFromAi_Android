@@ -11,4 +11,5 @@ data class ChatRoomNavKey(
     val roomId: Long,
 ): NavKey
 
+@Serializable
 data object ManagerChatRoomNayKey: NavKey

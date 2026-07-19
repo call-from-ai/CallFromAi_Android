@@ -7,6 +7,7 @@ import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -29,7 +30,7 @@ class FirstManagerChatUseCase @Inject constructor() {
 
         emit(
             ManagerFirstMessage(
-                id = "welcome",
+                id = UUID.randomUUID().toString(),
                 content = "반가워요! 👋🏻 전화왔어 매니저에요!",
                 type = ManagerFirstMessageType.NORMAL,
                 createdAt = now
@@ -38,7 +39,7 @@ class FirstManagerChatUseCase @Inject constructor() {
 
         emit(
             ManagerFirstMessage(
-                id = "intro",
+                id = UUID.randomUUID().toString(),
                 content = "전화왔어는 AI가 먼저 연락하고,\n사용자를 기억하며 관계를 만들어가는 서비스예요.",
                 type = ManagerFirstMessageType.NORMAL,
                 createdAt = now
@@ -47,7 +48,7 @@ class FirstManagerChatUseCase @Inject constructor() {
 
         emit(
             ManagerFirstMessage(
-                id = "relationship",
+                id = UUID.randomUUID().toString(),
                 content = "대화를 많이 나눌수록,\n더 자연스러운 관계가 생성돼요.",
                 type = ManagerFirstMessageType.RELATIONSHIP,
                 createdAt = now
@@ -56,7 +57,7 @@ class FirstManagerChatUseCase @Inject constructor() {
 
         emit(
             ManagerFirstMessage(
-                id = "guide",
+                id = UUID.randomUUID().toString(),
                 content = "필요한 안내는 언제든 이 채팅방에서 확인해주세요!",
                 type = ManagerFirstMessageType.NORMAL,
                 createdAt = now

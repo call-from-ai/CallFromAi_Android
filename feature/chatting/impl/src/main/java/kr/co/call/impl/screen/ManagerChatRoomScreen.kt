@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +66,16 @@ fun ManagerChatRoomScreenContent(
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
 
+    val listState = rememberLazyListState()
+
+    // 아이템 개수가 늘어나면 맨 아래로
+    LaunchedEffect(state.chatItems.size) {
+        if (state.chatItems.isNotEmpty()) {
+            listState.animateScrollToItem(state.chatItems.lastIndex)
+        }
+    }
+
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -83,7 +95,8 @@ fun ManagerChatRoomScreenContent(
                     .fillMaxSize()
                     .background(CallTheme.colors.background),
                 chatItems = state.chatItems,
-                bottomPadding = overlayHeight,       // 측정한 높이 주입
+                bottomPadding = overlayHeight, // 측정한 높이 주입
+                listState = listState,
             )
         }
 
@@ -91,7 +104,7 @@ fun ManagerChatRoomScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(Alignment.BottomCenter)
-                .onSizeChanged {                     // 오버레이 실제 높이 측정
+                .onSizeChanged {// 오버레이 실제 높이 측정
                     overlayHeight = with(density) { it.height.toDp() }
                 }
         ) {

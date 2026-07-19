@@ -6,6 +6,7 @@ import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.UpdateInfoMessage
 import kr.co.call.domain.model.chatting.UpdateInfoMessageType
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -24,7 +25,7 @@ class WantToUpdateRecordUseCase @Inject constructor() {
 
         emit(
             UpdateInfoMessage(
-                id = "update_record",
+                id = UUID.randomUUID().toString(),
                 content = "기록한 정보는 마이페이지 > 내 프로필에서\n수정할 수 있어요. 📝",
                 type = UpdateInfoMessageType.NORMAL,
                 createdAt = now
@@ -33,7 +34,7 @@ class WantToUpdateRecordUseCase @Inject constructor() {
 
         emit(
             UpdateInfoMessage(
-                id = "update_record_apply",
+                id = UUID.randomUUID().toString(),
                 content = "수정한 정보는\n이후 대화에 자연스럽게 반영 돼요!",
                 type = UpdateInfoMessageType.APPLIED_NATURALLY,
                 createdAt = now

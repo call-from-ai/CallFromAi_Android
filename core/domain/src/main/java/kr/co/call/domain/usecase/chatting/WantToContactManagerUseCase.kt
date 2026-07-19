@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import kr.co.call.domain.model.chatting.AskToAgentMessage
 import kr.co.call.domain.model.chatting.ManagerChatItem
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -23,7 +24,7 @@ class WantToContactManagerUseCase @Inject constructor() {
 
         emit(
             AskToAgentMessage(
-                id = "ask_to_agent",
+                id = UUID.randomUUID().toString(),
                 content = "상담원 문의하기 기능은 준비중이에요.",
                 createdAt = now
             )
