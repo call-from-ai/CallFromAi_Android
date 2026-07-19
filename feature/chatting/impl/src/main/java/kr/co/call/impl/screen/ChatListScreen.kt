@@ -32,7 +32,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ChatListScreen(
     modifier: Modifier = Modifier,
-    onChatRoomClick: (Long, String) -> Unit,
+    onChatRoomClick: (Long) -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     // 상태 구독
@@ -41,7 +41,7 @@ fun ChatListScreen(
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId, sideEffect.name)
+            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
         }
     }
 
@@ -56,7 +56,7 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
-    onChatRoomClick: (Long, String) -> Unit,
+    onChatRoomClick: (Long) -> Unit,
     onIntent: (ChatListIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,8 +100,7 @@ fun ChatListScreenContent(
                             onItemClick = {
                                 onIntent(
                                     ChatListIntent.ClickChatRoom(
-                                        roomId = chatSummary.chatRoomId,
-                                        name = chatSummary.name
+                                        roomId = chatSummary.chatRoomId
                                     )
                                 )
                             }
@@ -153,7 +152,7 @@ private fun ChatListScreenContentPreview() {
                 ),
                 status = LoadStatus.Idle
             ),
-            onChatRoomClick = { _, _ -> },
+            onChatRoomClick = { _ -> },
             onIntent = {}
         )
     }

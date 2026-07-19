@@ -8,7 +8,7 @@ import kr.co.call.impl.screen.ChatListScreen
 import kr.co.call.impl.screen.ChatRoomScreen
 
 fun EntryProviderScope<NavKey>.chattingEntry(
-    navigateToChatRoom: (Long, String) -> Unit,
+    navigateToChatRoom: (Long) -> Unit,
     onBack: () -> Unit = {}
 ) {
     entry<ChattingNavKey> {
@@ -20,7 +20,6 @@ fun EntryProviderScope<NavKey>.chattingEntry(
     entry<ChatRoomNavKey> { key ->
         ChatRoomScreen(
             roomId = key.roomId,
-            name = key.name,
             onBack = onBack
         )
     }
