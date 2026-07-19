@@ -7,7 +7,7 @@ import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
 import kr.co.call.impl.model.SendStatus
-import kr.co.call.impl.viewmodel.ManagerChatUiItem
+import kr.co.call.impl.model.ManagerChatUiItem
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID

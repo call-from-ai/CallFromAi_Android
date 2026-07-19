@@ -21,7 +21,7 @@ import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
-import kr.co.call.impl.viewmodel.ManagerChatUiItem
+import kr.co.call.impl.model.ManagerChatUiItem
 
 @Composable
 fun ManagerChatLazyColumn(

@@ -7,6 +7,7 @@ import kr.co.call.domain.usecase.chatting.FirstManagerChatUseCase
 import kr.co.call.domain.usecase.chatting.WantToGetCallScheduleUseCase
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
+import kr.co.call.impl.state.ManagerChatRoomUiState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container

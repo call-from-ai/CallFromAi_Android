@@ -24,9 +24,9 @@ import kr.co.call.impl.component.chatroom.manager.ManagerChatField
 import kr.co.call.impl.component.chatroom.manager.ManagerChatLazyColumn
 import kr.co.call.impl.component.chatroom.manager.ManagerChatTopBar
 import kr.co.call.impl.component.chatroom.manager.ManagerPromptSlide
-import kr.co.call.impl.viewmodel.ManagerChatRoomUiState
+import kr.co.call.impl.state.ManagerChatRoomUiState
 import kr.co.call.impl.viewmodel.ManagerChatRoomViewModel
-import kr.co.call.impl.viewmodel.ManagerChatUiItem
+import kr.co.call.impl.model.ManagerChatUiItem
 import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable

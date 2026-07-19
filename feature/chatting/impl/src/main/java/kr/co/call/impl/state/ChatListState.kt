@@ -1,4 +1,4 @@
-package kr.co.call.impl.viewmodel
+package kr.co.call.impl.state
 
 import kr.co.call.domain.model.chatting.ChatSummary
 import kr.co.call.domain.util.LoadStatus

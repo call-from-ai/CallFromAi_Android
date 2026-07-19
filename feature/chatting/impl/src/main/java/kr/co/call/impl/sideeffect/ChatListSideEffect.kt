@@ -1,4 +1,4 @@
-package kr.co.call.impl.viewmodel
+package kr.co.call.impl.sideeffect
 
 sealed interface ChatListSideEffect {
     data class NavigateToChatRoom(val roomId: Long): ChatListSideEffect

@@ -1,7 +1,6 @@
-package kr.co.call.impl.viewmodel
+package kr.co.call.impl.state
 
 import android.net.Uri
-import kr.co.call.domain.model.chatting.ChatMessageList
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
 
