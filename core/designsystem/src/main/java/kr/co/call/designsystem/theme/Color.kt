@@ -2,6 +2,7 @@ package kr.co.call.designsystem.theme
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
@@ -23,6 +24,8 @@ val SubGray2 = Color(0xFFF7F3F3)
 val SubRed = Color(0xFFFF0000)
 val SubBlue = Color(0xFF4391FF)
 
+val SubYellow=Color(0xFFFDE500)
+
 val SubPressed = Color(0xFFED5988)
 val SubPressed2 = Color(0xFFFCB4C1)
 val SubPressed3 = Color(0xFF1F0A03)
@@ -42,15 +45,25 @@ val MainGradient = Brush.horizontalGradient(
     listOf(
         Color(0xFFFFA8CF),
         Color(0xFFFFE0B8)
-    )
+    ),
 )
 
 val ChatGradient = Brush.horizontalGradient(
     listOf(
         Color(0xFFFF789F),
         Color(0xFFFFA3BD)
-    )
+    ),
 )
+
+val LandingGradient=Brush.linearGradient(
+    colors=listOf(
+        Color(0xFFFF789F),
+        Color(0xFFFFA3BD)
+    ),
+    start=Offset.Zero,
+    end=Offset.Infinite
+)
+
 
 val ChatGradientReverse = Brush.horizontalGradient(
     listOf(
@@ -78,6 +91,7 @@ data class CallColors(
     val subGray2: Color = SubGray2,
     val subRed: Color = SubRed,
     val subBlue: Color = SubBlue,
+    val subYellow: Color=SubYellow,
     val subPressed: Color = SubPressed,
     val subPressed2: Color = SubPressed2,
     val subPressed3: Color = SubPressed3,
@@ -95,6 +109,7 @@ data class CallColors(
     // Gradient
     val mainGradient: Brush = MainGradient,
     val chatGradient: Brush = ChatGradient,
+    val landingGradient: Brush=LandingGradient,
     val chatGradientReverse: Brush = ChatGradientReverse,
 )
 
