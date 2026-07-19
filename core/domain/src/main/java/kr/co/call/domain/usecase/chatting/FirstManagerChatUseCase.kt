@@ -30,7 +30,7 @@ class FirstManagerChatUseCase @Inject constructor() {
         emit(
             ManagerFirstMessage(
                 id = "welcome",
-                content = "수현님, 반가워요! 👋🏻",
+                content = "반가워요! 👋🏻 전화왔어 매니저에요!",
                 type = ManagerFirstMessageType.NORMAL,
                 createdAt = now
             )
