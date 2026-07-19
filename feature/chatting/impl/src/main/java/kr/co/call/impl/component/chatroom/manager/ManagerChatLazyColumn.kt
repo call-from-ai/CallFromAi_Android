@@ -17,8 +17,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.domain.model.chatting.AskToAgentMessage
+import kr.co.call.domain.model.chatting.ChangePartnerInfoMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
+import kr.co.call.domain.model.chatting.UpdateInfoMessage
+import kr.co.call.domain.model.chatting.UserMessage
+import kr.co.call.domain.model.chatting.WhenCallMessage
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
 import kr.co.call.impl.model.ManagerChatUiItem
@@ -44,6 +49,7 @@ fun ManagerChatLazyColumn(
         ) { item ->
             when(val message = item.message) {
 
+                // 첫 번째 매니저 채팅
                 is ManagerFirstMessage -> {
                     when (message.type) {
 
@@ -88,6 +94,12 @@ fun ManagerChatLazyColumn(
                     }
                 }
 
+                // 상담원 문의
+                is AskToAgentMessage -> TODO()
+                is ChangePartnerInfoMessage -> TODO()
+                is UpdateInfoMessage -> TODO()
+                is UserMessage -> TODO()
+                is WhenCallMessage -> TODO()
             }
         }
 

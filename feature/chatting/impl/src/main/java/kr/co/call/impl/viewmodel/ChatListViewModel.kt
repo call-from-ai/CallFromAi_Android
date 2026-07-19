@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.Intent.ChatListIntent
+import kr.co.call.impl.intent.ChatListIntent
 import kr.co.call.impl.sideeffect.ChatListSideEffect
 import kr.co.call.impl.state.ChatListState
 import org.orbitmvi.orbit.Container

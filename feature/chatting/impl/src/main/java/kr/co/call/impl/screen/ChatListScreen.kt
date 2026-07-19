@@ -22,7 +22,7 @@ import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatlist.ChatListItem
 import kr.co.call.impl.component.chatlist.FrontRow
 import kr.co.call.impl.component.chatlist.LoadingColumn
-import kr.co.call.impl.Intent.ChatListIntent
+import kr.co.call.impl.intent.ChatListIntent
 import kr.co.call.impl.sideeffect.ChatListSideEffect
 import kr.co.call.impl.state.ChatListState
 import kr.co.call.impl.viewmodel.ChatListViewModel
