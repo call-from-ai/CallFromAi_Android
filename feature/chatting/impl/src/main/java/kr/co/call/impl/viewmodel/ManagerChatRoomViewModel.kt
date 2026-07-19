@@ -59,7 +59,7 @@ class ManagerChatRoomViewModel @Inject constructor(
 
     private fun sendUserMessageThen(content: String, flow: Flow<ManagerChatItem>) = intent {
         val userMessage = UserMessage(
-            id = UUID.randomUUID().toString(),
+            id = UUID.randomUUID().toString(), // UI 상태에서 메시지를 구분하기 위한 임시 ID 생성
             content = content,
             createdAt = LocalDateTime.now()
         )

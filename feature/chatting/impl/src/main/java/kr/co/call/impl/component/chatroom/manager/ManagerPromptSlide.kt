@@ -35,14 +35,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.impl.intent.ManagerChatRoomIntent
 
 @Composable
 fun ManagerPromptSlide(
+    onIntent: (ManagerChatRoomIntent) -> Unit,
     modifier: Modifier = Modifier,
-    onCallTimeClick: () -> Unit = {},
-    onChangePartnerClick: () -> Unit = {},
-    onEditRecordClick: () -> Unit = {},
-    onInquiryClick: () -> Unit = {}
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -76,8 +74,8 @@ fun ManagerPromptSlide(
         Spacer(modifier = Modifier.height(21.dp))
 
         // 기본 노출 항목
-        PromptItem(emoji = "☎️", text = "전화는 언제 오나요?", onClick = onCallTimeClick)
-        PromptItem(emoji = "👤", text = "상대방 정보를 변경하고 싶어요.", onClick = onChangePartnerClick)
+        PromptItem(emoji = "☎️", text = "전화는 언제 오나요?", onClick = { onIntent(ManagerChatRoomIntent.ClickWhenCall) })
+        PromptItem(emoji = "👤", text = "상대방 정보를 변경하고 싶어요.", onClick = { onIntent(ManagerChatRoomIntent.ClickChangePartnerInfo) })
 
         // 슬라이드 업 시 추가 노출 항목
         AnimatedVisibility(
@@ -86,8 +84,8 @@ fun ManagerPromptSlide(
             exit = shrinkVertically(animationSpec = tween(300))
         ) {
             Column {
-                PromptItem(emoji = "📝", text = "기록한 정보를 수정하고 싶어요.", onClick = onEditRecordClick)
-                PromptItem(emoji = "💬", text = "상담원에게 문의하기", onClick = onInquiryClick)
+                PromptItem(emoji = "📝", text = "기록한 정보를 수정하고 싶어요.", onClick = { onIntent(ManagerChatRoomIntent.ClickUpdateInfo) })
+                PromptItem(emoji = "💬", text = "상담원에게 문의하기", onClick = { onIntent(ManagerChatRoomIntent.ClickAskToAgent) })
             }
         }
     }
@@ -125,6 +123,6 @@ private fun PromptItem(
 @Composable
 private fun ManagerPromptSlidePreview() {
     CallFromAiTheme {
-        ManagerPromptSlide()
+        ManagerPromptSlide(onIntent = {})
     }
 }

@@ -2,6 +2,8 @@ package kr.co.call.impl.component.chatroom.manager
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -19,13 +21,16 @@ import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.chatting.AskToAgentMessage
 import kr.co.call.domain.model.chatting.ChangePartnerInfoMessage
+import kr.co.call.domain.model.chatting.ChangePartnerInfoMessageType
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
 import kr.co.call.domain.model.chatting.UpdateInfoMessage
+import kr.co.call.domain.model.chatting.UpdateInfoMessageType
 import kr.co.call.domain.model.chatting.UserMessage
 import kr.co.call.domain.model.chatting.WhenCallMessage
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
+import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.model.ManagerChatUiItem
 
 @Composable
@@ -95,11 +100,71 @@ fun ManagerChatLazyColumn(
                 }
 
                 // 상담원 문의
-                is AskToAgentMessage -> TODO()
-                is ChangePartnerInfoMessage -> TODO()
-                is UpdateInfoMessage -> TODO()
-                is UserMessage -> TODO()
-                is WhenCallMessage -> TODO()
+                is AskToAgentMessage -> {
+                    ChatLightPinkBubble(
+                        text = AnnotatedString(message.content),
+                        time = item.time
+                    )
+                }
+
+                // 상대방 정보 변경
+                is ChangePartnerInfoMessage -> {
+                    when (message.type) {
+                        ChangePartnerInfoMessageType.NORMAL -> {
+                            ChatGrayBubble(
+                                text = AnnotatedString(message.content),
+                                time = item.time,
+                                isLoading = item.loadStatus == LoadStatus.Loading
+                            )
+                        }
+                        ChangePartnerInfoMessageType.NEXT_CONVERSATION -> {
+                            ChatLightPinkBubble(
+                                text = AnnotatedString(message.content),
+                                time = item.time
+                            )
+                        }
+                    }
+                }
+
+                // 기록 정보 수정
+                is UpdateInfoMessage -> {
+                    when (message.type) {
+                        UpdateInfoMessageType.NORMAL -> {
+                            ChatGrayBubble(
+                                text = AnnotatedString(message.content),
+                                time = item.time,
+                                isLoading = item.loadStatus == LoadStatus.Loading
+                            )
+                        }
+                        UpdateInfoMessageType.APPLIED_NATURALLY -> {
+                            ChatLightPinkBubble(
+                                text = AnnotatedString(message.content),
+                                time = item.time
+                            )
+                        }
+                    }
+                }
+
+                is UserMessage -> {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        ChatPinkBubble(
+                            text = message.content,
+                            time = item.time
+                        )
+                    }
+                }
+
+                // 전화 일정 안내
+                is WhenCallMessage -> {
+                    ChatGrayBubble(
+                        text = AnnotatedString(message.content),
+                        time = item.time,
+                        isLoading = item.loadStatus == LoadStatus.Loading
+                    )
+                }
             }
         }
 

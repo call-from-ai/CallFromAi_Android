@@ -9,10 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.ui.Alignment
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import java.time.LocalDateTime
@@ -24,6 +25,7 @@ import kr.co.call.impl.component.chatroom.manager.ManagerChatField
 import kr.co.call.impl.component.chatroom.manager.ManagerChatLazyColumn
 import kr.co.call.impl.component.chatroom.manager.ManagerChatTopBar
 import kr.co.call.impl.component.chatroom.manager.ManagerPromptSlide
+import kr.co.call.impl.intent.ManagerChatRoomIntent
 import kr.co.call.impl.state.ManagerChatRoomUiState
 import kr.co.call.impl.viewmodel.ManagerChatRoomViewModel
 import kr.co.call.impl.model.ManagerChatUiItem
@@ -41,7 +43,8 @@ fun ManagerChatRoomScreen(
     ManagerChatRoomScreenContent(
         modifier = modifier,
         onBack = onBack,
-        state = state // 상태 호이스팅
+        state = state, // 상태 호이스팅
+        onIntent = viewModel::handleIntent
     )
 }
 
@@ -50,6 +53,7 @@ fun ManagerChatRoomScreenContent(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
     state: ManagerChatRoomUiState,
+    onIntent: (ManagerChatRoomIntent) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -80,6 +84,7 @@ fun ManagerChatRoomScreenContent(
                 .align(Alignment.BottomCenter)
         ) {
             ManagerPromptSlide(
+                onIntent = onIntent,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
@@ -114,7 +119,8 @@ private fun ManagerChatRoomScreenContentPreview() {
                     )
                 )
             ),
-            onBack = {}
+            onBack = {},
+            onIntent = {}
         )
     }
 }
