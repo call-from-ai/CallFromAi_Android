@@ -114,6 +114,13 @@ private fun FaqScreenContent(
                         color = CallTheme.colors.gray400,
                     )
                 }
+                loadStatus is LoadStatus.Error -> {
+                    Text(
+                        text = loadStatus.message,
+                        style = CallTheme.typography.bodyMedium,
+                        color = CallTheme.colors.gray400,
+                    )
+                }
                 items.isEmpty() -> {
                     Text(
                         text = "등록된 질문이 없습니다.",
@@ -326,6 +333,22 @@ private fun FaqScreenEmptyPreview() {
             items = emptyList(),
             expandedQuestions = emptySet(),
             loadStatus = LoadStatus.Idle,
+            onSelectCategory = {},
+            onToggleQuestion = {},
+            onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "에러 상태")
+@Composable
+private fun FaqScreenErrorPreview() {
+    CallFromAiTheme {
+        FaqScreenContent(
+            selectedCategory = FaqCategory.CHARACTER,
+            items = emptyList(),
+            expandedQuestions = emptySet(),
+            loadStatus = LoadStatus.Error("네트워크 오류가 발생했습니다."),
             onSelectCategory = {},
             onToggleQuestion = {},
             onBackClick = {},
