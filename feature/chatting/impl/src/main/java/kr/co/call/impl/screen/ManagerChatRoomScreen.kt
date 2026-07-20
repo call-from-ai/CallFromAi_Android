@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import java.time.LocalDate
 import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -132,7 +133,8 @@ private fun ManagerChatRoomScreenContentPreview() {
         ManagerChatRoomScreenContent(
             state = ManagerChatRoomUiState(
                 chatItems = listOf(
-                    ManagerChatUiItem(
+                    ManagerChatUiItem.DateSeparator(date = LocalDate.now()),
+                    ManagerChatUiItem.Message(
                         message = ManagerFirstMessage(
                             id = "1",
                             content = "안녕하세요! 무엇을 도와드릴까요?",
@@ -155,16 +157,21 @@ private fun ManagerChatRoomScreenContentTestPreview() {
     CallFromAiTheme {
         ManagerChatRoomScreenContent(
             state = ManagerChatRoomUiState(
-                chatItems = List(40) { i ->
-                    ManagerChatUiItem(
-                        message = ManagerFirstMessage(
-                            id = "$i",                       // 유니크해야 함
-                            content = "메시지 $i - 스크롤 테스트용 더미 데이터입니다.",
-                            type = ManagerFirstMessageType.NORMAL,
-                            createdAt = LocalDateTime.now()
-                        ),
-                        time = "오전 10:${(i % 60).toString().padStart(2, '0')}"
-                    )
+                chatItems = buildList {
+                    add(ManagerChatUiItem.DateSeparator(date = LocalDate.now()))
+                    repeat(40) { i ->
+                        add(
+                            ManagerChatUiItem.Message(
+                                message = ManagerFirstMessage(
+                                    id = "$i",                       // 유니크해야 함
+                                    content = "메시지 $i - 스크롤 테스트용 더미 데이터입니다.",
+                                    type = ManagerFirstMessageType.NORMAL,
+                                    createdAt = LocalDateTime.now()
+                                ),
+                                time = "오전 10:${(i % 60).toString().padStart(2, '0')}"
+                            )
+                        )
+                    }
                 }
             ),
             onBack = {},

@@ -18,8 +18,8 @@ object UiModelMapper {
 
     fun ManagerChatItem.toUiItem(
         loadStatus: LoadStatus = LoadStatus.Idle,
-    ): ManagerChatUiItem =
-        ManagerChatUiItem(
+    ): ManagerChatUiItem.Message =
+        ManagerChatUiItem.Message(
             message = this,
             loadStatus = loadStatus,
             time = this.createdAt.format(timeFormatter),

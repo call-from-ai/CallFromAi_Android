@@ -8,6 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.UserMessage
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kr.co.call.domain.usecase.chatting.FirstManagerChatUseCase
@@ -18,6 +19,7 @@ import kr.co.call.domain.usecase.chatting.WantToUpdateRecordUseCase
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ManagerChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
+import kr.co.call.impl.model.ManagerChatUiItem
 import kr.co.call.impl.state.ManagerChatRoomUiState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -96,7 +98,11 @@ class ManagerChatRoomViewModel @Inject constructor(
 
         // 유저 메세지 추가.
         reduce {
-            state.copy(chatItems = state.chatItems + userMessage.toUiItem())
+            state.copy(
+                chatItems = state.chatItems
+                    + dateSeparatorIfNeeded(state.chatItems, userMessage.createdAt.toLocalDate())
+                    + userMessage.toUiItem()
+            )
         }
 
         // 매니저 메세지 flow 구독
@@ -112,13 +118,18 @@ class ManagerChatRoomViewModel @Inject constructor(
     ) {
         flow.collect { message ->
             reduce {
-                state.copy(chatItems = state.chatItems + message.toUiItem(loadStatus = LoadStatus.Loading))
+                state.copy(
+                    chatItems = state.chatItems
+                        + dateSeparatorIfNeeded(state.chatItems, message.createdAt.toLocalDate())
+                        + message.toUiItem(loadStatus = LoadStatus.Loading)
+                )
             }
             delay(1500.milliseconds)
             reduce {
                 state.copy(
                     chatItems = state.chatItems.map { item ->
-                        if (item.message.id == message.id) item.copy(loadStatus = LoadStatus.Idle)
+                        if (item is ManagerChatUiItem.Message && item.message.id == message.id)
+                            item.copy(loadStatus = LoadStatus.Idle)
                         else item
                     }
                 )
@@ -126,4 +137,25 @@ class ManagerChatRoomViewModel @Inject constructor(
         }
     }
 
+    // 마지막 메시지의 날짜와 다를 경우에만 DateSeparator를 반환
+    private fun dateSeparatorIfNeeded(
+        chatItems: List<ManagerChatUiItem>,
+        date: LocalDate
+    ): List<ManagerChatUiItem> {
+
+        // 현재 채팅 목록에서 마지막 메시지 아이템의 날짜를 가져옴
+        // DateSeparator는 제외하고 실제 메시지 데이터만 기준으로 비교
+        val lastDate = chatItems
+            .filterIsInstance<ManagerChatUiItem.Message>()
+            .lastOrNull()
+            ?.message?.createdAt?.toLocalDate()
+
+        // 기존 메시지가 없거나 마지막 메시지와 날짜가 다르면
+        // 새로운 날짜 구분선을 추가
+        return if (lastDate == null || lastDate != date) {
+            listOf(ManagerChatUiItem.DateSeparator(date))
+        } else {
+            emptyList()
+        }
+    }
 }

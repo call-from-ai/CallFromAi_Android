@@ -49,7 +49,7 @@ import kr.co.call.impl.model.ManagerChatUiItem
  */
 @Composable
 fun ManagerChatItemContent(
-    item: ManagerChatUiItem,
+    item: ManagerChatUiItem.Message,
     modifier: Modifier = Modifier,
 ) {
     when (val message = item.message) {
@@ -163,7 +163,7 @@ fun ManagerChatItemContent(
 @Composable
 private fun ManagerChatItemContentPreview() {
     val sampleItems = listOf(
-        ManagerChatUiItem(
+        ManagerChatUiItem.Message(
             message = ManagerFirstMessage(
                 id = "1",
                 content = "안녕하세요! 전화왔어 매니저입니다.",
@@ -172,7 +172,7 @@ private fun ManagerChatItemContentPreview() {
             ),
             time = "오후 2:00"
         ),
-        ManagerChatUiItem(
+        ManagerChatUiItem.Message(
             message = ManagerFirstMessage(
                 id = "2",
                 content = "대화를 많이 나눌수록,\n더 자연스러운 관계가 생성돼요.",
@@ -181,7 +181,7 @@ private fun ManagerChatItemContentPreview() {
             ),
             time = "오후 2:01"
         ),
-        ManagerChatUiItem(
+        ManagerChatUiItem.Message(
             message = UserMessage(
                 id = "3",
                 content = "반가워요!",
@@ -189,7 +189,7 @@ private fun ManagerChatItemContentPreview() {
             ),
             time = "오후 2:02"
         ),
-        ManagerChatUiItem(
+        ManagerChatUiItem.Message(
             message = WhenCallMessage(
                 id = "4",
                 content = "오늘 오후 3시에 전화 드릴게요.",
