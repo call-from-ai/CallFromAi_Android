@@ -75,7 +75,6 @@ fun ManagerChatRoomScreenContent(
         }
     }
 
-
     Box(
         modifier = modifier
             .fillMaxSize()

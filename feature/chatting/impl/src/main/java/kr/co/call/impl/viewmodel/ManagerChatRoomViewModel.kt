@@ -44,6 +44,7 @@ class ManagerChatRoomViewModel @Inject constructor(
         }
     }
 
+    // UI에 노출할 함수
     fun handleIntent(intent: ManagerChatRoomIntent) {
         when (intent) {
             ManagerChatRoomIntent.ClickWhenCall ->
@@ -57,15 +58,19 @@ class ManagerChatRoomViewModel @Inject constructor(
         }
     }
 
+    // 사용자의 선택 메시지를 추가한 뒤, 해당 요청에 대한 매니저 응답을 처리
     private fun sendUserMessageThen(content: String, flow: Flow<ManagerChatItem>) = intent {
         val userMessage = UserMessage(
             id = UUID.randomUUID().toString(), // UI 상태에서 메시지를 구분하기 위한 임시 ID 생성
             content = content,
             createdAt = LocalDateTime.now()
         )
+
+        // 유저 메세지 추가
         reduce {
             state.copy(chatItems = state.chatItems + userMessage.toUiItem())
         }
+
         appendManagerMessages(flow)
     }
 

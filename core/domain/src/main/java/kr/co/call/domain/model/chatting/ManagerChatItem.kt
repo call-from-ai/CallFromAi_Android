@@ -4,13 +4,14 @@ import java.time.LocalDateTime
 
 sealed interface ManagerChatItem {
     val id: String
+    val content: String
     val createdAt: LocalDateTime
 }
 
 // ======== 첫 번째 매니저 채팅 ==========
 data class ManagerFirstMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     val type: ManagerFirstMessageType,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
@@ -24,7 +25,7 @@ enum class ManagerFirstMessageType {
 // ======= 전화는 언제 오나요? 에 대한 매니저 채팅 ==========
 data class WhenCallMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
 
@@ -32,7 +33,7 @@ data class WhenCallMessage(
 // ======= 상대방 정보를 변경하고 싶어요. 에 대한 매니저 채팅 ==========
 data class ChangePartnerInfoMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     val type: ChangePartnerInfoMessageType,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
@@ -46,7 +47,7 @@ enum class ChangePartnerInfoMessageType {
 // ======= 기록한 정보를 수정하고 싶어요. 에 대한 매니저 채팅 ==========
 data class UpdateInfoMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     val type: UpdateInfoMessageType,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
@@ -60,7 +61,7 @@ enum class UpdateInfoMessageType {
 // ======= 상담원에게 문의하기 에 대한 매니저 채팅 ==========
 data class AskToAgentMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
 
@@ -68,6 +69,6 @@ data class AskToAgentMessage(
 // ======== 유저 채팅 =========
 data class UserMessage(
     override val id: String,
-    val content: String,
+    override val content: String,
     override val createdAt: LocalDateTime,
 ): ManagerChatItem
