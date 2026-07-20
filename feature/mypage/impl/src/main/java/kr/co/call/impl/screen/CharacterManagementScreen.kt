@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -124,7 +125,10 @@ private fun CharacterManagementScreenContent(
     modifier: Modifier = Modifier,
 ) {
     Column(
-        modifier = modifier.fillMaxSize().background(CallTheme.colors.background),
+        modifier = modifier
+            .fillMaxSize()
+            .background(CallTheme.colors.background)
+            .statusBarsPadding(),
     ) {
         // 상단 앱바
         CommonTopAppBar(title = "캐릭터 관리", onBackClick = onBackClick)
