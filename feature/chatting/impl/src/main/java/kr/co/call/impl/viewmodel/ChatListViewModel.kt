@@ -51,7 +51,7 @@ class ChatListViewModel @Inject constructor(
     fun handleIntent(intent: ChatListIntent) {
         when (intent) {
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
-            ChatListIntent.ClickManagerChatRoom -> TODO()
+            ChatListIntent.ClickManagerChatRoom -> emitNavigateToManagerChatRoom()
         }
     }
 

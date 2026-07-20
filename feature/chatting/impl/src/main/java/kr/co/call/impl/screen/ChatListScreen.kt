@@ -49,8 +49,6 @@ fun ChatListScreen(
 
     ChatListScreenContent(
         state = state,
-        onChatRoomClick = onChatRoomClick,
-        onManagerChatRoomClick = onManagerChatRoomClick,
         onIntent = viewModel::handleIntent,
         modifier = modifier
     )
@@ -59,8 +57,6 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
-    onChatRoomClick: (Long) -> Unit,
-    onManagerChatRoomClick: () -> Unit,
     onIntent: (ChatListIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -119,7 +115,7 @@ fun ChatListScreenContent(
                                 name = "전화왔어 매니저",
                                 content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를",
                             ),
-                            onClick = onManagerChatRoomClick
+                            onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
                         )
                     }
                 }
@@ -156,8 +152,6 @@ private fun ChatListScreenContentPreview() {
                 ),
                 status = LoadStatus.Idle
             ),
-            onChatRoomClick = { _ -> },
-            onManagerChatRoomClick = {},
             onIntent = {}
         )
     }
