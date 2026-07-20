@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -21,7 +22,9 @@ fun TermScreen(
     modifier: Modifier = Modifier,
     onBackClick: () -> Unit,
 ) {
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier
+        .fillMaxSize()
+        .statusBarsPadding()) {
         // 상단 앱바
         CommonTopAppBar(onBackClick = onBackClick, title = "약관/개인정보 처리 방침")
 
@@ -34,7 +37,7 @@ fun TermScreen(
             Spacer(modifier= Modifier.height(32.dp))
 
             // 약관 내용
-            /**TODO: 추후 하드코딩된 글자들 모두 string.xml으로 분리하기*/
+            /**TODO: 추후 하드코딩된 글자들 모두 string.xml으로 분리 or api 처리*/
             Text(
                 text = "전화왔어 서비스 이용약관",
                 style = CallTheme.typography.bodyMediumMedium,

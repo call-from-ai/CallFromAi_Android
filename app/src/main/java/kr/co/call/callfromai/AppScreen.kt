@@ -59,7 +59,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val showBottomBar = when (currentKey) {
         is HomeNavKey,
         is ChattingNavKey,
-        is MyPageNavKey -> true
+        is MyPageNavKey,
+        is FaqNavKey,
+        is TermNavKey -> true
 
         else -> false
     }
