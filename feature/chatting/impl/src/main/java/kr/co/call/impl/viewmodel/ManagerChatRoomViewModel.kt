@@ -2,6 +2,8 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kr.co.call.domain.model.chatting.ManagerChatItem
@@ -38,14 +40,36 @@ class ManagerChatRoomViewModel @Inject constructor(
         initialState = ManagerChatRoomUiState()
     )
 
+    // 용량 1의 작업 큐. 가득 차면 새로 들어온 요청을 버림(DROP_LATEST)
+    private val intentChannel = Channel<ManagerChatRoomIntent>(
+        capacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_LATEST
+    )
+
     init {
         intent {
+            // 첫 매니저 인사
             appendManagerMessages(firstManagerChatUseCase())
+
+            // 채널에 쌓인 인텐트를 하나씩 순차 처리 (단일 코루틴이므로 직렬 처리가 보장)
+            for (chatIntent in intentChannel) {
+                processIntent(chatIntent)
+            }
         }
     }
 
     // UI에 노출할 함수
     fun handleIntent(intent: ManagerChatRoomIntent) {
+        // 발생한 intent를 큐에 send
+        intentChannel.trySend(intent)
+    }
+
+    // Intent별 사용자 액션을 처리하고,
+    // 해당 액션에 대응하는 사용자 메시지와 매니저 응답 Flow를 연결
+    // 각 UseCase Flow에서 방출되는 메시지는 순차적으로 채팅 상태에 반영
+    private suspend fun Syntax<ManagerChatRoomUiState, Nothing>.processIntent(
+        intent: ManagerChatRoomIntent
+    ) {
         when (intent) {
             ManagerChatRoomIntent.ClickWhenCall ->
                 sendUserMessageThen("전화는 언제 오나요?", wantToGetCallScheduleUseCase())
@@ -59,18 +83,22 @@ class ManagerChatRoomViewModel @Inject constructor(
     }
 
     // 사용자의 선택 메시지를 추가한 뒤, 해당 요청에 대한 매니저 응답을 처리
-    private fun sendUserMessageThen(content: String, flow: Flow<ManagerChatItem>) = intent {
+    private suspend fun Syntax<ManagerChatRoomUiState, Nothing>.sendUserMessageThen(
+        content: String,
+        flow: Flow<ManagerChatItem>
+    ) {
         val userMessage = UserMessage(
-            id = UUID.randomUUID().toString(), // UI 상태에서 메시지를 구분하기 위한 임시 ID 생성
+            id = UUID.randomUUID().toString(),
             content = content,
             createdAt = LocalDateTime.now()
         )
 
-        // 유저 메세지 추가
+        // 유저 메세지 추가.
         reduce {
             state.copy(chatItems = state.chatItems + userMessage.toUiItem())
         }
 
+        // 매니저 메세지 flow 구독
         appendManagerMessages(flow)
     }
 
