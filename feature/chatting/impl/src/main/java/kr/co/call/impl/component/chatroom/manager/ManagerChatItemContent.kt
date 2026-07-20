@@ -136,9 +136,12 @@ fun ManagerChatItemContent(
         }
 
         // 유저 메세지
+        // 오른쪽 정렬을 위해 Arrangement.End인 Row 사용
         is UserMessage -> {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 18.dp),
                 horizontalArrangement = Arrangement.End
             ) {
                 ChatPinkBubble(

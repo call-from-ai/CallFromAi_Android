@@ -124,7 +124,9 @@ class ManagerChatRoomViewModel @Inject constructor(
                         + message.toUiItem(loadStatus = LoadStatus.Loading)
                 )
             }
+
             delay(1500.milliseconds)
+
             reduce {
                 state.copy(
                     chatItems = state.chatItems.map { item ->
