@@ -194,15 +194,15 @@ private fun FaqQnaItem(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                onClick = onToggle,
-            )
     ) {
         // 질문 행
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onToggle,
+                )
                 .padding(horizontal = 31.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp)

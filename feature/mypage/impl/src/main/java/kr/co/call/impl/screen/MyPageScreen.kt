@@ -117,7 +117,7 @@ private fun MyPageScreenContent(
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
 
                 Spacer(modifier = Modifier.height(80.dp))
@@ -204,6 +204,8 @@ private fun MyPageScreenContent(
                         },
                     )
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
             if (state.loadStatus == LoadStatus.Loading) {

@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ fun TermScreen(
 ) {
     Column(modifier = modifier
         .fillMaxSize()
+        .background(CallTheme.colors.background)
         .statusBarsPadding()) {
         // 상단 앱바
         CommonTopAppBar(onBackClick = onBackClick, title = "약관/개인정보 처리 방침")
@@ -37,7 +39,7 @@ fun TermScreen(
             Spacer(modifier= Modifier.height(32.dp))
 
             // 약관 내용
-            /**TODO: 추후 하드코딩된 글자들 모두 string.xml으로 분리 or api 처리*/
+            /**TODO: 추후 실제 내용으로 변경 + 하드코딩된 글자들 모두 string.xml으로 분리 or api 처리*/
             Text(
                 text = "전화왔어 서비스 이용약관",
                 style = CallTheme.typography.bodyMediumMedium,
