@@ -2,36 +2,20 @@ package kr.co.call.impl.component.chatroom.manager
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import kr.co.call.designsystem.theme.MainVariant1
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
-import kr.co.call.domain.model.chatting.AskToAgentMessage
-import kr.co.call.domain.model.chatting.ChangePartnerInfoMessage
-import kr.co.call.domain.model.chatting.ChangePartnerInfoMessageType
 import kr.co.call.domain.model.chatting.ManagerFirstMessage
 import kr.co.call.domain.model.chatting.ManagerFirstMessageType
-import kr.co.call.domain.model.chatting.UpdateInfoMessage
-import kr.co.call.domain.model.chatting.UpdateInfoMessageType
-import kr.co.call.domain.model.chatting.UserMessage
-import kr.co.call.domain.model.chatting.WhenCallMessage
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.component.chatroom.ChatGrayBubble
-import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.model.ManagerChatUiItem
 
 @Composable

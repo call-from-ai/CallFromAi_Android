@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.domain.model.chatting.AskToAgentMessage
 import kr.co.call.domain.model.chatting.ChangePartnerInfoMessage
 import kr.co.call.domain.model.chatting.ChangePartnerInfoMessageType

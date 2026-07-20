@@ -1,6 +1,5 @@
 package kr.co.call.impl.component.chatroom.manager
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
