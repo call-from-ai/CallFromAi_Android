@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.HomeNavKey
@@ -111,7 +112,13 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.popBackStack()
                         }
                     )
-                    myPageEntry()
+                    myPageEntry(
+                        navigateToCharacterManagement = {
+                        appNavigator.navigate(CharacterManagementNavKey)
+                    },
+                        onBack = {
+                            appNavigator.popBackStack()
+                        })
                 }
             )
         }
