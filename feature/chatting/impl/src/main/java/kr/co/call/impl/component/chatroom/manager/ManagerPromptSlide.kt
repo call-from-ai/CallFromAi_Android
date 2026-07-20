@@ -37,11 +37,22 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.intent.ManagerChatRoomIntent
 
+/**
+ * 매니저 채팅방에서 빠른 액션 프롬프트를 표시하는 드래그 가능한 슬라이드 업 패널 컴포저블입니다.
+ *
+ * 이 컴포넌트는 세로 방향 드래그 제스처를 통해 추가 옵션 영역을 확장하거나 축소할 수 있습니다.
+ * 상단에 드래그 핸들을 포함하며, [AnimatedVisibility]를 사용하여
+ * 접힌 상태와 펼쳐진 상태 사이의 전환 애니메이션을 처리합니다.
+ *
+ * @param onIntent 사용자 상호작용에 의해 발생한 [ManagerChatRoomIntent]를 전달하는 콜백 함수입니다.
+ * @param modifier 이 컴포넌트의 최상위 컨테이너에 적용할 [Modifier]입니다.
+ */
 @Composable
 fun ManagerPromptSlide(
     onIntent: (ManagerChatRoomIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // 슬라이드 패널의 확장 상태 관리
     var isExpanded by remember { mutableStateOf(false) }
 
     Column(
@@ -54,6 +65,9 @@ fun ManagerPromptSlide(
             .background(Color.White, RoundedCornerShape(30.dp))
             .draggable(
                 orientation = Orientation.Vertical,
+                // 세로 드래그 방향에 따라 패널 확장/축소 상태 변경
+                // 위로 일정 거리 이상 드래그하면 확장,
+                // 아래로 일정 거리 이상 드래그하면 축소
                 state = rememberDraggableState { delta ->
                     if (delta < -5f) isExpanded = true
                     if (delta > 5f) isExpanded = false
@@ -63,7 +77,7 @@ fun ManagerPromptSlide(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        // 드래그 핸들
+        // 사용자에게 드래그 가능한 영역임을 나타내는 핸들 표시
         Box(
             modifier = Modifier
                 .size(width = 62.dp, height = 4.dp)
@@ -101,15 +115,19 @@ private fun PromptItem(
         modifier = Modifier
             .fillMaxWidth()
             .height(40.dp)
-            .clickable(onClick = onClick)
+            .clickable(onClick = onClick) // 액션 항목 전체 영역을 클릭 영역으로 사용
             .padding(horizontal = 23.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // 이모지 아이콘 표시
         Text(
             text = emoji,
             style = CallTheme.typography.bodyMedium
         )
+
         Spacer(modifier = Modifier.width(14.dp))
+
+        // 액션 설명 텍스트 표시
         Text(
             text = text,
             style = CallTheme.typography.bodyMedium.copy(

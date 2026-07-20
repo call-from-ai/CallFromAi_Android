@@ -48,10 +48,13 @@ fun LoadingIndicator(
     bounceHeight: Dp = 3.dp,
 ) {
     Row(
-        modifier = modifier.padding(top = bounceHeight), // 튀어오를 공간 확보
+        // 점이 위로 이동할 때 잘리지 않도록 상단 여백 확보
+        modifier = modifier.padding(top = bounceHeight),
         horizontalArrangement = Arrangement.spacedBy(spaceBetween),
     ) {
         repeat(3) { index ->
+            // 각 점마다 시작 지연 시간을 다르게 적용하여
+            // 순차적으로 튀는 타이핑 인디케이터 효과 생성
             AnimatedDot(
                 color = dotColors[index],
                 size = dotSize,
@@ -78,17 +81,28 @@ private fun AnimatedDot(
     bounceHeight: Dp,
     delayMillis: Int,
 ) {
+    // 각 점마다 독립적인 무한 반복 애니메이션을 생성
+    // delayMillis를 통해 점마다 애니메이션 시작 시점을 다르게 설정
     val transition = rememberInfiniteTransition(label = "typing")
 
+    // 0 -> 1 -> 0 형태의 진행 값을 생성
+    // progress 값은 실제 이동 거리 계산에 사용
+    // 최고점에서는 bounceHeight만큼 위로 이동
     val progress by transition.animateFloat(
         initialValue = 0f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = 900
+                // 애니메이션 시작
                 0f at 0 using FastOutSlowInEasing
-                1f at 300 using FastOutSlowInEasing   // 300ms에 최고점
-                0f at 600 using FastOutSlowInEasing   // 600ms에 원위치
+
+                // 300ms 후 최고점 도달
+                1f at 300 using FastOutSlowInEasing
+
+                // 600ms 후 원위치 복귀
+                0f at 600 using FastOutSlowInEasing
+
                 // 600~900ms는 대기(idle)
             },
             initialStartOffset = StartOffset(delayMillis),
@@ -99,6 +113,8 @@ private fun AnimatedDot(
     Box(
         modifier = Modifier
             .size(size)
+            // progress 값에 따라 Y축 이동 적용
+            // progress가 1일 때 가장 위로 이동하고 0일 때 원위치
             .graphicsLayer {
                 translationY = -progress * bounceHeight.toPx()
             }

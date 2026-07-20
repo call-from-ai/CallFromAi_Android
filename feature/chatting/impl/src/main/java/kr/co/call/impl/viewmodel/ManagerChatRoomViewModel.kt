@@ -51,7 +51,8 @@ class ManagerChatRoomViewModel @Inject constructor(
             // 첫 매니저 인사
             appendManagerMessages(firstManagerChatUseCase())
 
-            // 채널에 쌓인 인텐트를 하나씩 순차 처리 (단일 코루틴이므로 직렬 처리가 보장)
+            // 채널에 전달된 Intent를 지속적으로 소비하며 순차 처리.
+            // 단일 코루틴이므로 직렬 처리 보장
             for (chatIntent in intentChannel) {
                 processIntent(chatIntent)
             }
