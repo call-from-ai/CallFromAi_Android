@@ -25,8 +25,10 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
+import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
@@ -111,7 +113,11 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.popBackStack()
                         }
                     )
-                    myPageEntry()
+                    myPageEntry(
+                        navigateToFaq = { appNavigator.navigate(FaqNavKey) },
+                        navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        onBack = { appNavigator.popBackStack() },
+                    )
                 }
             )
         }
