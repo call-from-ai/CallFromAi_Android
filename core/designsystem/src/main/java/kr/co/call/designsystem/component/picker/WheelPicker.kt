@@ -1,6 +1,9 @@
 package kr.co.call.designsystem.component.picker
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
@@ -25,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.abs
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -144,10 +148,28 @@ fun <T> WheelPicker(
                 1 -> CallTheme.colors.gray400
                 else -> CallTheme.colors.gray200
             }
+
+            // 색상을 정해진 시간 동안 변경
             val textColor by animateColorAsState(
                 targetValue = targetColor,
                 animationSpec = tween(durationMillis = 180),
                 label = "wheelPickerTextColor",
+            )
+
+            // 중앙과의 거리에 따라 목표 글자 크기를 결정
+            val targetFontSize = if (distanceFromCenter >= 2) {
+                CallTheme.typography.bodyLarge.fontSize.value
+            } else {
+                CallTheme.typography.titleSmall.fontSize.value
+            }
+
+            val fontSize by animateFloatAsState(
+                targetValue = targetFontSize,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMediumLow,
+                ),
+                label = "wheelPickerFontSize",
             )
 
             Box(
@@ -159,7 +181,9 @@ fun <T> WheelPicker(
                 Text(
                     text = itemText(item),
                     color = textColor,
-                    style = CallTheme.typography.titleSmall,
+                    style = CallTheme.typography.titleSmall.copy(
+                        fontSize = fontSize.sp,
+                    ),
                     textAlign = TextAlign.Center,
                 )
             }
