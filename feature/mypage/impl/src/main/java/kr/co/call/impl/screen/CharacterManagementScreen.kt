@@ -32,7 +32,6 @@ import kr.co.call.impl.viewmodel.CharacterManagementIntent
 import kr.co.call.impl.viewmodel.CharacterManagementSideEffect
 import kr.co.call.impl.viewmodel.CharacterManagementState
 import kr.co.call.impl.viewmodel.CharacterManagementViewModel
-import kr.co.call.impl.viewmodel.MyPageState
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -67,6 +66,7 @@ fun CharacterManagementScreen(
         modifier = modifier,
     )
 
+    // 팝업 - 채팅 기록 보기
     chatHistoryTarget?.let { character ->
         OneButtonPopup(
             label = "채팅 기록 보기",
@@ -77,6 +77,7 @@ fun CharacterManagementScreen(
         )
     }
 
+    // 팝업 - 캐릭터 영구 삭제 확인
     deleteTarget?.let { character ->
         TwoButtonPopup(
             label = "캐릭터 영구 삭제",
@@ -93,6 +94,7 @@ fun CharacterManagementScreen(
         )
     }
 
+    // 팝업 - 캐릭터 영구 삭제
     if (showMainDeleteBlocked) {
         OneButtonPopup(
             label = "캐릭터 영구 삭제",
@@ -103,6 +105,7 @@ fun CharacterManagementScreen(
         )
     }
 
+    // 팝업 - 캐릭터 추가하기(24시간 생성 제약)
     if (showAddBlocked) {
         OneButtonPopup(
             label = "캐릭터 추가하기",
