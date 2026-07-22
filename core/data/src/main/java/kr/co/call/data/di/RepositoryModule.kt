@@ -8,8 +8,10 @@ import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
 import kr.co.call.domain.repository.ChatRepository
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
+import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.domain.repository.MyPageRepository
 
 @Module
@@ -30,4 +32,9 @@ abstract class RepositoryModule {
     abstract fun bindMyPageRepository(
         impl: MyPageRepositoryImpl
     ): MyPageRepository
+    @Binds
+    @Singleton
+    abstract fun bindLoginRepository(
+        loginRepositoryImpl: LoginRepositoryImpl,
+    ): LoginRepository
 }

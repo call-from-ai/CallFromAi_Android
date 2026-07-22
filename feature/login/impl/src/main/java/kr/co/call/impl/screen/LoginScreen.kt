@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -27,13 +29,20 @@ import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.SubYellow
 import kr.co.call.designsystem.theme.White
+import kr.co.call.impl.auth.KakaoLoginManager
 import kr.co.call.login.impl.R
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(
     modifier: Modifier= Modifier,
-    onKakaoLoginClick:()->Unit={},
+    onKakaoLoginSuccess:(String)->Unit={},
 ) {
+    val context = LocalContext.current
+    val kakaoLoginManager=remember{
+        KakaoLoginManager()
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -73,7 +82,20 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(51.dp))
         KakaoLoginButton(
-            onClick = onKakaoLoginClick,
+            onClick = {
+                kakaoLoginManager.login(
+                    context = context,
+                    onSuccess = { kakaoAccessToken ->
+                        onKakaoLoginSuccess(kakaoAccessToken)
+                    },
+                    onFailure = { error ->
+                        Timber.e(error, "카카오 로그인 실패")
+                    },
+                    onCancel = {
+                        Timber.d("카카오 로그인 취소")
+                    },
+                )
+            },
         )
     }
 }
@@ -118,6 +140,6 @@ private fun KakaoLoginButton(
 private fun LoginScreenPreview(){
     LoginScreen(
         modifier=Modifier,
-        onKakaoLoginClick={},
+        onKakaoLoginSuccess = {},
     )
 }
