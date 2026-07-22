@@ -28,16 +28,10 @@ import kr.co.call.designsystem.theme.*
 
 @Composable
 fun LandingScreen(
-    modifier: Modifier,
-    onTimeout:()->Unit={},
+    modifier: Modifier=Modifier,
 ) {
-    LaunchedEffect(Unit){
-        delay(3_000L)
-        onTimeout()
-    }
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Image(
             painter= painterResource(id= R.drawable.landing),
@@ -83,12 +77,16 @@ fun LandingScreen(
         }
     }
 }
-
-@Preview
+@Preview(
+    showBackground = true,
+    widthDp = 393,
+    heightDp = 852,
+)
 @Composable
 private fun LandingScreenPreview() {
-    LandingScreen(
-        modifier = Modifier,
-        onTimeout = {},
-    )
+    CallFromAiTheme {
+        LandingScreen(
+            modifier = Modifier,
+        )
+    }
 }

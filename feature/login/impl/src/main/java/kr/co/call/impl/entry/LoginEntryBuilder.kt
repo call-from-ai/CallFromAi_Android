@@ -1,6 +1,8 @@
 package kr.co.call.impl.entry
 
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -9,6 +11,7 @@ import kr.co.call.api.AgreementNavKey
 import kr.co.call.api.LandingNavKey
 import kr.co.call.api.LoginNavKey
 import kr.co.call.domain.model.login.AgreementTerm
+import kr.co.call.impl.auth.KakaoLoginManager
 import kr.co.call.impl.screen.AgreementDetailScreen
 import kr.co.call.impl.screen.AgreementScreen
 import kr.co.call.impl.screen.LandingScreen
@@ -41,11 +44,14 @@ fun EntryProviderScope<NavKey>.loginEntry(
         }
         LandingScreen(
             modifier=Modifier,
-            onTimeout={ landingViewModel.checkAutoLogin()},
         )
     }
 
     entry<LoginNavKey> {
+        val context= LocalContext.current
+        val kakaoLoginManager=remember{
+            KakaoLoginManager()
+        }
         val loginViewModel = hiltViewModel<LoginViewModel>()
         loginViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
@@ -60,11 +66,16 @@ fun EntryProviderScope<NavKey>.loginEntry(
         }
 
         LoginScreen(
-            onKakaoLoginSuccess = { kakaoAccessToken ->
-                loginViewModel.loginWithKakao(
-                    kakaoAccessToken = kakaoAccessToken,
+            onKakaoLoginClick={
+                kakaoLoginManager.login(
+                    context=context,
+                    onSuccess=loginViewModel::loginWithKakao,
+                    onFailure={error ->
+                        Timber.e(error,"카카오 로그인 실패")
+                    },
+                    onCancel={Timber.d("카카오 로그인 취소")}
                 )
-            },
+            }
         )
     }
 

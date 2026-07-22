@@ -13,10 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -25,24 +23,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.theme.Black
+import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.SubYellow
 import kr.co.call.designsystem.theme.White
-import kr.co.call.impl.auth.KakaoLoginManager
 import kr.co.call.login.impl.R
-import timber.log.Timber
 
 @Composable
 fun LoginScreen(
     modifier: Modifier= Modifier,
-    onKakaoLoginSuccess:(String)->Unit={},
+    onKakaoLoginClick:()->Unit={},
 ) {
-    val context = LocalContext.current
-    val kakaoLoginManager=remember{
-        KakaoLoginManager()
-    }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -82,20 +74,7 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(51.dp))
         KakaoLoginButton(
-            onClick = {
-                kakaoLoginManager.login(
-                    context = context,
-                    onSuccess = { kakaoAccessToken ->
-                        onKakaoLoginSuccess(kakaoAccessToken)
-                    },
-                    onFailure = { error ->
-                        Timber.e(error, "카카오 로그인 실패")
-                    },
-                    onCancel = {
-                        Timber.d("카카오 로그인 취소")
-                    },
-                )
-            },
+            onClick =onKakaoLoginClick,
         )
     }
 }
@@ -132,14 +111,16 @@ private fun KakaoLoginButton(
 }
 
 @Preview(
-    showBackground=true,
-    widthDp=393,
-    heightDp=852,
+    showBackground = true,
+    widthDp = 393,
+    heightDp = 852,
 )
 @Composable
-private fun LoginScreenPreview(){
-    LoginScreen(
-        modifier=Modifier,
-        onKakaoLoginSuccess = {},
-    )
+private fun LoginScreenPreview() {
+    CallFromAiTheme {
+        LoginScreen(
+            modifier = Modifier,
+            onKakaoLoginClick = {},
+        )
+    }
 }

@@ -17,23 +17,23 @@ class TokenAuthenticator @Inject constructor (
     private val loginApiProvider: Lazy<LoginApi>,
 ): Authenticator {
     override fun authenticate(route: Route?, response: Response): Request? {
-        if (responseCount(response) >= 2) return null
+        if (responseCount(response) >= MAX_RETRY_COUNT) return null
 
-        val accessToken=runBlocking {tokenDataStore.accessToken.first()}
-        val refreshToken=runBlocking { tokenDataStore.refreshToken.first()}
-        if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) return null
-
+        val accessToken=runBlocking {tokenDataStore.getAccessToken()}
+        val refreshToken=runBlocking { tokenDataStore.getRefreshToken()}
+        if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()){ return null}
         return runBlocking {
-            runCatching {
+            val reissueResponse=
+            runCatching{
                 loginApiProvider.get().reissue(
                     request= TokenReissueRequestDto(
                         accessToken = accessToken,
                         refreshToken = refreshToken,
                     ),
                 )
-            }.getOrNull()?.let{reissueResponse->
-                val newTokens=reissueResponse.result
-                if (reissueResponse.isSuccess && newTokens != null){
+            }.getOrNull()
+                val newTokens=reissueResponse?.result
+                if (reissueResponse?.isSuccess==true && newTokens != null){
                     tokenDataStore.saveTokens(
                         accessToken=newTokens.accessToken,
                         refreshToken=newTokens.refreshToken,
@@ -47,15 +47,17 @@ class TokenAuthenticator @Inject constructor (
                 }
             }
         }
-    }
     //무한루프 방지용 (요청 몇 번이나 재시도했는지)
     private fun responseCount(response: Response):Int {
         var count=1
-        var prior=response.priorResponse
-        while (prior != null){
+        var priorResponse=response.priorResponse
+        while (priorResponse != null){
             count++
-            prior=prior.priorResponse
+            priorResponse=priorResponse.priorResponse
         }
         return count
+    }
+    private companion object {
+        const val MAX_RETRY_COUNT=2
     }
 }
