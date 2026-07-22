@@ -29,6 +29,8 @@ android {
             "KAKAO_NATIVE_APP_KEY",
             "\"$kakaoNativeAppKey\"",
         )
+
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"]=kakaoNativeAppKey
     }
 }
 

@@ -1,7 +1,6 @@
 package kr.co.call.impl.viewmodel.state
 
 import kr.co.call.domain.model.login.AgreementTerm
-import kr.co.call.impl.screen.AgreementType
 
 data class AgreementUiState(
     val terms: List<AgreementTerm> = emptyList(),

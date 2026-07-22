@@ -42,6 +42,9 @@ dependencies {
     // gson
     implementation(libs.gson)
 
+    //coroutine
+    implementation(libs.kotlinx.coroutines.core)
+
     // android 의존성
     implementation(libs.androidx.core.ktx)
 

@@ -1,5 +1,6 @@
 plugins {
     id("callfromai.android.library")
+    id("callfromai.android.hilt")
 }
 
 android {

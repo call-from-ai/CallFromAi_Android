@@ -109,6 +109,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         navigateToLogin={
                             appNavigator.navigate(LoginNavKey)
                         },
+                        navigateToHome = {
+                            appNavigator.navigate(AgreementNavKey)
+                        },
                         navigateToAgreement={
                             appNavigator.navigate(AgreementNavKey)
                         },

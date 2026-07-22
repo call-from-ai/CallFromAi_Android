@@ -13,7 +13,10 @@ import kr.co.call.impl.screen.AgreementDetailScreen
 import kr.co.call.impl.screen.AgreementScreen
 import kr.co.call.impl.screen.LandingScreen
 import kr.co.call.impl.screen.LoginScreen
+import kr.co.call.impl.viewmodel.AgreementSideEffect
 import kr.co.call.impl.viewmodel.AgreementViewModel
+import kr.co.call.impl.viewmodel.LandingSideEffect
+import kr.co.call.impl.viewmodel.LandingViewModel
 import kr.co.call.impl.viewmodel.LoginSideEffect
 import kr.co.call.impl.viewmodel.LoginViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -22,15 +25,23 @@ import timber.log.Timber
 
 fun EntryProviderScope<NavKey>.loginEntry(
     navigateToLogin: ()->Unit,
+    navigateToHome:()->Unit,
     navigateToAgreement:()->Unit,
     navigateToAgreementDetail:(AgreementTerm)->Unit,
     navigateAfterAgreement:()->Unit,
     onBack: ()->Unit,
 ) {
     entry<LandingNavKey> {
+        val landingViewModel=hiltViewModel<LandingViewModel>()
+        landingViewModel.collectSideEffect {sideEffect ->
+            when (sideEffect){
+                LandingSideEffect.NavigateToLogin->navigateToLogin()
+                LandingSideEffect.NavigateToHome->navigateToHome()
+            }
+        }
         LandingScreen(
             modifier=Modifier,
-            onTimeout=navigateToLogin,
+            onTimeout={ landingViewModel.checkAutoLogin()},
         )
     }
 
@@ -60,10 +71,22 @@ fun EntryProviderScope<NavKey>.loginEntry(
     entry<AgreementNavKey> {
         val agreementViewModel=hiltViewModel<AgreementViewModel>()
         val uiState=agreementViewModel.collectAsState().value
+
+        agreementViewModel.collectSideEffect { sideEffect ->
+            when (sideEffect){
+                AgreementSideEffect.NavigateToNext->{
+                    navigateAfterAgreement()
+                }
+                is AgreementSideEffect.ShowError ->{
+                    Timber.e(sideEffect.message)
+                }
+            }
+        }
+
         AgreementScreen(
             modifier=Modifier,
             uiState=uiState,
-            onNextClick = navigateAfterAgreement,
+            onNextClick ={agreementViewModel.submitAgreements()},
             onAgreementViewClick = { agreementTerm ->
                 navigateToAgreementDetail(agreementTerm)
             },
@@ -73,9 +96,7 @@ fun EntryProviderScope<NavKey>.loginEntry(
                     )
             },
             onAllAgreementsCheckedChange = {isChecked ->
-                agreementViewModel.toggleAllAgreements(
-                    isChecked=isChecked,
-                )
+                agreementViewModel.toggleAllAgreements(isChecked=isChecked)
             },
         )
     }
