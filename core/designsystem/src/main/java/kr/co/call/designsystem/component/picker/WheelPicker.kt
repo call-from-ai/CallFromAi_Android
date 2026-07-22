@@ -1,10 +1,5 @@
 package kr.co.call.designsystem.component.picker
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +19,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -39,8 +38,13 @@ import kr.co.call.designsystem.theme.CallTheme
  * 목록을 세로로 스크롤해 가운데 항목을 선택하는 공통 휠 피커입니다.
  *
  * 이 컴포넌트는 날짜나 시간 같은 값의 의미를 알지 않습니다. 호출부가 [items]와
- * [itemText]를 제공하면 스크롤, 중앙 항목 계산, 스냅, 선택 색상 변경을 담당합니다.
+ * [itemText]를 제공하면 스크롤, 중앙 항목 계산, 스냅, 글자 크기와 색상 표현을 담당합니다.
  * 따라서 화면마다 필요한 휠 개수가 다르면 이 컴포넌트를 하나 이상 조합해서 사용합니다.
+ *
+ * 글자 크기는 항목의 실제 화면 위치를 기준으로 계산합니다. 중앙에서 한 칸 거리까지는
+ * `titleSmall` 크기를 유지하고, 한 칸과 두 칸 사이에서는 `bodyLarge` 크기까지 연속으로
+ * 줄어듭니다. 두 칸 이상 떨어진 항목은 `bodyLarge` 크기를 유지하므로 스크롤 중 크기가
+ * 단계적으로 바뀌지 않습니다. 위아래 색상은 [gradientTint]로 합성합니다.
  *
  * 날짜 한 개를 선택하는 예시:
  * ```kotlin
@@ -79,7 +83,8 @@ import kr.co.call.designsystem.theme.CallTheme
  *
  * [listState]의 `initialFirstVisibleItemIndex`에 처음 선택할 항목의 인덱스를 지정합니다.
  * 위아래 여백이 선택 항목을 가운데에 배치하므로 별도의 중앙 인덱스 보정은 필요하지 않습니다.
- * [onItemSelected]는 스크롤이 멈춘 뒤에만 호출되어 ViewModel에 과도한 이벤트가 전달되지 않습니다.
+ * [onItemSelected]는 최초 표시 시점과 스크롤이 멈춘 뒤에만 호출되어 ViewModel에 과도한
+ * 이벤트가 전달되지 않습니다.
  *
  * @param items 휠에 표시할 원본 값 목록입니다. 빈 목록도 허용합니다.
  * @param listState 스크롤 위치를 소유하는 상태입니다. 초기 선택 위치와 외부 스크롤 제어에 사용합니다.
@@ -136,41 +141,44 @@ fun <T> WheelPicker(
 
     LazyColumn(
         state = listState,
-        modifier = modifier.height(itemHeight * visibleItemCount),
+        modifier = modifier
+            .height(itemHeight * visibleItemCount)
+            .gradientTint(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        CallTheme.colors.gray200,
+                        CallTheme.colors.gray400,
+                        CallTheme.colors.black,
+                        CallTheme.colors.gray400,
+                        CallTheme.colors.gray200,
+                    ),
+                ),
+            ),
         contentPadding = PaddingValues(vertical = centerPadding),
         flingBehavior = rememberSnapFlingBehavior(listState),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         itemsIndexed(items) { index, item ->
-            val distanceFromCenter = abs(index - selectedIndex)
-            val targetColor = when (distanceFromCenter) {
-                0 -> CallTheme.colors.black
-                1 -> CallTheme.colors.gray400
-                else -> CallTheme.colors.gray200
+            // 실제 중앙 거리로 글자 크기를 연속 보간
+            val maximumFontSize = CallTheme.typography.titleSmall.fontSize.value
+            val minimumFontSize = CallTheme.typography.bodyLarge.fontSize.value
+            val fontSize by remember(listState, index, maximumFontSize, minimumFontSize) {
+                derivedStateOf {
+                    val layoutInfo = listState.layoutInfo
+                    val viewportCenter =
+                        (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
+                    val itemInfo = layoutInfo.visibleItemsInfo
+                        .firstOrNull { itemInfo -> itemInfo.index == index }
+                        ?: return@derivedStateOf minimumFontSize
+                    val itemCenter = itemInfo.offset + itemInfo.size / 2
+                    val distanceInItems =
+                        abs(itemCenter - viewportCenter) / itemInfo.size.coerceAtLeast(1).toFloat()
+                    val shrinkProgress = (distanceInItems - 1f).coerceIn(0f, 1f)
+
+                    maximumFontSize +
+                        (minimumFontSize - maximumFontSize) * shrinkProgress
+                }
             }
-
-            // 색상을 정해진 시간 동안 변경
-            val textColor by animateColorAsState(
-                targetValue = targetColor,
-                animationSpec = tween(durationMillis = 180),
-                label = "wheelPickerTextColor",
-            )
-
-            // 중앙과의 거리에 따라 목표 글자 크기를 결정
-            val targetFontSize = if (distanceFromCenter >= 2) {
-                CallTheme.typography.bodyLarge.fontSize.value
-            } else {
-                CallTheme.typography.titleSmall.fontSize.value
-            }
-
-            val fontSize by animateFloatAsState(
-                targetValue = targetFontSize,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                ),
-                label = "wheelPickerFontSize",
-            )
 
             Box(
                 modifier = Modifier
@@ -180,7 +188,6 @@ fun <T> WheelPicker(
             ) {
                 Text(
                     text = itemText(item),
-                    color = textColor,
                     style = CallTheme.typography.titleSmall.copy(
                         fontSize = fontSize.sp,
                     ),
@@ -190,6 +197,31 @@ fun <T> WheelPicker(
         }
     }
 }
+
+/**
+ * 콘텐츠의 불투명 영역에 [brush] 색상을 합성합니다.
+ *
+ * 휠 피커에서는 위·아래 항목을 회색, 중앙 항목을 검은색으로 표현하는 데 사용합니다.
+ * 별도의 레이어에서 콘텐츠를 먼저 그린 뒤 [blendMode]로 브러시를 합성하므로 텍스트 모양은
+ * 유지하면서 위치별 색상만 변경됩니다.
+ *
+ * @param brush 콘텐츠에 합성할 색상 또는 그라데이션 브러시입니다.
+ * @param blendMode 콘텐츠와 브러시를 합성하는 방식입니다. 기본값은 콘텐츠 영역에만 색상을
+ * 적용하는 [BlendMode.SrcIn]입니다.
+ */
+fun Modifier.gradientTint(
+    brush: Brush,
+    blendMode: BlendMode = BlendMode.SrcIn,
+): Modifier = graphicsLayer(alpha = 0.99f)
+    .drawWithCache {
+        onDrawWithContent {
+            drawContent()
+            drawRect(
+                brush = brush,
+                blendMode = blendMode,
+            )
+        }
+    }
 
 @Preview(showBackground = true)
 @Composable
