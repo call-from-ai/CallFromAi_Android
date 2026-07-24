@@ -52,9 +52,9 @@ class ChatListViewModel @Inject constructor(
         when (intent) {
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
             ChatListIntent.ClickManagerChatRoom -> emitNavigateToManagerChatRoom()
-            is ChatListIntent.DeleteChatRoom -> TODO()
-            is ChatListIntent.UpdateAlarmSetting -> TODO()
-            is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog()
+            is ChatListIntent.DeleteChatRoom -> deleteChatRoom(intent.roomId)
+            is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId)
+            is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog(intent.roomId)
             ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
         }
     }
@@ -67,10 +67,11 @@ class ChatListViewModel @Inject constructor(
         postSideEffect(ChatListSideEffect.NavigateToManagerChatRoom)
     }
 
-    private fun showDeleteDialog() = intent {
+    private fun showDeleteDialog(roomId: Long) = intent {
         reduce {
             state.copy(
-                showDeleteChatRoomDialog = true
+                showDeleteChatRoomDialog = true,
+                deleteTargetRoomId = roomId,
             )
         }
     }
@@ -81,6 +82,44 @@ class ChatListViewModel @Inject constructor(
                 showDeleteChatRoomDialog = false
             )
         }
+    }
+
+    private fun updateAlarmSetting(roomId: Long) = intent {
+        chatRepository.updateAlarmSetting(roomId).fold(
+            onSuccess = {
+                reduce {
+                    state.copy(
+                        chatList = state.chatList.map { chat ->
+                            if (chat.chatRoomId == roomId) {
+                                chat.copy(isAlarmEnabled = !chat.isAlarmEnabled)
+                            } else {
+                                chat
+                            }
+                        }
+                    )
+                }
+            },
+            onFailure = {
+                //TODO: 추후 에러 처리
+            }
+        )
+    }
+
+    private fun deleteChatRoom(roomId: Long) = intent {
+        chatRepository.deleteChatRoom(roomId).fold(
+            onSuccess = {
+                reduce {
+                    state.copy(
+                        chatList = state.chatList.filter { it.chatRoomId != roomId },
+                        showDeleteChatRoomDialog = false,
+                        deleteTargetRoomId = -1,
+                    )
+                }
+            },
+            onFailure = {
+                //TODO: 추후 에러 처리
+            }
+        )
     }
 
 }

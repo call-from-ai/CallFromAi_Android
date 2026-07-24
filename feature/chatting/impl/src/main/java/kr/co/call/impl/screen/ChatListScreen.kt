@@ -54,8 +54,6 @@ fun ChatListScreen(
         when (sideEffect) {
             is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
             ChatListSideEffect.NavigateToManagerChatRoom -> onManagerChatRoomClick()
-            is ChatListSideEffect.DeleteChatRoom -> TODO()
-            is ChatListSideEffect.UpdateAlarmSetting -> TODO()
         }
     }
 
@@ -94,6 +92,7 @@ fun ChatListScreenContent(
                 }
             }
 
+            // 채팅방 목록에서 지우기 팝업
             TwoButtonPopup(
                 label = "목록에서 지우기",
                 title = "채팅방에서 나가시겠습니까?",
@@ -102,7 +101,7 @@ fun ChatListScreenContent(
                 negativeText = "취소",
                 labelSpacerHeight = 13.dp,
                 descriptionSpacerHeight = 25.dp,
-                onPositiveClick = { /* TODO: 삭제 처리 */ },
+                onPositiveClick = { onIntent(ChatListIntent.DeleteChatRoom(state.deleteTargetRoomId)) },
                 onNegativeClick = { onIntent(ChatListIntent.DismissDeleteDialog) },
                 onDismissRequest = { onIntent(ChatListIntent.DismissDeleteDialog) },
             )

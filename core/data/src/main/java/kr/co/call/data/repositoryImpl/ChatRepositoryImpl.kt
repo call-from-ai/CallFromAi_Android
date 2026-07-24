@@ -52,4 +52,12 @@ class ChatRepositoryImpl @Inject constructor(
             ),
         )
     }
+
+    override suspend fun deleteChatRoom(roomId: Long): Result<Unit> = runCatching {
+        delay(500.milliseconds)
+    }
+
+    override suspend fun updateAlarmSetting(roomId: Long): Result<Unit> = runCatching {
+        delay(500.milliseconds)
+    }
 }
