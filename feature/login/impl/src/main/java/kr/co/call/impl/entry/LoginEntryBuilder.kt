@@ -81,7 +81,7 @@ fun EntryProviderScope<NavKey>.loginEntry(
                         "로그인에 실패했습니다.",
                         Toast.LENGTH_SHORT,
                     ).show()
-                    Timber.e(sideEffect.message)
+                    Timber.e("서버 로그인 실패: ${sideEffect.message}")
                 }
             }
         }
@@ -94,10 +94,10 @@ fun EntryProviderScope<NavKey>.loginEntry(
                     onFailure={error ->
                         Toast.makeText(
                             context,
-                            "로그인에 실패했습니다.",
+                            error.message ?: "카카오로그인에 실패했습니다",
                             Toast.LENGTH_SHORT,
                         ).show()
-                        Timber.e(error,"카카오 로그인 실패")
+                        Timber.e(error,"카카오 SDK 로그인 실패")
                     },
                     onCancel={Timber.d("카카오 로그인 취소")}
                 )

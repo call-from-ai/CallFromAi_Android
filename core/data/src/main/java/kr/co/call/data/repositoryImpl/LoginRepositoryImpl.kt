@@ -47,7 +47,6 @@ class LoginRepositoryImpl @Inject constructor(
                 ?: throw IllegalStateException(
                     "로그인 응답에 토큰 정보가 없습니다.",
                 )
-
             // 빈 Access Token이나 Refresh Token이 저장되는 것을 방지
             if (
                 result.accessToken.isBlank() ||
