@@ -11,5 +11,5 @@ data class TokenReissueResponseDto(
     val isSuccess: Boolean,
     val code: String,
     val message: String,
-    val result: LoginTokenResult
+    val result: LoginTokenResult?,
 )

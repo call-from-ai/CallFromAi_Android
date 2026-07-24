@@ -12,9 +12,4 @@ interface LoginApi {
     suspend fun login(
         @Body request: LoginRequestDto,
     ): LoginResponseDto
-
-    @POST("auth/reissue")
-    suspend fun reissue(
-        @Body request: TokenReissueRequestDto,
-    ): TokenReissueResponseDto
 }
