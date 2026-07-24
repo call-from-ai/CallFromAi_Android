@@ -17,4 +17,5 @@ data class ChatRoomUiState(
     val chatItems: List<ChatItemUiModel> = emptyList(),
     val textFieldState: TextFieldState = TextFieldState(),
     val status: LoadStatus = LoadStatus.Idle,
+    val deletedIds: Set<Long> = emptySet(),
 )

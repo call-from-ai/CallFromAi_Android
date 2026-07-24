@@ -32,6 +32,10 @@ dependencies {
     // coil
     implementation(libs.coil.compose)
 
+    // paging3
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     // timber
     implementation(libs.timber)
 

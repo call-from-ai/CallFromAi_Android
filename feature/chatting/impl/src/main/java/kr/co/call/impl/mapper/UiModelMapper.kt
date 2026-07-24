@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+private val dateSeparatorFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일")
 
 object UiModelMapper {
 
@@ -34,5 +35,15 @@ object UiModelMapper {
             time = this.createdTime.format(timeFormatter),
             loadStatus = loadStatus,
         )
+
+    fun ChatItem.DateSeparator.toUiItem(): ChatItemUiModel.DateSeparator =
+        ChatItemUiModel.DateSeparator(
+            date = this.date.format(dateSeparatorFormatter)
+        )
+
+    fun ChatItem.toUiItem(): ChatItemUiModel = when (this) {
+        is ChatItem.Message -> toUiItem()
+        is ChatItem.DateSeparator -> toUiItem()
+    }
 
 }
