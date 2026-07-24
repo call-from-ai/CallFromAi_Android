@@ -52,6 +52,10 @@ class ChatListViewModel @Inject constructor(
         when (intent) {
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
             ChatListIntent.ClickManagerChatRoom -> emitNavigateToManagerChatRoom()
+            is ChatListIntent.DeleteChatRoom -> TODO()
+            is ChatListIntent.UpdateAlarmSetting -> TODO()
+            is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog()
+            ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
         }
     }
 
@@ -61,6 +65,22 @@ class ChatListViewModel @Inject constructor(
 
     private fun emitNavigateToManagerChatRoom() = intent {
         postSideEffect(ChatListSideEffect.NavigateToManagerChatRoom)
+    }
+
+    private fun showDeleteDialog() = intent {
+        reduce {
+            state.copy(
+                showDeleteChatRoomDialog = true
+            )
+        }
+    }
+
+    private fun dismissDeleteDialog() = intent {
+        reduce {
+            state.copy(
+                showDeleteChatRoomDialog = false
+            )
+        }
     }
 
 }

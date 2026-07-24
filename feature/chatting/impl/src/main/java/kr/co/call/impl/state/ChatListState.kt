@@ -5,5 +5,7 @@ import kr.co.call.domain.util.LoadStatus
 
 data class ChatListState(
     val chatList: List<ChatSummary> = emptyList(),
-    val status: LoadStatus = LoadStatus.Idle
+    val status: LoadStatus = LoadStatus.Idle,
+    val showDeleteChatRoomDialog: Boolean = false,
+    val deleteTargetRoomId: Long? = null,
 )
