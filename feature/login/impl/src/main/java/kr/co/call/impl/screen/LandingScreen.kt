@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -20,17 +21,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 import kr.co.call.login.impl.R
 import kr.co.call.designsystem.theme.*
 
 @Composable
 fun LandingScreen(
-    modifier: Modifier,
+    modifier: Modifier=Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Image(
             painter= painterResource(id= R.drawable.landing),
@@ -76,11 +77,16 @@ fun LandingScreen(
         }
     }
 }
-
-@Preview
+@Preview(
+    showBackground = true,
+    widthDp = 393,
+    heightDp = 852,
+)
 @Composable
 private fun LandingScreenPreview() {
-    LandingScreen(
-        modifier = Modifier,
-    )
+    CallFromAiTheme {
+        LandingScreen(
+            modifier = Modifier,
+        )
+    }
 }

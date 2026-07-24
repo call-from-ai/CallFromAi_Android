@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.theme.Black
+import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.SubYellow
@@ -73,7 +74,7 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(51.dp))
         KakaoLoginButton(
-            onClick = onKakaoLoginClick,
+            onClick =onKakaoLoginClick,
         )
     }
 }
@@ -110,14 +111,16 @@ private fun KakaoLoginButton(
 }
 
 @Preview(
-    showBackground=true,
-    widthDp=393,
-    heightDp=852,
+    showBackground = true,
+    widthDp = 393,
+    heightDp = 852,
 )
 @Composable
-private fun LoginScreenPreview(){
-    LoginScreen(
-        modifier=Modifier,
-        onKakaoLoginClick={},
-    )
+private fun LoginScreenPreview() {
+    CallFromAiTheme {
+        LoginScreen(
+            modifier = Modifier,
+            onKakaoLoginClick = {},
+        )
+    }
 }
