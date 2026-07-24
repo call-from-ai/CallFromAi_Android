@@ -14,6 +14,9 @@ class KakaoLoginManager {
         onFailure: (Throwable)->Unit,
         onCancel:()->Unit,
     ){
+        /*카카오계정 로그인 결과를 처리하는 콜백
+        성공하면 카카오 Access Token을 ViewModel로 전달
+         */
         val kakaoAccountLoginCallback:
                 (OAuthToken?, Throwable?)->Unit={token, error ->
                     when{
@@ -27,6 +30,8 @@ class KakaoLoginManager {
                         }
                     }
         }
+
+        //카카오톡 앱을 이용한 로그인이 가능한 경우 카카오톡 로그인을 먼저 시도
         if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)){
             UserApiClient.instance.loginWithKakaoTalk(context){token, error ->
                 when {
@@ -50,6 +55,7 @@ class KakaoLoginManager {
                     }
                 }
             }
+            //카카오톡 앱 로그인이 불가능하면 카카오계정 로그인으로 진행
         } else{
             UserApiClient.instance.loginWithKakaoAccount(
                 context=context,

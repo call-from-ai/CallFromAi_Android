@@ -26,6 +26,10 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import timber.log.Timber
 
+/**
+ * 랜딩, 로그인, 약관 화면을 Navigation3의 Entry로 등록한다.
+ * 각 화면과 ViewModel을 연결하고 SideEffect에 따라 화면 이동을 처리한다.
+ */
 fun EntryProviderScope<NavKey>.loginEntry(
     navigateToLogin: ()->Unit,
     navigateToHome:()->Unit,
@@ -36,6 +40,10 @@ fun EntryProviderScope<NavKey>.loginEntry(
 ) {
     entry<LandingNavKey> {
         val landingViewModel=hiltViewModel<LandingViewModel>()
+        /**
+         * 저장된 Access Token 확인 결과를 수집한다.
+         * 토큰이 없으면 로그인 화면, 있으면 홈 화면으로 이동한다.
+         */
         landingViewModel.collectSideEffect {sideEffect ->
             when (sideEffect){
                 LandingSideEffect.NavigateToLogin->navigateToLogin()
@@ -49,10 +57,17 @@ fun EntryProviderScope<NavKey>.loginEntry(
 
     entry<LoginNavKey> {
         val context= LocalContext.current
+
+        // 화면 재구성 시에도 같은 카카오 로그인 관리자 객체를 유지
         val kakaoLoginManager=remember{
             KakaoLoginManager()
         }
         val loginViewModel = hiltViewModel<LoginViewModel>()
+
+        /**
+         * 서버 로그인 결과를 수집한다.
+         * 로그인 성공 시 약관 화면으로 이동하고 실패 시 오류를 기록한다.
+         */
         loginViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 LoginSideEffect.NavigateToNext -> {
