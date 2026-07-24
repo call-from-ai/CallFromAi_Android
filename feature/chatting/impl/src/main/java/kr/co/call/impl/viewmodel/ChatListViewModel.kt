@@ -98,6 +98,7 @@ class ChatListViewModel @Inject constructor(
                         }
                     )
                 }
+                postSideEffect(ChatListSideEffect.ShowToast("알람 설정이 변경되었습니다."))
             },
             onFailure = {
                 //TODO: 추후 에러 처리
