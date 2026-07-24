@@ -7,8 +7,8 @@ import javax.inject.Inject
 
 class FaqRepositoryImpl @Inject constructor() : FaqRepository {
 
-    override suspend fun getFaqItems(): Map<FaqCategory, List<FaqItem>> {
-        return mapOf(
+    override suspend fun getFaqItems(): Result<Map<FaqCategory, List<FaqItem>>>{
+        return Result.success(mapOf(
             FaqCategory.CHARACTER to listOf(
                 FaqItem(
                     "AI 캐릭터는 여러 명 만들 수 있나요?",
@@ -77,6 +77,7 @@ class FaqRepositoryImpl @Inject constructor() : FaqRepository {
                     "마이페이지>문의하기 혹은 채팅>전화왔어 매니저를 통해 문의를 남겨주시면 순차적으로 답변드리겠습니다."
                 )
             ),
+        )
         )
     }
 }

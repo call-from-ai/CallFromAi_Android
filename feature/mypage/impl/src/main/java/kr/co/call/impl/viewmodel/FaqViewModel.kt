@@ -22,7 +22,8 @@ class FaqViewModel @Inject constructor(
 
     private fun loadFaqItems() = intent {
         reduce { state.copy(loadStatus = LoadStatus.Loading) }
-        runCatching { faqRepository.getFaqItems() }
+
+        faqRepository.getFaqItems()
             .onSuccess { itemsByCategory ->
                 reduce {
                     state.copy(
