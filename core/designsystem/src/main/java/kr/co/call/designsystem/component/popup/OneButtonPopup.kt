@@ -19,7 +19,7 @@ import kr.co.call.designsystem.theme.CallTheme
 fun OneButtonPopup(
     modifier: Modifier = Modifier,
     label: String,
-    title: String,
+    title: String? = "",
     buttonText: String,
     onButtonClick: () -> Unit,
     description: AnnotatedString? = null,

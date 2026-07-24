@@ -9,7 +9,9 @@ import kr.co.call.domain.repository.ChatRepository
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.domain.repository.HomeRepository
+import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.MyPageRepository
 
 @Module
@@ -27,7 +29,14 @@ abstract class RepositoryModule {
         homeRepositoryImpl: HomeRepositoryImpl,
     ): HomeRepository
     @Binds
+    @Singleton
     abstract fun bindMyPageRepository(
         impl: MyPageRepositoryImpl
     ): MyPageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCharacterRepository(
+        impl: AICharacterRepositoryImpl
+    ): AICharacterRepository
 }

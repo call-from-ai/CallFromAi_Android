@@ -40,6 +40,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun MyPageScreen(
     modifier: Modifier = Modifier,
     viewModel: MyPageViewModel = hiltViewModel(),
+    onNavigateToCharacterManagement: () -> Unit = {},
 ) {
     val state by viewModel.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -52,7 +53,7 @@ fun MyPageScreen(
             is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
-            is MyPageSideEffect.NavigateToCharacterManagement -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToCharacterManagement -> onNavigateToCharacterManagement()
             is MyPageSideEffect.NavigateToFaq -> { /* TODO */ }
             is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToTerms -> { /* TODO */ }
