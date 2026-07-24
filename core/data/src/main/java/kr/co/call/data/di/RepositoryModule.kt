@@ -29,11 +29,13 @@ abstract class RepositoryModule {
         homeRepositoryImpl: HomeRepositoryImpl,
     ): HomeRepository
     @Binds
+    @Singleton
     abstract fun bindMyPageRepository(
         impl: MyPageRepositoryImpl
     ): MyPageRepository
 
     @Binds
+    @Singleton
     abstract fun bindCharacterRepository(
         impl: AICharacterRepositoryImpl
     ): AICharacterRepository

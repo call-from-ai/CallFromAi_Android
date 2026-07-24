@@ -25,14 +25,20 @@ class AICharacterRepositoryImpl @Inject constructor() : AICharacterRepository {
         ),
     )
 
-    override suspend fun getCharacters(): List<AiCharacter> = aiCharacters.toList()
-
-    override suspend fun deleteCharacter(characterId: String) {
-        aiCharacters.removeAll { it.id == characterId }
+    override suspend fun getCharacters(): Result<List<AiCharacter>>{
+        return runCatching {
+            aiCharacters.toList()
+        }
     }
 
-    override suspend fun canAddCharacter(): Boolean {
+    override suspend fun deleteCharacter(characterId: String): Result<Unit> {
+        return runCatching {
+            aiCharacters.removeAll { it.id == characterId }
+        }
+    }
+
+    override suspend fun canAddCharacter(): Result<Boolean> {
         // TODO: 마지막 캐릭터 생성 시각 기준 24시간 경과 여부를 판단(백엔드)
-        return false
+        return runCatching { false }
     }
 }

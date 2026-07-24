@@ -8,6 +8,7 @@ import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -32,11 +33,13 @@ class CharacterManagementViewModel @Inject constructor(
 
     private fun loadCharacters() = intent {
         reduce { state.copy(loadStatus = LoadStatus.Loading) }
-        runCatching { aiCharacterRepository.getCharacters() }
+
+        aiCharacterRepository.getCharacters()
             .onSuccess { characters ->
                 reduce { state.copy(aiCharacters = characters, loadStatus = LoadStatus.Idle) }
             }
             .onFailure { e ->
+                if (e is CancellationException) throw e
                 reduce { state.copy(loadStatus = LoadStatus.Error(e.message ?: "캐릭터 목록 불러오기 실패")) }
             }
     }
@@ -54,15 +57,35 @@ class CharacterManagementViewModel @Inject constructor(
     }
 
     private fun deleteCharacter(characterId: String) = intent {
+        val targetCharacter = state.aiCharacters.find { it.id == characterId }
+
+        if (targetCharacter?.isMain == true) {
+            postSideEffect(CharacterManagementSideEffect.ShowMainCharacterDeleteBlocked)
+            return@intent
+        }
+
         aiCharacterRepository.deleteCharacter(characterId)
-        reduce { state.copy(aiCharacters = state.aiCharacters.filterNot { it.id == characterId }) }
+            .onSuccess {
+                reduce { state.copy(aiCharacters = state.aiCharacters.filterNot { it.id == characterId }) }
+            }
+            .onFailure { e ->
+                if (e is CancellationException) throw e
+                // TODO 삭제 실패 시 처리
+            }
     }
 
     private fun checkAddCharacter() = intent {
-        if (aiCharacterRepository.canAddCharacter()) {
-            postSideEffect(CharacterManagementSideEffect.NavigateToAddCharacter)
-        } else {
-            postSideEffect(CharacterManagementSideEffect.ShowAddCharacterBlocked)
-        }
+        aiCharacterRepository.canAddCharacter()
+            .onSuccess { canAdd ->
+                if (canAdd) {
+                    postSideEffect(CharacterManagementSideEffect.NavigateToAddCharacter)
+                } else {
+                    postSideEffect(CharacterManagementSideEffect.ShowAddCharacterBlocked)
+                }
+            }
+            .onFailure { e ->
+                if (e is CancellationException) throw e
+                postSideEffect(CharacterManagementSideEffect.ShowAddCharacterBlocked)
+            }
     }
 }

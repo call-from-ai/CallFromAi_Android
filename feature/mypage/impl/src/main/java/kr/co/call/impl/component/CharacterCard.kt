@@ -65,6 +65,7 @@ fun CharacterCard(
                     error = painterResource(id = R.drawable.img_mypage_profile_default),
                 )
                 // 프로필 편집하기 아이콘
+                // TODO : 추후 캐릭터 편집 화면으로 이동 구현
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
