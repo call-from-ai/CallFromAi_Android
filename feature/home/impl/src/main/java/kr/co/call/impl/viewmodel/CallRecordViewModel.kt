@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
-import kr.co.call.domain.repository.HomeRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.viewmodel.state.CallRecordState
@@ -14,7 +16,7 @@ import org.orbitmvi.orbit.viewmodel.container
 
 @HiltViewModel
 class CallRecordViewModel @Inject constructor(
-    private val homeRepository: HomeRepository,
+    private val callRecordRepository: CallRecordRepository,
 ) : ViewModel(), ContainerHost<CallRecordState, CallRecordSideEffect> {
 
     override val container: Container<CallRecordState, CallRecordSideEffect> = container(
@@ -40,16 +42,24 @@ class CallRecordViewModel @Inject constructor(
                 loadStatus = LoadStatus.Loading,
             )
         }
-
         try {
-            val callInfo = homeRepository.getCallInfo(callId).getOrThrow()
-            val callScript = homeRepository.getCallScript(callId).getOrThrow()
-            val record = callInfo.toUiModel()
+            // callInfo와 callScript를 동시에 가져오기
+            val (callInfo, callScript) = coroutineScope {
+                val callInfoDeferred = async {
+                    callRecordRepository.getCallInfo(callId).getOrThrow()
+                }
+
+                val callScriptDeferred = async {
+                    callRecordRepository.getCallScript(callId).getOrThrow()
+                }
+
+                callInfoDeferred.await() to callScriptDeferred.await()
+            }
 
             // state에 저장
             reduce {
                 state.copy(
-                    record = record,
+                    record = callInfo.toUiModel(),
                     transcripts = callScript,
                     loadStatus = LoadStatus.Idle,
                 )
@@ -66,7 +76,9 @@ class CallRecordViewModel @Inject constructor(
                 )
             }
             postSideEffect(
-                CallRecordSideEffect.ShowMessage(message = message),
+                CallRecordSideEffect.ShowMessage(
+                    message = message,
+                ),
             )
         }
     }
