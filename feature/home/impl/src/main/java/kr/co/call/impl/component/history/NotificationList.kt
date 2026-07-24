@@ -27,9 +27,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import java.time.LocalDateTime
+import kotlinx.coroutines.flow.Flow
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -39,6 +42,18 @@ import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.component.UnreadIndicator
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.viewmodel.model.HomeNotificationUiModel
+
+/**
+ * 알림 Paging 데이터를 Compose 목록 아이템으로 변환
+ */
+@Composable
+fun NotificationPagingContent(
+    notifications: Flow<PagingData<HomeNotification>>,
+    content: @Composable (LazyPagingItems<HomeNotification>) -> Unit,
+) {
+    val lazyNotificationItems = notifications.collectAsLazyPagingItems()
+    content(lazyNotificationItems)
+}
 
 /**
  * 알림 리스트 안내 문구
@@ -64,6 +79,7 @@ fun NotificationListHeader(
  */
 fun LazyListScope.notificationItems(
     notifications: LazyPagingItems<HomeNotification>,
+    onCallClick: (characterName: String) -> Unit,
 ) {
     items(
         count = notifications.itemCount,
@@ -72,7 +88,9 @@ fun LazyListScope.notificationItems(
         notifications[index]?.let { notification ->
             NotificationCard(
                 notificationState = notification.toUiModel(),
-                onCallClick = {},
+                onCallClick = {
+                    notification.characterName?.let(onCallClick)
+                },
                 modifier = Modifier.padding(
                     start = 16.dp,
                     end = 16.dp,
