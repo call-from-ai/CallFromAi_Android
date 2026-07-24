@@ -34,6 +34,7 @@ class AICharacterRepositoryImpl @Inject constructor() : AICharacterRepository {
     override suspend fun deleteCharacter(characterId: String): Result<Unit> {
         return runCatching {
             aiCharacters.removeAll { it.id == characterId }
+            Unit
         }
     }
 
