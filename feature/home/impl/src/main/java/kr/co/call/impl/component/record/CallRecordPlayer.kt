@@ -1,7 +1,6 @@
 package kr.co.call.impl.component.record
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,7 +20,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
@@ -80,22 +79,16 @@ fun CallRecordPlayer(
             ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            PlayerIconButton(
+            PlayerSeekButton(
                 drawableRes = R.drawable.ic_home_call_replay_5,
                 contentDescription = "5초 전",
                 onClick = onRewindClick,
             )
-            PlayerIconButton(
-                drawableRes = if (state.isPlaying) {
-                    R.drawable.ic_home_call_pause
-                } else {
-                    R.drawable.ic_home_call_play
-                },
-                contentDescription = if (state.isPlaying) "일시정지" else "재생",
+            PlayPauseButton(
+                isPlaying = state.isPlaying,
                 onClick = onPlayPauseClick,
-                modifier = Modifier.size(34.dp),
             )
-            PlayerIconButton(
+            PlayerSeekButton(
                 drawableRes = R.drawable.ic_home_call_replay_5_after,
                 contentDescription = "5초 후",
                 onClick = onForwardClick,
@@ -171,27 +164,52 @@ private fun PlayerTimeText(
 }
 
 /**
- * 재생, 뒤로가기 버튼
+ * 녹음 파일을 5초 이전 또는 이후로 이동하는 버튼
  */
 @Composable
-private fun PlayerIconButton(
+private fun PlayerSeekButton(
     drawableRes: Int,
     contentDescription: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Icon(
-        painter = painterResource(drawableRes),
-        contentDescription = contentDescription,
-        modifier = modifier
-            .size(24.dp)
-            .clickable(
-                role = Role.Button,
-                onClick = onClick,
-            )
-            .padding(1.dp),
-    )
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.size(48.dp),
+    ) {
+        Icon(
+            painter = painterResource(drawableRes),
+            contentDescription = contentDescription,
+            modifier = Modifier.size(24.dp),
+        )
+    }
+}
 
+/**
+ * 현재 재생 상태에 따라 재생 또는 일시정지 동작을 제공하는 버튼
+ */
+@Composable
+private fun PlayPauseButton(
+    isPlaying: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier.size(48.dp),
+    ) {
+        Icon(
+            painter = painterResource(
+                if (isPlaying) {
+                    R.drawable.ic_home_call_pause
+                } else {
+                    R.drawable.ic_home_call_play
+                },
+            ),
+            contentDescription = if (isPlaying) "일시정지" else "재생",
+            modifier = Modifier.size(34.dp),
+        )
+    }
 }
 
 // String -> 재생 시간으로 변환하는 확장함수

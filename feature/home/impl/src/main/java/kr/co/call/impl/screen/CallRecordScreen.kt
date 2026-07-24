@@ -4,12 +4,15 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,15 +24,18 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.lifecycle.compose.LifecycleStartEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.home.CallTranscript
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.component.record.CallRecordHeader
+import kr.co.call.impl.component.record.CallRecordLoadingContent
 import kr.co.call.impl.component.record.CallRecordPlayer
 import kr.co.call.impl.component.record.CallRecordPlayerState
+import kr.co.call.impl.component.record.CallRecordSummary
+import kr.co.call.impl.component.record.CallRecordTopBar
 import kr.co.call.impl.component.record.CallTranscriptList
 import kr.co.call.impl.viewmodel.CallRecordIntent
 import kr.co.call.impl.viewmodel.CallRecordSideEffect
@@ -51,6 +57,12 @@ fun CallRecordScreen(
 ) {
     val state by viewModel.collectAsState()
     val context = LocalContext.current
+    val recordingUrl = state.record.recordingUrl
+
+    // 같은 녹음 파일은 화면이 재생성되어도 마지막 재생 위치를 복원
+    var savedPositionMillis by rememberSaveable(recordingUrl) {
+        mutableLongStateOf(0L)
+    }
 
     val audioAttributes = AudioAttributes.Builder()
         .setUsage(C.USAGE_MEDIA)
@@ -71,11 +83,19 @@ fun CallRecordScreen(
             }
     }
 
+    // 앱이 백그라운드로 이동하면 현재 위치를 유지한 채 재생만 일시정지
+    LifecycleStartEffect(player) {
+        onStopOrDispose {
+            player.pause()
+        }
+    }
 
     // 플레이어 상태
-    var playerState by remember {
+    var playerState by remember(recordingUrl) {
         mutableStateOf(
-            CallRecordPlayerState(),
+            CallRecordPlayerState(
+                currentPositionMillis = savedPositionMillis,
+            ),
         )
     }
 
@@ -99,6 +119,7 @@ fun CallRecordScreen(
         playerState = playerState.copy(
             currentPositionMillis = targetPosition,
         )
+        savedPositionMillis = targetPosition
     }
 
     LaunchedEffect(callId) {
@@ -107,12 +128,14 @@ fun CallRecordScreen(
         )
     }
 
+    // play와 url을 가져와서 재생 준비 처리
     LaunchedEffect(
         player,
-        state.record.recordingUrl,
+        recordingUrl,
     ) {
-        val recordingUrl = state.record.recordingUrl
-        playerState = CallRecordPlayerState()
+        playerState = CallRecordPlayerState(
+            currentPositionMillis = savedPositionMillis,
+        )
 
         if (recordingUrl.isNullOrBlank()) {
             player.clearMediaItems()
@@ -120,6 +143,7 @@ fun CallRecordScreen(
         }
         player.setMediaItem(
             MediaItem.fromUri(recordingUrl),
+            savedPositionMillis,
         )
         // 재생 준비
         player.prepare()
@@ -132,9 +156,11 @@ fun CallRecordScreen(
         while (
             isActive && playerState.isPlaying
         ) {
+            val currentPositionMillis = player.currentPosition.coerceAtLeast(0L)
             playerState = playerState.copy(
-                currentPositionMillis = player.currentPosition.coerceAtLeast(0L)
+                currentPositionMillis = currentPositionMillis,
             )
+            savedPositionMillis = currentPositionMillis
             delay(250L)
         }
     }
@@ -168,6 +194,7 @@ fun CallRecordScreen(
                     }
 
                     Player.STATE_ENDED -> {
+                        savedPositionMillis = playerState.durationMillis
                         playerState = playerState.copy(
                             currentPositionMillis =
                                 playerState.durationMillis,
@@ -202,7 +229,11 @@ fun CallRecordScreen(
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is CallRecordSideEffect.ShowMessage -> {
-                Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    sideEffect.message,
+                    Toast.LENGTH_SHORT,
+                ).show()
             }
         }
     }
@@ -258,26 +289,42 @@ fun CallRecordScreenContent(
             .fillMaxSize()
             .background(CallTheme.colors.white),
     ) {
-        // 통화 기록 정보 표시 헤더
-        CallRecordHeader(
-            record = state.record,
+        CallRecordTopBar(
             onBackClick = onBackClick,
         )
 
-        // 통화 내용 대화
-        CallTranscriptList(
-            transcripts = state.transcripts,
-            modifier = Modifier.weight(1f),
-        )
+        when (state.loadStatus) {
+            LoadStatus.Loading -> {
+                CallRecordLoadingContent(
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
-        // 통화 녹음파일 재생
-        CallRecordPlayer(
-            state = playerState,
-            onSeek = onSeek,
-            onRewindClick = onRewindClick,
-            onPlayPauseClick = onPlayPauseClick,
-            onForwardClick = onForwardClick,
-        )
+            is LoadStatus.Error -> {
+                Spacer(
+                    modifier = Modifier.weight(1f),
+                )
+            }
+
+            LoadStatus.Idle -> {
+                CallRecordSummary(
+                    record = state.record,
+                )
+
+                CallTranscriptList(
+                    transcripts = state.transcripts,
+                    modifier = Modifier.weight(1f),
+                )
+
+                CallRecordPlayer(
+                    state = playerState,
+                    onSeek = onSeek,
+                    onRewindClick = onRewindClick,
+                    onPlayPauseClick = onPlayPauseClick,
+                    onForwardClick = onForwardClick,
+                )
+            }
+        }
     }
 }
 
