@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,9 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 fun HomeHeader(
     summary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
+    onCharacterChangeClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onCallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -75,7 +79,7 @@ fun HomeHeader(
         ) {
             // 메인 연인 교체하기 버튼
             Button(
-                onClick = {},
+                onClick = onCharacterChangeClick,
                 modifier = Modifier.size(
                     width = 93.dp,
                     height = 24.dp,
@@ -99,9 +103,9 @@ fun HomeHeader(
                 )
             }
 
-            Box(
+            IconButton(
+                onClick = onNotificationClick,
                 modifier = Modifier.size(48.dp),
-                contentAlignment = Alignment.Center,
             ) {
                 Box(modifier = Modifier.size(24.dp)) {
                     // 알림 아이콘
@@ -160,7 +164,7 @@ fun HomeHeader(
 
         // 전화하기 버튼
         FilledIconButton(
-            onClick = {},
+            onClick = onCallClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -216,6 +220,9 @@ private fun HomeHeaderPreview() {
                 callStreakDaysText = "12일",
             ),
             hasUnreadNotification = true,
+            onCharacterChangeClick = {},
+            onNotificationClick = {},
+            onCallClick = {},
         )
     }
 }
