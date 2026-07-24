@@ -164,8 +164,8 @@ class TokenDataStore @Inject constructor(
      */
     private fun Preferences.toStoredTokens(): StoredTokens {
         return StoredTokens(
-            accessToken = this[ACCESS_TOKEN],
-            refreshToken = this[REFRESH_TOKEN],
+            accessToken = this[ACCESS_TOKEN]?.takeIf { it.isNotBlank() },
+            refreshToken = this[REFRESH_TOKEN]?.takeIf { it.isNotBlank() },
         )
     }
 
