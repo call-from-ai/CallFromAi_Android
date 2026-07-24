@@ -26,7 +26,7 @@ import kr.co.call.designsystem.theme.CallTheme
 internal fun PopupCard(
     modifier: Modifier = Modifier,
     label: String,
-    title: String?=null,
+    title: String?,
     description: AnnotatedString? = null,
     buttons: @Composable () -> Unit,
 ) {
