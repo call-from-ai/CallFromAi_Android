@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -64,14 +65,15 @@ fun HomeHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(265.dp)
-                .background(CallTheme.colors.mainVariant3),
+                .background(CallTheme.colors.mainVariant3)
+                .systemBarsPadding(),
         )
 
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
-                    top = 7.dp,
+                    top = 12.dp,
                     end = 3.dp,
                 ),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -90,7 +92,7 @@ fun HomeHeader(
                     contentColor = CallTheme.colors.gray800,
                 ),
                 contentPadding = PaddingValues(
-                    horizontal = 4.dp,
+                    horizontal = 6.dp,
                     vertical = 3.dp,
                 ),
             ) {
