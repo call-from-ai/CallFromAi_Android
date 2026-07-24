@@ -10,3 +10,13 @@ data class CallInfo(
     val recordingUrl: String?,
     val durationMillis: Long,
 )
+
+data class CallTranscript(
+    val content: String,
+    val speaker: Speaker,
+) {
+    enum class Speaker {
+        USER,
+        AI,
+    }
+}
