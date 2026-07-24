@@ -46,7 +46,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun ChatRoomScreen(
     roomId: Long,
     modifier: Modifier = Modifier,
-    viewModel: ChatRoomViewModel = hiltViewModel(),
+    viewModel: ChatRoomViewModel =
+        hiltViewModel<ChatRoomViewModel, ChatRoomViewModel.Factory> {
+            it.create(roomId)
+        },
     onBack: () -> Unit = {},
 ) {
     val state = viewModel.collectAsState().value

@@ -24,7 +24,7 @@ fun EntryProviderScope<NavKey>.chattingEntry(
     entry<ChatRoomNavKey> { key ->
         ChatRoomScreen(
             roomId = key.roomId,
-            onBack = onBack
+            onBack = onBack,
         )
     }
 
