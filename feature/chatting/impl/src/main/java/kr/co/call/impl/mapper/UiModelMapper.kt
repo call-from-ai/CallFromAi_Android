@@ -1,12 +1,9 @@
 package kr.co.call.impl.mapper
 
-import kr.co.call.domain.model.chatting.ChatMessage
+import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.model.chatting.ManagerChatItem
-import kr.co.call.domain.model.chatting.MessageType
-import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
-import kr.co.call.impl.model.SendStatus
 import kr.co.call.impl.model.ManagerChatUiItem
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -25,31 +22,17 @@ object UiModelMapper {
             time = this.createdAt.format(timeFormatter),
         )
 
-
-    /** 도메인 메시지 → 말풍선 UI 모델. 항상 SENT. */
-    fun ChatMessage.toUiModel(): ChatItemUiModel =
-        ChatItemUiModel(
-            clientId = "server-$chatMessageId",
-            chatMessageId = chatMessageId,
-            senderType = senderType,
-            content = content,
-            messageType = messageType,
-            photoUrl = photoUrl.ifEmpty { null },
-            time = createdTime,
-            sendStatus = SendStatus.SENT,
-        )
-
-    /** 유저가 방금 보낸(서버 미확정) 로컬 메시지. */
-    fun createSendingMessage(content: String, photoUrl: String? = null): ChatItemUiModel =
-        ChatItemUiModel(
-            clientId = UUID.randomUUID().toString(),
-            chatMessageId = null,
-            senderType = SenderType.USER,
-            content = content,
-            messageType = if (photoUrl != null) MessageType.TEXT_IMAGE else MessageType.TEXT,
-            photoUrl = photoUrl,
-            time = LocalDateTime.now().format(timeFormatter),
-            sendStatus = SendStatus.SENDING,
+    fun ChatItem.Message.toUiItem(
+        loadStatus: LoadStatus = LoadStatus.Idle,
+    ): ChatItemUiModel.Message =
+        ChatItemUiModel.Message(
+            chatMessageId = this.chatMessageId,
+            senderType = this.senderType,
+            content = this.content,
+            messageType = this.messageType,
+            photoUrl = this.photoUrl,
+            time = this.createdTime.format(timeFormatter),
+            loadStatus = loadStatus,
         )
 
 }

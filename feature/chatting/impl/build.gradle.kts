@@ -29,6 +29,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // coil
+    implementation(libs.coil.compose)
+
     // timber
     implementation(libs.timber)
 

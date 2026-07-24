@@ -19,6 +19,9 @@ dependencies {
     // android 의존성
     implementation(libs.androidx.core.ktx)
 
+    // paging3
+    implementation(libs.androidx.paging.runtime)
+
     // timber
     implementation(libs.timber)
 }

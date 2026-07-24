@@ -107,6 +107,7 @@ appcompat-v7 = { group = "com.android.support", name = "appcompat-v7", version.r
 # paging3
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "paging3" }
 androidx-paging-compose = { group = "androidx.paging", name = "paging-compose", version.ref = "paging3" }
+androidx-paging-common = { group = "androidx.paging", name = "paging-common", version.ref = "paging3" }
 
 # coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
