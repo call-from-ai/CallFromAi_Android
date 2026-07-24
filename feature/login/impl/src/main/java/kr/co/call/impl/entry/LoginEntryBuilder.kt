@@ -1,5 +1,6 @@
 package kr.co.call.impl.entry
 
+import android.widget.Toast
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -75,6 +76,11 @@ fun EntryProviderScope<NavKey>.loginEntry(
                 }
 
                 is LoginSideEffect.ShowError -> {
+                    Toast.makeText(
+                        context,
+                        "로그인에 실패했습니다.",
+                        Toast.LENGTH_SHORT,
+                    ).show()
                     Timber.e(sideEffect.message)
                 }
             }
@@ -86,6 +92,11 @@ fun EntryProviderScope<NavKey>.loginEntry(
                     context=context,
                     onSuccess=loginViewModel::loginWithKakao,
                     onFailure={error ->
+                        Toast.makeText(
+                            context,
+                            "로그인에 실패했습니다.",
+                            Toast.LENGTH_SHORT,
+                        ).show()
                         Timber.e(error,"카카오 로그인 실패")
                     },
                     onCancel={Timber.d("카카오 로그인 취소")}
@@ -95,6 +106,8 @@ fun EntryProviderScope<NavKey>.loginEntry(
     }
 
     entry<AgreementNavKey> {
+        val context=LocalContext.current
+
         val agreementViewModel=hiltViewModel<AgreementViewModel>()
         val uiState=agreementViewModel.collectAsState().value
 
@@ -104,6 +117,12 @@ fun EntryProviderScope<NavKey>.loginEntry(
                     navigateAfterAgreement()
                 }
                 is AgreementSideEffect.ShowError ->{
+                    Toast.makeText(
+                        context,
+                        sideEffect.message,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+
                     Timber.e(sideEffect.message)
                 }
             }

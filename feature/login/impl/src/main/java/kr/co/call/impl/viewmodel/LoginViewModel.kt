@@ -35,11 +35,11 @@ class LoginViewModel @Inject constructor(
                 isLoading = true,
             )
         }
-        runCatching {
+
             loginRepository.loginWithKakao(
                 kakaoAccessToken = kakaoAccessToken,
             )
-        }.onSuccess {
+        .onSuccess {
             // 서버 로그인과 토큰 저장이 완료된 상태
             reduce {
                 state.copy(

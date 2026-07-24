@@ -2,7 +2,9 @@ package kr.co.call.datastore.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.Module
 import dagger.Provides
@@ -17,6 +19,9 @@ import javax.inject.Singleton
  */
 private val Context.tokenDataStore: DataStore<Preferences> by preferencesDataStore(
     name="call_from_ai_token_prefs",
+    corruptionHandler = ReplaceFileCorruptionHandler{
+        emptyPreferences()
+    },
 )
 
 /**

@@ -9,5 +9,5 @@ import kr.co.call.domain.model.login.LoginToken
 interface LoginRepository {
     suspend fun loginWithKakao(
         kakaoAccessToken: String,
-    ): LoginToken
+    ): Result<LoginToken>
 }

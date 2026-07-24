@@ -19,4 +19,7 @@ dependencies {
 
     //timber
     implementation(libs.timber)
+
+    // ApplicationScope을 사용하기 위한 프로젝트 내부 공통 모듈
+    implementation(project(":core:common"))
 }

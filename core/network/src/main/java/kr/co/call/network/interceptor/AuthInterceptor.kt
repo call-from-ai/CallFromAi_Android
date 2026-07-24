@@ -21,13 +21,8 @@ class AuthInterceptor @Inject constructor(
         if (originalRequest.url.encodedPath.isAuthFreePath()) {
             return chain.proceed(originalRequest)
         }
-
-        // OkHttp의 동기 인터셉터 내부에서 DataStore의 토큰 값을 가져옴
-        val accessToken = runBlocking {
-            tokenDataStore.getAccessToken()
-        }
-
         //저장된 access 토큰이 없으면 원래 요청 그대로 전송
+        val accessToken = tokenDataStore.getCachedAccessToken()
         if (accessToken.isNullOrBlank()) {
             return chain.proceed(originalRequest)
         }

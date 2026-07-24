@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kr.co.call.network.BuildConfig
 import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.TokenReissueApi
@@ -32,6 +33,41 @@ object NetworkModule {
             GsonBuilder().create()
         )
     }
+    /*
+     * 일반 API 통신 내용을 확인하기 위한 로깅 인터셉터이다.
+     * 인증 정보가 로그에 노출되지 않도록 민감한 헤더를 마스킹한다.
+     */
+    private fun createLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
+            redactHeader("Cookie")
+            redactHeader("Set-Cookie")
+
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+    }
+
+    /*
+     * 토큰 재발급 요청에는 Access Token과 Refresh Token이
+     * Request Body에 들어가므로 BODY 내용을 출력하지 않는다.
+     */
+    private fun createReissueLoggingInterceptor(): HttpLoggingInterceptor {
+        return HttpLoggingInterceptor().apply {
+            redactHeader("Authorization")
+            redactHeader("Cookie")
+            redactHeader("Set-Cookie")
+
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BASIC
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+    }
 
     //일반 API 요청에 사용하는 OkHttpClient를 제공
     @Provides
@@ -40,13 +76,10 @@ object NetworkModule {
         authInterceptor: AuthInterceptor,
         tokenAuthenticator: TokenAuthenticator,
     ): OkHttpClient {
-        val loggingInterceptor= HttpLoggingInterceptor().apply{
-            level=HttpLoggingInterceptor.Level.BODY
-        }
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(createLoggingInterceptor())
             .build()
     }
 
@@ -69,11 +102,8 @@ object NetworkModule {
     @Singleton
     @Named("reissueOkHttpClient")
     fun provideReissueOkHttpClient(): OkHttpClient{
-        val loggingInterceptor= HttpLoggingInterceptor().apply{
-            level= HttpLoggingInterceptor.Level.BODY
-        }
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(createReissueLoggingInterceptor())
             .build()
     }
 

@@ -6,6 +6,7 @@ import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.impl.viewmodel.state.AgreementUiState
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,9 +25,9 @@ class AgreementViewModel @Inject constructor(
 
     private fun loadTerms()=intent {
         reduce {state.copy(isLoading = true)}
-        runCatching {
             agreementRepository.getTerms()
-        }.onSuccess { terms ->
+                .onSuccess { terms ->
+                    Timber.d("약관 조회 성공: ${terms.size}개")
         reduce {
             state.copy(
                 terms=terms,
@@ -34,6 +35,10 @@ class AgreementViewModel @Inject constructor(
             )
         }
         }.onFailure { error ->
+            Timber.e(
+                error,
+                "약관 조회 실패",
+            )
         reduce{state.copy(isLoading = false)}
         postSideEffect(
             AgreementSideEffect.ShowError(
@@ -56,17 +61,21 @@ class AgreementViewModel @Inject constructor(
         }
     }
     fun submitAgreements()=intent{
+        if(!state.isRequiredChecked || state.isLoading){
+            return@intent
+        }
         reduce{state.copy(isLoading=true)}
         val agreements=state.terms.associate {term ->
             term.termId to (term.termId in state.checkedTermIds)
         }
-        runCatching {
+
             agreementRepository.agreeTerms(agreements)
-        }.onSuccess {
+            .onSuccess {
             reduce {state.copy(isLoading=false)}
             postSideEffect(AgreementSideEffect.NavigateToNext)
         }.onFailure { error->
             reduce{state.copy(isLoading=false)}
+
             postSideEffect(
                 AgreementSideEffect.ShowError(
                     message=error.message ?:"약관 동의에 실패했습니다.",

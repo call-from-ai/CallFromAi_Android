@@ -12,7 +12,7 @@ data class AgreementUiState(
                 terms.all { it.termId in checkedTermIds }
 
     val isRequiredChecked: Boolean
-        get() = terms
+        get() = terms.isNotEmpty() && terms
             .filter { it.isRequired }
             .all { it.termId in checkedTermIds }
 }
