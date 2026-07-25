@@ -79,8 +79,12 @@ class ChatRepositoryImpl @Inject constructor(
             }
         ).flow.map { pagingData ->
             pagingData.insertSeparators { before, after ->
+                // before == null: 리스트 맨 앞(최신 끝) → 구분선 불필요
+                if (before == null) return@insertSeparators null
+
                 val afterDate = after?.createdTime?.toLocalDate() ?: return@insertSeparators null
-                val beforeDate = before?.createdTime?.toLocalDate()
+                val beforeDate = before.createdTime.toLocalDate()
+
                 // 날짜가 달라지는 경계 → 구분선 삽입
                 if (beforeDate != afterDate) ChatItem.DateSeparator(afterDate) else null
             }

@@ -37,6 +37,7 @@ fun ChatLazyColumn(
 ) {
     LazyColumn(
         state = listState,
+        reverseLayout = true,
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(11.dp),
         contentPadding = PaddingValues(

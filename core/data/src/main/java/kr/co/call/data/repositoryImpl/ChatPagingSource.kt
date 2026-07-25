@@ -20,13 +20,15 @@ class ChatPagingSource(
             delay(500.milliseconds)
 
             val totalDummyCount = 100L
-            val pageSize = params.loadSize
+            val pageSize = params.loadSize.toLong()
 
-            // cursor = 이번 페이지의 가장 최신 메시지 ID (null이면 맨 끝 = 최신)
-            val newestIdInPage = params.key ?: (totalDummyCount - 1)
+            // cursor = before 파라미터 (이 ID 미만의 메시지 조회, null이면 최신부터)
+            val beforeId = params.key ?: totalDummyCount
+            val newestIdInPage = beforeId - 1
             val oldestIdInPage = maxOf(0L, newestIdInPage - pageSize + 1)
 
-            val items = (oldestIdInPage..newestIdInPage).map { i ->
+            // API 응답 시뮬레이션: oldest-first (오래된 순)
+            val apiResponse = (oldestIdInPage..newestIdInPage).map { i ->
                 ChatItem.Message(
                     chatMessageId = i,
                     senderType = if (i % 2L == 0L) SenderType.USER else SenderType.AI,
@@ -35,15 +37,18 @@ class ChatPagingSource(
                     // 10개 단위로 하루씩 과거로
                     createdTime = LocalDateTime.now().minus((totalDummyCount - 1 - i) / 10, ChronoUnit.DAYS),
                 )
-            }.reversed() // 최신이 아래에 오도록
+            }
 
-            // 더 이전 메시지가 있으면 prevKey 세팅, 없으면 null
-            val prevKey = if (oldestIdInPage > 0L) oldestIdInPage - 1 else null
+            // reverseLayout = true 와 함께 사용하기 위해 newest-first로 변환
+            val items = apiResponse.reversed()
+
+            // reverseLayout = true 에서 오래된 메시지는 APPEND(nextKey) 방향으로 로드
+            val nextKey = if (oldestIdInPage > 0L) oldestIdInPage else null
 
             LoadResult.Page(
                 data = items,
-                prevKey = prevKey,
-                nextKey = null, // 최신에서 시작하므로 다음 방향 없음
+                prevKey = null,
+                nextKey = nextKey,
             )
         } catch (e: Exception) {
             LoadResult.Error(e)
