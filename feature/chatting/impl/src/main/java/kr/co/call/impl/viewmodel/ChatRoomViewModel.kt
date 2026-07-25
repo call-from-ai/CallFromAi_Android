@@ -1,7 +1,6 @@
 package kr.co.call.impl.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -12,17 +11,21 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
+import kr.co.call.domain.model.chatting.MessageType
+import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
+import kr.co.call.impl.model.ChatItemUiModel
+import kr.co.call.impl.model.TextFieldState
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
+import kr.co.call.impl.util.buildOptimisticMessage
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
-import javax.inject.Inject
-
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
@@ -59,7 +62,7 @@ class ChatRoomViewModel @AssistedInject constructor(
 
     fun handleIntent(intent: ChatRoomIntent) {
         when (intent) {
-            is ChatRoomIntent.ClickCall -> showCallDialog(intent.characterId)
+            is ChatRoomIntent.ClickCall -> showCallDialog()
             ChatRoomIntent.ClickCamera -> emitGoToCamera()
             ChatRoomIntent.ClickGallery -> emitGoToGallery()
             is ChatRoomIntent.DeleteMessage -> deleteMessage(intent.messageId)
@@ -81,17 +84,35 @@ class ChatRoomViewModel @AssistedInject constructor(
     }
 
     private fun sendMessage(intent: ChatRoomIntent.SendMessage) = intent {
-        // navKey.roomId 사용, intent.roomId는 무시
+        val optimisticMsg = buildOptimisticMessage(
+            message = intent.message,
+            image = intent.image,
+            imageUri = intent.imageUri,
+        )
+
+        reduce {
+            state.copy(
+                chatItems = listOf(optimisticMsg) + state.chatItems,
+                textFieldState = TextFieldState(),
+            )
+        }
+
         chatRepository.sendMessage(
             roomId = navKey.roomId,
             message = intent.message,
             image = intent.image,
-        )
+        ).onFailure {
+            reduce {
+                state.copy(
+                    chatItems = state.chatItems.filterNot {
+                        it is ChatItemUiModel.Message && it.clientId == optimisticMsg.clientId
+                    }
+                )
+            }
+        }
     }
 
-
-
-    private fun showCallDialog(characterId: Long) = intent {
+    private fun showCallDialog() = intent {
         reduce {
             state.copy(
                 showDeleteChatRoomDialog = true
@@ -162,8 +183,6 @@ class ChatRoomViewModel @AssistedInject constructor(
     private fun dismissProfile() = intent {
         reduce { state.copy(expandedProfileUrl = null) }
     }
-
-
 
     private fun emitNavigateToCall(characterId: Long) = intent {
         //TODO: 통화 화면으로 이동

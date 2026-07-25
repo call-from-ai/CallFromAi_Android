@@ -1,11 +1,8 @@
 package kr.co.call.impl.component.chatroom.ai
 
-import androidx.compose.foundation.combinedClickable
+
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -13,10 +10,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -26,8 +21,6 @@ import kotlinx.coroutines.flow.flowOf
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
-import kr.co.call.impl.component.chatroom.ChatGrayBubble
-import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.component.chatroom.DateSeparator
 import kr.co.call.impl.model.ChatItemUiModel
 
@@ -56,9 +49,31 @@ fun ChatLazyColumn(
         contentPadding = PaddingValues(
             start = 16.dp, end = 16.dp,
             top = 13.dp,
-            bottom = 13.dp + bottomPadding,   // 오버레이 높이만큼 확보
+            bottom = 13.dp + bottomPadding,
         ),
     ) {
+        // 낙관적(실시간) 메시지: reverseLayout=true 이므로 맨 앞 = 화면 하단
+        items(
+            count = realtimeMessages.size,
+            key = { index ->
+                val item = realtimeMessages[index]
+                if (item is ChatItemUiModel.Message) "rt_${item.clientId}" else "rt_$index"
+            },
+        ) { index ->
+            val item = realtimeMessages[index]
+            if (item is ChatItemUiModel.Message) {
+                ChatMessageRow(
+                    item = item,
+                    isSelected = item.chatMessageId == selectedMessageId,
+                    onLongPress = onLongPress,
+                    onCopy = onCopy,
+                    onDelete = onDelete,
+                    onDismiss = onDismiss,
+                    popupOffsetY = popupOffsetY,
+                )
+            }
+        }
+
         // 페이징으로 불러오는 기존 메세지
         items(
             count = pagingItems.itemCount,
@@ -72,57 +87,16 @@ fun ChatLazyColumn(
         ) { index ->
             when (val item = pagingItems[index]) {
                 is ChatItemUiModel.Message -> {
-
                     if (item.chatMessageId !in deletedIds) {
-                        val isSelected = item.chatMessageId == selectedMessageId
-
-                        when (item.senderType) {
-                            SenderType.AI -> Box(
-                                modifier = Modifier.combinedClickable(
-                                    onLongClick = { onLongPress(item.chatMessageId) },
-                                    onClick = {},
-                                )
-                            ) {
-                                ChatGrayBubble(
-                                    text = AnnotatedString(item.content),
-                                    time = item.time,
-                                )
-                                if (isSelected) {
-                                    ChatBubblePopUp(
-                                        offset = IntOffset(0, popupOffsetY),
-                                        onCopy = { onCopy(item.content) },
-                                        onDelete = { onDelete(item.chatMessageId) },
-                                        onDismiss = onDismiss,
-                                    )
-                                }
-                            }
-                            SenderType.USER -> Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .padding(vertical = 18.dp),
-                                horizontalArrangement = Arrangement.End,
-                            ) {
-                                Box(
-                                    modifier = Modifier.combinedClickable(
-                                        onLongClick = { onLongPress(item.chatMessageId) },
-                                        onClick = {},
-                                    )
-                                ) {
-                                    ChatPinkBubble(
-                                        text = item.content,
-                                        time = item.time,
-                                    )
-                                    if (isSelected) {
-                                        ChatBubblePopUp(
-                                            offset = IntOffset(0, popupOffsetY),
-                                            onCopy = { onCopy(item.content) },
-                                            onDelete = { onDelete(item.chatMessageId) },
-                                            onDismiss = onDismiss,
-                                        )
-                                    }
-                                }
-                            }
-                            SenderType.UNKNOWN -> {}
-                        }
+                        ChatMessageRow(
+                            item = item,
+                            isSelected = item.chatMessageId == selectedMessageId,
+                            onLongPress = onLongPress,
+                            onCopy = onCopy,
+                            onDelete = onDelete,
+                            onDismiss = onDismiss,
+                            popupOffsetY = popupOffsetY,
+                        )
                     }
                 }
                 is ChatItemUiModel.DateSeparator -> DateSeparator(

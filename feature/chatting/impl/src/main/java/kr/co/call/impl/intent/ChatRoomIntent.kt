@@ -8,6 +8,7 @@ sealed interface ChatRoomIntent {
     data class SendMessage(
         val message: String? = null,
         val image: ImageData? = null,
+        val imageUri: Uri? = null,
     ) : ChatRoomIntent
 
     data class ClickCall(

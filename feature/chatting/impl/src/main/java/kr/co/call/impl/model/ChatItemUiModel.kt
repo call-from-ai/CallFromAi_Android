@@ -5,6 +5,7 @@ import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
+import java.util.UUID
 
 /**
  * 채팅 메시지 목록에 표시되는 다양한 아이템을 나타내는 UI 모델입니다.
@@ -17,6 +18,7 @@ sealed interface ChatItemUiModel {
 
     data class Message(
         val chatMessageId: Long,
+        val clientId: String = UUID.randomUUID().toString(),
         val senderType: SenderType,
         val content: String = "",
         val messageType: MessageType,

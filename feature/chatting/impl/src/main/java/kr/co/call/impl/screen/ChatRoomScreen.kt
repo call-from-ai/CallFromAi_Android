@@ -70,10 +70,10 @@ fun ChatRoomScreen(
     val pagingItems: LazyPagingItems<ChatItemUiModel> = viewModel.chats.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
 
-    var cameraUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
+    // 촬영한 이미지를 저장할 파일 Uri 상태
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
 
+    // 촬영 성공 시 저장된 이미지 Uri를 ViewModel로 전달
     val takePicture = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -97,6 +97,7 @@ fun ChatRoomScreen(
         }
     }
 
+    // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is ChatRoomSideEffect.ShowToast -> {}
@@ -150,6 +151,13 @@ fun ChatRoomScreenContent(
     // 키보드 올라올 때 최신 메시지로 자연스럽게 따라 스크롤
     LaunchedEffect(imeBottom) {
         if (imeBottom > 0) {
+            listState.scrollToItem(0)
+        }
+    }
+
+    // 새 메시지 추가될 때마다 맨 아래로 스크롤
+    LaunchedEffect(state.chatItems.size) {
+        if (state.chatItems.isNotEmpty()) {
             listState.scrollToItem(0)
         }
     }
@@ -229,6 +237,7 @@ fun ChatRoomScreenContent(
                                 ChatRoomIntent.SendMessage(
                                     message = state.textFieldState.text,
                                     image = state.textFieldState.selectedImage?.let(context::toImageData),
+                                    imageUri = state.textFieldState.selectedImage,
                                 )
                             )
                         },
