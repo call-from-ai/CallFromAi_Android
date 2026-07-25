@@ -7,13 +7,16 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -61,15 +64,15 @@ fun ChatTextField(
         if (hasImage) {
             Box(
                 modifier = Modifier
-                    .padding(start = 4.dp, top = 4.dp, bottom = 8.dp)
+                    .padding(start = 40.dp, top = 4.dp, bottom = 8.dp)
             ) {
                 AsyncImage(
                     model = state.selectedImage,
                     contentDescription = "선택된 이미지",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(96.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                        .size(121.dp)
+                        .clip(RoundedCornerShape(20.dp)),
                 )
 
                 Icon(
@@ -78,8 +81,8 @@ fun ChatTextField(
                     tint = Color.Unspecified,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 6.dp, y = (-6).dp)
-                        .size(24.dp)
+                        .offset(x = (-9).dp, y = 9.dp)
+                        .size(18.dp)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
@@ -87,6 +90,15 @@ fun ChatTextField(
                         ),
                 )
             }
+
+            HorizontalDivider(
+                color = CallTheme.colors.gray200,
+                thickness = 1.dp,
+            )
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
         }
 
         // 기존 입력 Row
