@@ -177,6 +177,7 @@ fun ChatRoomScreenContent(
                             )
                         )
                     },
+                    onRemoveImage = { onIntent(ChatRoomIntent.CancelImage) },
                 )
 
                 Spacer(Modifier.height(15.dp))
