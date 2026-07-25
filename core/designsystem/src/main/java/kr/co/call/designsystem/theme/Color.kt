@@ -23,6 +23,9 @@ val SubGray2 = Color(0xFFF7F3F3)
 val SubRed = Color(0xFFFF0000)
 val SubBlue = Color(0xFF4391FF)
 
+val SubFire=Color(0xFFFF5677)
+val SubSoup=Color(0xFFFFCE91)
+
 val SubPressed = Color(0xFFED5988)
 val SubPressed2 = Color(0xFFFCB4C1)
 val SubPressed3 = Color(0xFF1F0A03)
@@ -49,6 +52,13 @@ val ChatGradient = Brush.horizontalGradient(
     listOf(
         Color(0xFFFF789F),
         Color(0xFFFFA3BD)
+    )
+)
+
+val DragGradient=Brush.horizontalGradient(
+    listOf(
+        Color(0xFFFFD092),
+        Color(0xFFFF4F75)
     )
 )
 
