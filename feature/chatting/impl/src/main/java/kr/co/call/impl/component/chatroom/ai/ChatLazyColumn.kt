@@ -23,6 +23,7 @@ import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.impl.component.chatroom.DateSeparator
 import kr.co.call.impl.model.ChatItemUiModel
+import kr.co.call.impl.util.shouldShowDateSeparator
 
 @Composable
 fun ChatLazyColumn(
@@ -114,10 +115,12 @@ fun ChatLazyColumn(
                 }
 
                 is ChatItemUiModel.DateSeparator -> {
-                    DateSeparator(
-                        text = item.date,
-                        modifier = Modifier.padding(top = 11.dp, bottom = 11.dp)
-                    )
+                    if (shouldShowDateSeparator(pagingItems, index, deletedIds)) {
+                        DateSeparator(
+                            text = item.date,
+                            modifier = Modifier.padding(top = 11.dp, bottom = 5.dp)
+                        )
+                    }
                 }
 
                 else -> {}
