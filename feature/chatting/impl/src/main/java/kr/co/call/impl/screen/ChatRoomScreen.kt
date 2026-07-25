@@ -26,8 +26,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -138,6 +140,7 @@ fun ChatRoomScreenContent(
     onValueChange: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
 
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
@@ -191,13 +194,17 @@ fun ChatRoomScreenContent(
             ) {
                 // 리스트: Box 전체를 채움 (텍스트필드 뒤까지 깔림)
                 ChatLazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     pagingItems = pagingItems,
                     realtimeMessages = state.chatItems,
                     listState = listState,
-                    bottomPadding = overlayHeight,   // 마지막 메시지가 텍스트필드에 안 가리게
+                    bottomPadding = overlayHeight,
                     deletedIds = state.deletedIds,
+                    selectedMessageId = state.selectedMessageId,
+                    onLongPress = { onIntent(ChatRoomIntent.LongPressMessage(it)) },
+                    onCopy = { clipboardManager.setText(AnnotatedString(it)) },
+                    onDelete = { onIntent(ChatRoomIntent.DeleteMessage(it)) },
+                    onDismiss = { onIntent(ChatRoomIntent.DismissPopup) },
                 )
 
                 // 텍스트필드: 리스트 위에 겹쳐서 바닥에 고정

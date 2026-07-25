@@ -24,4 +24,8 @@ interface ChatRepository {
         message: String?,
         image: ImageData?
     ): Result<Unit>
+
+    suspend fun deleteMessage(
+        messageId: Long
+    ): Result<Unit>
 }

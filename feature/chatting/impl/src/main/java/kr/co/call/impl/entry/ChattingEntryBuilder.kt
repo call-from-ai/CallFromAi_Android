@@ -28,7 +28,10 @@ fun EntryProviderScope<NavKey>.chattingEntry(
         val viewModel = hiltViewModel<ChatRoomViewModel, ChatRoomViewModel.Factory>(
             creationCallback = { factory -> factory.create(key) }
         )
-        ChatRoomScreen(viewModel = viewModel)
+        ChatRoomScreen(
+            viewModel = viewModel,
+            onBack = onBack
+        )
     }
 
     entry<ManagerChatRoomNayKey> {

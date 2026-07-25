@@ -62,9 +62,9 @@ class ChatRoomViewModel @AssistedInject constructor(
             is ChatRoomIntent.ClickCall -> showCallDialog(intent.characterId)
             ChatRoomIntent.ClickCamera -> emitGoToCamera()
             ChatRoomIntent.ClickGallery -> emitGoToGallery()
-            is ChatRoomIntent.DeleteMessage -> TODO()
-            is ChatRoomIntent.LongPressMessage -> TODO()
+            is ChatRoomIntent.DeleteMessage -> deleteMessage(intent.messageId)
             is ChatRoomIntent.SendMessage -> sendMessage(intent)
+            is ChatRoomIntent.LongPressMessage -> selectMessage(intent.messageId)
             is ChatRoomIntent.GoToCall -> emitNavigateToCall(intent.characterId)
             is ChatRoomIntent.ImagesPicked -> uploadImages(intent.uri)
             is ChatRoomIntent.PictureTaken -> uploadImages(intent.uri)
@@ -72,6 +72,7 @@ class ChatRoomViewModel @AssistedInject constructor(
             ChatRoomIntent.DismissDeleteDialog -> dismissDeleteDialog()
             is ChatRoomIntent.ClickProfile -> showProfile(intent.imageUrl)
             ChatRoomIntent.DismissProfile -> dismissProfile()
+            ChatRoomIntent.DismissPopup -> dismissPopup()
         }
     }
 
@@ -124,12 +125,45 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    private fun selectMessage(messageId: Long) = intent {
+        reduce {
+            state.copy(
+                selectedMessageId = messageId
+            )
+        }
+    }
+
+    private fun deleteMessage(messageId: Long) = intent {
+        chatRepository.deleteMessage(messageId).fold(
+            onSuccess = {
+                reduce {
+                    state.copy(
+                        deletedIds = state.deletedIds + messageId
+                    )
+                }
+            },
+            onFailure = {
+                //TODO: 에러 처리
+            }
+        )
+    }
+
+    private fun dismissPopup() = intent {
+        reduce {
+            state.copy(
+                selectedMessageId = null
+            )
+        }
+    }
+
     private fun showProfile(url: String) = intent {
         reduce { state.copy(expandedProfileUrl = url) }
     }
     private fun dismissProfile() = intent {
         reduce { state.copy(expandedProfileUrl = null) }
     }
+
+
 
     private fun emitNavigateToCall(characterId: Long) = intent {
         //TODO: 통화 화면으로 이동

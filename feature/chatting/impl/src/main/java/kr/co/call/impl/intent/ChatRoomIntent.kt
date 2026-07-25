@@ -41,5 +41,5 @@ sealed interface ChatRoomIntent {
     data class ClickProfile(val imageUrl: String) : ChatRoomIntent
     data object DismissProfile : ChatRoomIntent
 
-
+    data object DismissPopup : ChatRoomIntent
 }

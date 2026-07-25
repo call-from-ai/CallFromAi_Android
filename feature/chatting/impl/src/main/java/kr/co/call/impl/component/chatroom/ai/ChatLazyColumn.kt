@@ -1,6 +1,8 @@
 package kr.co.call.impl.component.chatroom.ai
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,9 +12,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -34,8 +38,16 @@ fun ChatLazyColumn(
     bottomPadding: Dp = 0.dp,
     pagingItems: LazyPagingItems<ChatItemUiModel>,
     realtimeMessages: List<ChatItemUiModel> = emptyList(),
-    deletedIds: Set<Long> = emptySet()
+    deletedIds: Set<Long> = emptySet(),
+    selectedMessageId: Long? = null,
+    onLongPress: (Long) -> Unit = {},
+    onCopy: (String) -> Unit = {},
+    onDelete: (Long) -> Unit = {},
+    onDismiss: () -> Unit = {},
 ) {
+    val density = LocalDensity.current
+    val popupOffsetY = with(density) { -88.dp.roundToPx() }
+
     LazyColumn(
         state = listState,
         reverseLayout = true,
@@ -60,21 +72,54 @@ fun ChatLazyColumn(
         ) { index ->
             when (val item = pagingItems[index]) {
                 is ChatItemUiModel.Message -> {
+
                     if (item.chatMessageId !in deletedIds) {
+                        val isSelected = item.chatMessageId == selectedMessageId
+
                         when (item.senderType) {
-                            SenderType.AI -> ChatGrayBubble(
-                                text = AnnotatedString(item.content),
-                                time = item.time,
-                            )
+                            SenderType.AI -> Box(
+                                modifier = Modifier.combinedClickable(
+                                    onLongClick = { onLongPress(item.chatMessageId) },
+                                    onClick = {},
+                                )
+                            ) {
+                                ChatGrayBubble(
+                                    text = AnnotatedString(item.content),
+                                    time = item.time,
+                                )
+                                if (isSelected) {
+                                    ChatBubblePopUp(
+                                        offset = IntOffset(0, popupOffsetY),
+                                        onCopy = { onCopy(item.content) },
+                                        onDelete = { onDelete(item.chatMessageId) },
+                                        onDismiss = onDismiss,
+                                    )
+                                }
+                            }
                             SenderType.USER -> Row(
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(vertical = 18.dp),
                                 horizontalArrangement = Arrangement.End,
                             ) {
-                                ChatPinkBubble(
-                                    text = item.content,
-                                    time = item.time,
-                                )
+                                Box(
+                                    modifier = Modifier.combinedClickable(
+                                        onLongClick = { onLongPress(item.chatMessageId) },
+                                        onClick = {},
+                                    )
+                                ) {
+                                    ChatPinkBubble(
+                                        text = item.content,
+                                        time = item.time,
+                                    )
+                                    if (isSelected) {
+                                        ChatBubblePopUp(
+                                            offset = IntOffset(0, popupOffsetY),
+                                            onCopy = { onCopy(item.content) },
+                                            onDelete = { onDelete(item.chatMessageId) },
+                                            onDismiss = onDismiss,
+                                        )
+                                    }
+                                }
                             }
                             SenderType.UNKNOWN -> {}
                         }
