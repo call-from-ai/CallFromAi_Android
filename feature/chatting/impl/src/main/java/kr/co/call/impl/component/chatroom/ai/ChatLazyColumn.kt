@@ -1,7 +1,7 @@
 package kr.co.call.impl.component.chatroom.ai
 
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,10 +45,9 @@ fun ChatLazyColumn(
         state = listState,
         reverseLayout = true,
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(11.dp),
         contentPadding = PaddingValues(
             start = 16.dp, end = 16.dp,
-            top = 13.dp,
+            top = 2.dp,
             bottom = 13.dp + bottomPadding,
         ),
     ) {
@@ -66,39 +65,9 @@ fun ChatLazyColumn(
         ) { index ->
             val item = visibleRealtimeMessages[index]
             if (item is ChatItemUiModel.Message) {
-                ChatMessageRow(
-                    item = item,
-                    isSelected = item.chatMessageId == selectedMessageId,
-                    onLongPress = onLongPress,
-                    onCopy = onCopy,
-                    onDelete = onDelete,
-                    onDismiss = onDismiss,
-                    popupOffsetY = popupOffsetY,
-                )
-            }
-        }
-
-        // 삭제된 메시지를 제외한 실제 표시 대상 페이징 아이템
-        // LazyColumn 슬롯 자체를 제거하기 위해 렌더링 전에 필터링 처리
-        val visiblePagingItems = pagingItems.itemSnapshotList.items.filter {
-            it !is ChatItemUiModel.Message || it.chatMessageId !in deletedIds
-        }
-
-        // 페이징으로 불러오는 기존 메시지
-        // 삭제된 메시지는 items count에서 제외되어 빈 공간이 남지 않도록 처리
-        items(
-            count = visiblePagingItems.size,
-            key = { index ->
-                when (val item = visiblePagingItems[index]) {
-                    is ChatItemUiModel.Message -> item.chatMessageId
-                    is ChatItemUiModel.DateSeparator -> "separator_${item.date}"
-                    else -> index
-                }
-            },
-        ) { index ->
-            when (val item = visiblePagingItems[index]) {
-
-                is ChatItemUiModel.Message -> {
+                // Arrangement.spacedBy 대신 각 아이템에 직접 padding을 적용해
+                // 삭제된 슬롯(0 높이)이 간격에 영향을 주는 문제를 방지
+                Box(modifier = Modifier.padding(top = 11.dp)) {
                     ChatMessageRow(
                         item = item,
                         isSelected = item.chatMessageId == selectedMessageId,
@@ -109,37 +78,46 @@ fun ChatLazyColumn(
                         popupOffsetY = popupOffsetY,
                     )
                 }
+            }
+        }
 
-                is ChatItemUiModel.DateSeparator -> {
-                    // 날짜 구분선 아래에 표시 가능한 메시지가 존재하는지 확인
-                    // 해당 날짜의 모든 메시지가 삭제된 경우 날짜 구분선도 숨김 처리
-                    var hasVisibleMessage = false
+        // 페이징으로 불러오는 기존 메시지 (ViewModel에서 삭제 필터링 완료)
+        // pagingItems[index] 접근으로 Paging 라이브러리에 로드 트리거를 전달
+        items(
+            count = pagingItems.itemCount,
+            key = pagingItems.itemKey { item ->
+                when (item) {
+                    is ChatItemUiModel.Message -> item.chatMessageId
+                    is ChatItemUiModel.DateSeparator -> "separator_${item.date}"
+                    else -> item.hashCode()
+                }
+            },
+        ) { index ->
+            val item = pagingItems[index] ?: return@items
 
-                    // 현재 날짜 구분선 이전 메시지를 역순으로 탐색
-                    // 같은 날짜 범위 안에 표시 가능한 메시지가 있는지 확인
-                    for (i in (index - 1) downTo 0) {
-                        when (val prev = visiblePagingItems[i]) {
-
-                            // 이전 날짜 구분선을 만나면 현재 날짜 범위 탐색 종료
-                            is ChatItemUiModel.DateSeparator -> break
-
-                            // 삭제되지 않은 메시지가 존재하면 날짜 구분선 표시
-                            is ChatItemUiModel.Message -> {
-                                hasVisibleMessage = true
-                                break
-                            }
-
-                            else -> {}
+            when (item) {
+                is ChatItemUiModel.Message -> {
+                    if (item.chatMessageId !in deletedIds) {
+                        Box(modifier = Modifier.padding(top = 11.dp)) {
+                            ChatMessageRow(
+                                item = item,
+                                isSelected = item.chatMessageId == selectedMessageId,
+                                onLongPress = onLongPress,
+                                onCopy = onCopy,
+                                onDelete = onDelete,
+                                onDismiss = onDismiss,
+                                popupOffsetY = popupOffsetY,
+                            )
                         }
                     }
+                    // 삭제된 메시지: 빈 블록 → 슬롯 크기 0, padding 없음 → 간격 영향 없음
+                }
 
-                    // 표시 가능한 메시지가 존재하는 날짜만 구분선 렌더링
-                    if (hasVisibleMessage) {
-                        DateSeparator(
-                            text = item.date,
-                            modifier = Modifier.padding(vertical = 5.dp)
-                        )
-                    }
+                is ChatItemUiModel.DateSeparator -> {
+                    DateSeparator(
+                        text = item.date,
+                        modifier = Modifier.padding(top = 11.dp, bottom = 11.dp)
+                    )
                 }
 
                 else -> {}

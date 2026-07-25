@@ -4,13 +4,17 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import androidx.paging.map
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
+import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
@@ -39,10 +43,14 @@ class ChatRoomViewModel @AssistedInject constructor(
         loadHeader()
     }
 
-    // 채팅 메시지 목록을 PagingData로 불러오고 UI 모델로 변환
-    val chats = chatRepository
-        .getChats(navKey.roomId)
-        .map { pagingData -> pagingData.map { it.toUiItem() } }
+    // 채팅 메시지 목록을 PagingData로 불러오고, 삭제된 메시지를 제외한 뒤 UI 모델로 변환
+    // _deletedIds가 변경될 때마다 flatMapLatest로 새 페이징 흐름을 생성해 필터 적용
+    val chats = chatRepository.getChats(navKey.roomId)
+        .map { pagingData ->
+            pagingData.map { item ->
+                item.toUiItem()
+            }
+        }
         .cachedIn(viewModelScope)
 
     // 채팅방 헤더 정보를 조회하고 UI 상태에 반영
@@ -165,12 +173,13 @@ class ChatRoomViewModel @AssistedInject constructor(
             onSuccess = {
                 reduce {
                     state.copy(
-                        deletedIds = state.deletedIds + messageId
+                        deletedIds = state.deletedIds + messageId,
+                        selectedMessageId = null
                     )
                 }
             },
             onFailure = {
-                //TODO: 에러 처리
+                // TODO error
             }
         )
     }

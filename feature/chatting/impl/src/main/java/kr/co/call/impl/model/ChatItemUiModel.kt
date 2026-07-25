@@ -25,6 +25,7 @@ sealed interface ChatItemUiModel {
         val photoUrl: String = "",
         val time: String = "",
         val loadStatus: LoadStatus = LoadStatus.Idle,
+        val isDeleted: Boolean = false
     ) : ChatItemUiModel
 
     data class DateSeparator(val date: String) : ChatItemUiModel
