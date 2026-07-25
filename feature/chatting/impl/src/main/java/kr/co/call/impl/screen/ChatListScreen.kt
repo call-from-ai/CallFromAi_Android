@@ -169,7 +169,7 @@ fun ChatListScreenContent(
                             isManager = true,
                             chatSummary = ChatSummary(
                                 name = "전화왔어 매니저",
-                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를",
+                                content = "안녕하세요, 전화왔어 매니저입니다!",
                             ),
                             onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
                         )
@@ -207,7 +207,7 @@ private fun ChatListScreenContentPreview() {
                     )
                 ),
                 status = LoadStatus.Idle,
-                showDeleteChatRoomDialog = true
+                showDeleteChatRoomDialog = false
             ),
             onIntent = {}
         )
