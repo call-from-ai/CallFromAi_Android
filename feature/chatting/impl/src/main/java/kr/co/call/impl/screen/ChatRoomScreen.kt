@@ -234,9 +234,9 @@ fun ChatRoomScreenContent(
         }
 
         // 프사 확대 오버레이 (가장 위 레이어)
-        if (state.expandedProfileUrl.isNotEmpty()) {
+        state.expandedProfileUrl?.let { url ->
             ProfileImageOverlay(
-                imageUrl = state.expandedProfileUrl,
+                imageUrl = url,
                 onDismiss = { onIntent(ChatRoomIntent.DismissProfile) },
             )
         }

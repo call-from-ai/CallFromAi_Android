@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,7 +17,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 
 @Composable
@@ -34,13 +38,19 @@ fun ProfileImageOverlay(
                 indication = null,
                 onClick = onDismiss,
             ),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.TopCenter,
     ) {
+        val defaultProfile = painterResource(R.drawable.img_profile_url_default)
+
         AsyncImage(
-            model = imageUrl,
+            model = imageUrl.takeIf { it.isNotBlank() },
             contentDescription = "프로필 사진",
             contentScale = ContentScale.Crop,
+            placeholder = defaultProfile,
+            error = defaultProfile,
+            fallback = defaultProfile,
             modifier = Modifier
+                .padding(top = 210.dp)
                 .fillMaxWidth(0.7f) // 화면 폭의 70%
                 .aspectRatio(1f)
                 .clip(CircleShape)
@@ -54,7 +64,7 @@ fun ProfileImageOverlay(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
+@Preview(showBackground = true)
 @Composable
 private fun ProfileImageOverlayPreview() {
     CallFromAiTheme {

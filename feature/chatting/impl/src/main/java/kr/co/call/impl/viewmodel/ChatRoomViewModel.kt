@@ -128,7 +128,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         reduce { state.copy(expandedProfileUrl = url) }
     }
     private fun dismissProfile() = intent {
-        reduce { state.copy(expandedProfileUrl = "") }
+        reduce { state.copy(expandedProfileUrl = null) }
     }
 
     private fun emitNavigateToCall(characterId: Long) = intent {
