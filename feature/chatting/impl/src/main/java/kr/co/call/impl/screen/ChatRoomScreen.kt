@@ -68,7 +68,7 @@ fun ChatRoomScreen(
         listState = listState,
         onBack = onBack,
         onCallClick = {},
-        onValueChange = {},
+        onValueChange = viewModel::onTextChange,
         onSendClick = {},
         onCameraClick = {},
     )

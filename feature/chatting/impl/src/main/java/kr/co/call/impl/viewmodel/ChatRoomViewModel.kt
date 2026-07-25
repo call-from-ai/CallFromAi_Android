@@ -55,6 +55,10 @@ class ChatRoomViewModel @AssistedInject constructor(
             }
     }
 
+    fun onTextChange(text: String) = intent {
+        reduce { state.copy(textFieldState = state.textFieldState.copy(text = text)) }
+    }
+
     fun deleteMessage(chatMessageId: Long) = intent {
         reduce {
             state.copy(deletedIds = state.deletedIds + chatMessageId)

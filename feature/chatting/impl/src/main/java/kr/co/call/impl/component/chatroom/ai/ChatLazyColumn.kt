@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -66,7 +67,8 @@ fun ChatLazyColumn(
                                 time = item.time,
                             )
                             SenderType.USER -> Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(vertical = 18.dp),
                                 horizontalArrangement = Arrangement.End,
                             ) {
                                 ChatPinkBubble(
@@ -79,7 +81,8 @@ fun ChatLazyColumn(
                     }
                 }
                 is ChatItemUiModel.DateSeparator -> DateSeparator(
-                    text = item.date
+                    text = item.date,
+                    modifier = Modifier.padding(vertical = 5.dp)
                 )
                 else -> {}
             }
