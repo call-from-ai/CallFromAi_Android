@@ -9,6 +9,7 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
+import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
@@ -21,12 +22,12 @@ import javax.inject.Inject
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
-    @Assisted private val roomId: Long,
+    @Assisted val navKey: ChatRoomNavKey,
 ): ViewModel(), ContainerHost<ChatRoomUiState, ChatRoomSideEffect> {
 
     @AssistedFactory
     interface Factory {
-        fun create(roomId: Long): ChatRoomViewModel
+        fun create(navKey: ChatRoomNavKey): ChatRoomViewModel
     }
 
     override val container: Container<ChatRoomUiState, ChatRoomSideEffect> = container(
@@ -34,7 +35,7 @@ class ChatRoomViewModel @AssistedInject constructor(
     )
 
     val chats = chatRepository
-        .getChats(roomId)
+        .getChats(navKey.roomId)
         .map { pagingData -> pagingData.map { it.toUiItem() } }
         .cachedIn(viewModelScope)
 
