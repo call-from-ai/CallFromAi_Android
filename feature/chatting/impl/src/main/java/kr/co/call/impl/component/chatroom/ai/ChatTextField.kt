@@ -34,6 +34,7 @@ fun ChatTextField(
     state: TextFieldState = TextFieldState(),
     onValueChange: (String) -> Unit = {},
     onCameraClick: () -> Unit = {},
+    onGalleryClick: () -> Unit = {},
     onSendClick: () -> Unit = {},
 ) {
     // 키보드가 올라왔는지 안올라왔는지 여부
@@ -92,7 +93,7 @@ fun ChatTextField(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = onCameraClick,
+                        onClick = onGalleryClick,
                     ),
             )
         }

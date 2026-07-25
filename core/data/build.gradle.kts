@@ -22,6 +22,9 @@ dependencies {
     // paging3
     implementation(libs.androidx.paging.runtime)
 
+    // network
+    implementation(libs.okhttp)
+
     // timber
     implementation(libs.timber)
 }

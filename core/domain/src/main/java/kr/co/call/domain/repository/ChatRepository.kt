@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.call.domain.model.chatting.ChatHeader
 import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.model.chatting.ChatSummary
+import kr.co.call.domain.model.chatting.ImageData
 
 interface ChatRepository {
 
@@ -17,4 +18,10 @@ interface ChatRepository {
     fun getChats(roomId: Long): Flow<PagingData<ChatItem>>
 
     suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader>
+
+    suspend fun sendMessage(
+        roomId: Long,
+        message: String?,
+        image: ImageData?
+    ): Result<Unit>
 }

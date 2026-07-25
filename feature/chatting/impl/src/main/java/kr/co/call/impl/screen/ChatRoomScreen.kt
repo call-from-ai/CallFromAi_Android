@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,8 +39,10 @@ import kr.co.call.impl.model.TopHeader
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.impl.component.chatroom.ai.ChatTopBar
+import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
+import kr.co.call.impl.util.toImageData
 import kr.co.call.impl.viewmodel.ChatRoomViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -58,6 +61,8 @@ fun ChatRoomScreen(
         when (sideEffect) {
             is ChatRoomSideEffect.ShowToast -> {}
             is ChatRoomSideEffect.Call -> {}
+            ChatRoomSideEffect.GoToCamera -> {}
+            ChatRoomSideEffect.GoToGallery -> {}
         }
     }
 
@@ -67,10 +72,8 @@ fun ChatRoomScreen(
         pagingItems = pagingItems,
         listState = listState,
         onBack = onBack,
-        onCallClick = {},
+        onIntent = viewModel::handleIntent,
         onValueChange = viewModel::onTextChange,
-        onSendClick = {},
-        onCameraClick = {},
     )
 }
 
@@ -81,11 +84,11 @@ fun ChatRoomScreenContent(
     pagingItems: LazyPagingItems<ChatItemUiModel>,
     listState: LazyListState = rememberLazyListState(),
     onBack: () -> Unit = {},
-    onCallClick: () -> Unit = {},
+    onIntent: (ChatRoomIntent) -> Unit = {},
     onValueChange: (String) -> Unit = {},
-    onSendClick: () -> Unit = {},
-    onCameraClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
 
@@ -108,7 +111,7 @@ fun ChatRoomScreenContent(
             modifier = Modifier.fillMaxWidth(),
             item = state.topHeader,
             onBack = onBack,
-            onCallClick = onCallClick,
+            onCallClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
         )
 
         // 리스트 + 텍스트필드 겹침 영역. 이 영역만 키보드 따라 올라감
@@ -144,8 +147,16 @@ fun ChatRoomScreenContent(
                         .padding(horizontal = 16.dp),
                     state = state.textFieldState,
                     onValueChange = onValueChange,
-                    onCameraClick = onCameraClick,
-                    onSendClick = onSendClick,
+                    onCameraClick = { onIntent(ChatRoomIntent.ClickCamera) },
+                    onGalleryClick = { onIntent(ChatRoomIntent.ClickGallery) },
+                    onSendClick = {
+                        onIntent(
+                            ChatRoomIntent.SendMessage(
+                                message = state.textFieldState.text,
+                                image = state.textFieldState.selectedImage?.let(context::toImageData),
+                            )
+                        )
+                    },
                 )
 
                 Spacer(Modifier.height(15.dp))

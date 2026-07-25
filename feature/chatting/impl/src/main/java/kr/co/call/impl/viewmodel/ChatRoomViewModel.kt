@@ -1,5 +1,6 @@
 package kr.co.call.impl.viewmodel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
@@ -55,14 +57,73 @@ class ChatRoomViewModel @AssistedInject constructor(
             }
     }
 
+    fun handleIntent(intent: ChatRoomIntent) {
+        when (intent) {
+            is ChatRoomIntent.ClickCall -> showCallDialog(intent.characterId)
+            ChatRoomIntent.ClickCamera -> emitGoToCamera()
+            ChatRoomIntent.ClickGallery -> emitGoToGallery()
+            is ChatRoomIntent.DeleteMessage -> TODO()
+            is ChatRoomIntent.LongPressMessage -> TODO()
+            is ChatRoomIntent.SendMessage -> sendMessage(intent)
+            is ChatRoomIntent.GoToCall -> emitNavigateToCall(intent.characterId)
+            is ChatRoomIntent.ImagesPicked -> uploadImages(intent.uri)
+            is ChatRoomIntent.PictureTaken -> uploadImages(intent.uri)
+            ChatRoomIntent.CancelImage -> clearSelectedImage()
+        }
+    }
+
     fun onTextChange(text: String) = intent {
         reduce { state.copy(textFieldState = state.textFieldState.copy(text = text)) }
     }
 
-    fun deleteMessage(chatMessageId: Long) = intent {
+    private fun sendMessage(intent: ChatRoomIntent.SendMessage) = intent {
+        // navKey.roomId 사용, intent.roomId는 무시
+        chatRepository.sendMessage(
+            roomId = navKey.roomId,
+            message = intent.message,
+            image = intent.image,
+        )
+    }
+
+
+
+    private fun showCallDialog(characterId: Long) = intent {
         reduce {
-            state.copy(deletedIds = state.deletedIds + chatMessageId)
+            state.copy(
+                showDeleteChatRoomDialog = true
+            )
         }
     }
+
+    private fun uploadImages(uri: Uri?) = intent {
+        if (uri == null) return@intent
+        reduce {
+            state.copy(
+                textFieldState = state.textFieldState.copy(selectedImage = uri)
+            )
+        }
+    }
+
+    private fun clearSelectedImage() = intent {
+        reduce {
+            state.copy(
+                textFieldState = state.textFieldState.copy(selectedImage = null)
+            )
+        }
+    }
+
+    private fun emitNavigateToCall(characterId: Long) = intent {
+        //TODO: 통화 화면으로 이동
+    }
+
+    private fun emitGoToCamera() = intent {
+        postSideEffect(ChatRoomSideEffect.GoToCamera)
+    }
+
+    private fun emitGoToGallery() = intent {
+        postSideEffect(ChatRoomSideEffect.GoToGallery)
+    }
+
+
 
 }

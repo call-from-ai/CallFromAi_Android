@@ -10,7 +10,11 @@ import kotlinx.coroutines.flow.map
 import kr.co.call.domain.model.chatting.ChatHeader
 import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.model.chatting.ChatSummary
+import kr.co.call.domain.model.chatting.ImageData
 import kr.co.call.domain.repository.ChatRepository
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -106,4 +110,21 @@ class ChatRepositoryImpl @Inject constructor(
         delay(500.milliseconds)
         chatHeaders[roomId] ?: error("ChatHeader not found for roomId=$roomId")
     }
+
+    override suspend fun sendMessage(
+        roomId: Long,
+        message: String?,
+        image: ImageData?
+    ): Result<Unit> = runCatching {
+        delay(500.milliseconds)
+
+        val imagePart = image?.let {
+            MultipartBody.Part.createFormData(
+                name = "image",
+                filename = it.fileName,
+                body = it.bytes.toRequestBody(it.mimeType.toMediaType())
+            )
+        }
+    }
+
 }
