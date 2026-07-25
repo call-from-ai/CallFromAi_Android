@@ -1,5 +1,8 @@
 package kr.co.call.impl.screen
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,12 +60,29 @@ fun ChatRoomScreen(
     val pagingItems: LazyPagingItems<ChatItemUiModel> = viewModel.chats.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
 
+    // Photo Picker 실행 후 사진 선택 결과를 받아 Intent 전달
+    val pickMedia = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let {
+            viewModel.handleIntent(
+                ChatRoomIntent.ImagesPicked(it)
+            )
+        }
+    }
+
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is ChatRoomSideEffect.ShowToast -> {}
             is ChatRoomSideEffect.Call -> {}
             ChatRoomSideEffect.GoToCamera -> {}
-            ChatRoomSideEffect.GoToGallery -> {}
+            ChatRoomSideEffect.GoToGallery -> {
+                pickMedia.launch(
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            }
         }
     }
 
