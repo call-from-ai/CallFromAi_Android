@@ -2,6 +2,15 @@ package kr.co.call.domain.model.chatting
 
 import java.time.LocalDateTime
 
+/**
+ * 매니저와의 채팅 화면에서 표시되는 각 채팅 아이템의 공통 규격을 정의하는 봉인 인터페이스(Sealed Interface)입니다.
+ *
+ * 이 인터페이스는 매니저의 안내 메시지, 시스템 공지성 메시지, 그리고 사용자의 메시지를 모두 포함합니다.
+ *
+ * @property id 각 채팅 아이템을 식별하기 위한 고유 식별자
+ * @property content 채팅 창에 표시될 메시지 본문 내용
+ * @property createdAt 메시지가 생성된 일시
+ */
 sealed interface ManagerChatItem {
     val id: String
     val content: String

@@ -11,10 +11,7 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
-import kr.co.call.domain.model.chatting.MessageType
-import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.repository.ChatRepository
-import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.model.ChatItemUiModel
@@ -25,7 +22,6 @@ import kr.co.call.impl.util.buildOptimisticMessage
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import timber.log.Timber
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
@@ -43,16 +39,13 @@ class ChatRoomViewModel @AssistedInject constructor(
         loadHeader()
     }
 
-    init {
-        Timber.tag("ChatRoomVM")
-            .d("create room=%d vm=%d", navKey.roomId, hashCode())
-    }
-
+    // 채팅 메시지 목록을 PagingData로 불러오고 UI 모델로 변환
     val chats = chatRepository
         .getChats(navKey.roomId)
         .map { pagingData -> pagingData.map { it.toUiItem() } }
         .cachedIn(viewModelScope)
 
+    // 채팅방 헤더 정보를 조회하고 UI 상태에 반영
     private fun loadHeader() = intent {
         chatRepository.getChatRoomHeader(navKey.roomId)
             .onSuccess { header ->
@@ -60,6 +53,7 @@ class ChatRoomViewModel @AssistedInject constructor(
             }
     }
 
+    // UI에 노출할 함수
     fun handleIntent(intent: ChatRoomIntent) {
         when (intent) {
             is ChatRoomIntent.ClickCall -> showCallDialog()
@@ -79,17 +73,21 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 입력창 텍스트 변경 사항을 UI 상태에 반영
     fun onTextChange(text: String) = intent {
         reduce { state.copy(textFieldState = state.textFieldState.copy(text = text)) }
     }
 
+    // 메시지를 UI에 먼저 반영한 뒤 서버로 전송하는 메시지 처리
     private fun sendMessage(intent: ChatRoomIntent.SendMessage) = intent {
+        // 서버 전송 전 UI에 메시지를 먼저 표시하는 낙관적 업데이트 처리
         val optimisticMsg = buildOptimisticMessage(
             message = intent.message,
             image = intent.image,
             imageUri = intent.imageUri,
         )
 
+        // 입력창 초기화 및 임시 메시지 추가
         reduce {
             state.copy(
                 chatItems = listOf(optimisticMsg) + state.chatItems,
@@ -97,11 +95,14 @@ class ChatRoomViewModel @AssistedInject constructor(
             )
         }
 
+        // 실제 메시지 서버 전송
         chatRepository.sendMessage(
             roomId = navKey.roomId,
             message = intent.message,
             image = intent.image,
         ).onFailure {
+            // 전송 실패 시 낙관적으로 추가했던 임시 메시지 제거
+            // TODO: 임시 구현. 요구사항에 따라 달라질 수 있음
             reduce {
                 state.copy(
                     chatItems = state.chatItems.filterNot {
@@ -112,23 +113,25 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 통화 연결 확인 다이얼로그 표시 상태 변경
     private fun showCallDialog() = intent {
         reduce {
             state.copy(
-                showDeleteChatRoomDialog = true
+                showCallDialog = true
             )
         }
     }
 
+    // 통화 연결 확인 다이얼로그 닫기
     private fun dismissDeleteDialog() = intent {
         reduce {
             state.copy(
-                showDeleteChatRoomDialog = false
+                showCallDialog = false
             )
         }
     }
 
-
+    // 선택한 이미지를 입력창에 추가
     private fun uploadImages(uri: Uri?) = intent {
         if (uri == null) return@intent
         reduce {
@@ -138,6 +141,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 입력창에 선택된 이미지 제거
     private fun clearSelectedImage() = intent {
         reduce {
             state.copy(
@@ -146,6 +150,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 롱프레스된 메시지를 선택 상태로 변경
     private fun selectMessage(messageId: Long) = intent {
         reduce {
             state.copy(
@@ -154,6 +159,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 선택한 메시지를 삭제하고 삭제 상태 반영
     private fun deleteMessage(messageId: Long) = intent {
         chatRepository.deleteMessage(messageId).fold(
             onSuccess = {
@@ -169,6 +175,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         )
     }
 
+    // 메시지 액션 팝업 닫기
     private fun dismissPopup() = intent {
         reduce {
             state.copy(
@@ -177,25 +184,29 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
+    // 프로필 이미지 확대 표시
     private fun showProfile(url: String) = intent {
         reduce { state.copy(expandedProfileUrl = url) }
     }
+
+    // 확대된 프로필 이미지 닫기
     private fun dismissProfile() = intent {
         reduce { state.copy(expandedProfileUrl = null) }
     }
 
+    // 통화 화면 이동 이벤트 처리
     private fun emitNavigateToCall(characterId: Long) = intent {
         //TODO: 통화 화면으로 이동
     }
 
+    // 카메라 실행 이벤트 전달
     private fun emitGoToCamera() = intent {
         postSideEffect(ChatRoomSideEffect.GoToCamera)
     }
 
+    // 갤러리 실행 이벤트 전달
     private fun emitGoToGallery() = intent {
         postSideEffect(ChatRoomSideEffect.GoToGallery)
     }
-
-
 
 }

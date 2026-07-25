@@ -30,6 +30,14 @@ sealed interface ChatItemUiModel {
     data class DateSeparator(val date: String) : ChatItemUiModel
 }
 
+/**
+ * 채팅방 상단에 표시되는 캐릭터의 기본 정보를 나타내는 UI 모델입니다.
+ *
+ * @property characterId 캐릭터의 고유 식별자
+ * @property name 캐릭터의 이름
+ * @property imgUrl 캐릭터의 프로필 이미지 URL
+ * @property dDay 캐릭터와의 관계를 나타내는 디데이 정보
+ */
 data class TopHeader(
     val characterId: Long = -1,
     val name: String = "",
@@ -37,6 +45,15 @@ data class TopHeader(
     val dDay: String = "",
 ): ChatItemUiModel
 
+/**
+ * 채팅 입력창의 상태를 나타내는 UI 모델입니다.
+ *
+ * 사용자가 입력 중인 텍스트와 전송을 위해 선택된 이미지 정보를 포함하며,
+ * 채팅 리스트의 하단 입력 인터페이스 상태를 관리하는 데 사용됩니다.
+ *
+ * @property text 현재 입력된 메시지 텍스트
+ * @property selectedImage 전송을 위해 선택된 이미지의 URI (없을 경우 null)
+ */
 data class TextFieldState(
     val text: String = "",
     val selectedImage: Uri? = null,

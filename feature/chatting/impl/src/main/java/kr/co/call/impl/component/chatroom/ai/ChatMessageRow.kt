@@ -86,7 +86,7 @@ fun ChatMessageRow(
                     ) {
                         PhotoBubble(photoUrl = item.photoUrl)
 
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(11.dp))
 
                         ChatPinkBubble(
                             text = item.content,
