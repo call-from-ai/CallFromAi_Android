@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,10 +46,10 @@ fun ComingSoonScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // 로고 아이콘
                     Icon(
-                        /**TODO: 실제 앱 로고 아이콘으로 교체 */
-                        painter = painterResource(id = R.drawable.ic_mypage_ticket),
+                        painter = painterResource(id = R.drawable.ic_chat_manager),
                         modifier = Modifier.size(81.dp),
-                        contentDescription = null,
+                        contentDescription = "앱 로고",
+                        tint = Color.Unspecified
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     // 텍스트
