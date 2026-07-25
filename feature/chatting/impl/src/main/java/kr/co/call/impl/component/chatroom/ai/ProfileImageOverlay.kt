@@ -1,5 +1,6 @@
 package kr.co.call.impl.component.chatroom.ai
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -22,16 +23,20 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.designsystem.theme.CallTheme
 
 @Composable
 fun ProfileImageOverlay(
     imageUrl: String,
     onDismiss: () -> Unit,
 ) {
+    // 오버레이가 떠 있는 동안 시스템 뒤로가기를 가로채 오버레이만 닫음
+    BackHandler(onBack = onDismiss)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.6f))
+            .background(CallTheme.colors.black.copy(alpha = 0.6f))
             // 배경 아무 곳이나 탭하면 닫힘
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
