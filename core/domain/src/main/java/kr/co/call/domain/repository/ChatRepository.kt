@@ -2,6 +2,7 @@ package kr.co.call.domain.repository
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import kr.co.call.domain.model.chatting.ChatHeader
 import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.model.chatting.ChatSummary
 
@@ -14,4 +15,6 @@ interface ChatRepository {
     suspend fun updateAlarmSetting(roomId: Long): Result<Unit>
 
     fun getChats(roomId: Long): Flow<PagingData<ChatItem>>
+
+    suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader>
 }

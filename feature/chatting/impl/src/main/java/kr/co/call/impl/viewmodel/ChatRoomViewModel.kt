@@ -1,5 +1,6 @@
 package kr.co.call.impl.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -17,6 +18,7 @@ import kr.co.call.impl.state.ChatRoomUiState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
@@ -32,12 +34,26 @@ class ChatRoomViewModel @AssistedInject constructor(
 
     override val container: Container<ChatRoomUiState, ChatRoomSideEffect> = container(
         initialState = ChatRoomUiState()
-    )
+    ) {
+        loadHeader()
+    }
+
+    init {
+        Timber.tag("ChatRoomVM")
+            .d("create room=%d vm=%d", navKey.roomId, hashCode())
+    }
 
     val chats = chatRepository
         .getChats(navKey.roomId)
         .map { pagingData -> pagingData.map { it.toUiItem() } }
         .cachedIn(viewModelScope)
+
+    private fun loadHeader() = intent {
+        chatRepository.getChatRoomHeader(navKey.roomId)
+            .onSuccess { header ->
+                reduce { state.copy(topHeader = header.toUiItem()) }
+            }
+    }
 
     fun deleteMessage(chatMessageId: Long) = intent {
         reduce {

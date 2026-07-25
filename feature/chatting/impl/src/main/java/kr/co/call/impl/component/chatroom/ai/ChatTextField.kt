@@ -36,6 +36,7 @@ fun ChatTextField(
     onCameraClick: () -> Unit = {},
     onSendClick: () -> Unit = {},
 ) {
+    // 키보드가 올라왔는지 안올라왔는지 여부
     val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
     Row(

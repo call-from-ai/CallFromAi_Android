@@ -29,13 +29,13 @@ sealed interface ChatItemUiModel {
 }
 
 data class TopHeader(
-    val imgUrl: String = "",
-    val name: String = "",
-    val dDay: String = "",
     val characterId: Long = -1,
+    val name: String = "",
+    val imgUrl: String = "",
+    val dDay: String = "",
 ): ChatItemUiModel
 
 data class TextFieldState(
     val text: String = "",
     val selectedImage: Uri? = null,
-)
+): ChatItemUiModel
