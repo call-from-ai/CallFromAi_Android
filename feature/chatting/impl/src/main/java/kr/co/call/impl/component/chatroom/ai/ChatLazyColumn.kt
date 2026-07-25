@@ -53,14 +53,18 @@ fun ChatLazyColumn(
         ),
     ) {
         // 낙관적(실시간) 메시지: reverseLayout=true 이므로 맨 앞 = 화면 하단
+        // 삭제된 메시지는 슬롯 자체를 제거해 spacing이 남지 않도록 미리 필터링
+        val visibleRealtimeMessages = realtimeMessages.filter {
+            it !is ChatItemUiModel.Message || it.chatMessageId !in deletedIds
+        }
         items(
-            count = realtimeMessages.size,
+            count = visibleRealtimeMessages.size,
             key = { index ->
-                val item = realtimeMessages[index]
+                val item = visibleRealtimeMessages[index]
                 if (item is ChatItemUiModel.Message) "rt_${item.clientId}" else "rt_$index"
             },
         ) { index ->
-            val item = realtimeMessages[index]
+            val item = visibleRealtimeMessages[index]
             if (item is ChatItemUiModel.Message) {
                 ChatMessageRow(
                     item = item,
@@ -74,35 +78,70 @@ fun ChatLazyColumn(
             }
         }
 
-        // 페이징으로 불러오는 기존 메세지
+        // 삭제된 메시지를 제외한 실제 표시 대상 페이징 아이템
+        // LazyColumn 슬롯 자체를 제거하기 위해 렌더링 전에 필터링 처리
+        val visiblePagingItems = pagingItems.itemSnapshotList.items.filter {
+            it !is ChatItemUiModel.Message || it.chatMessageId !in deletedIds
+        }
+
+        // 페이징으로 불러오는 기존 메시지
+        // 삭제된 메시지는 items count에서 제외되어 빈 공간이 남지 않도록 처리
         items(
-            count = pagingItems.itemCount,
-            key = pagingItems.itemKey { item ->
-                when (item) {
+            count = visiblePagingItems.size,
+            key = { index ->
+                when (val item = visiblePagingItems[index]) {
                     is ChatItemUiModel.Message -> item.chatMessageId
                     is ChatItemUiModel.DateSeparator -> "separator_${item.date}"
-                    else -> {}
+                    else -> index
                 }
             },
         ) { index ->
-            when (val item = pagingItems[index]) {
+            when (val item = visiblePagingItems[index]) {
+
                 is ChatItemUiModel.Message -> {
-                    if (item.chatMessageId !in deletedIds) {
-                        ChatMessageRow(
-                            item = item,
-                            isSelected = item.chatMessageId == selectedMessageId,
-                            onLongPress = onLongPress,
-                            onCopy = onCopy,
-                            onDelete = onDelete,
-                            onDismiss = onDismiss,
-                            popupOffsetY = popupOffsetY,
+                    ChatMessageRow(
+                        item = item,
+                        isSelected = item.chatMessageId == selectedMessageId,
+                        onLongPress = onLongPress,
+                        onCopy = onCopy,
+                        onDelete = onDelete,
+                        onDismiss = onDismiss,
+                        popupOffsetY = popupOffsetY,
+                    )
+                }
+
+                is ChatItemUiModel.DateSeparator -> {
+                    // 날짜 구분선 아래에 표시 가능한 메시지가 존재하는지 확인
+                    // 해당 날짜의 모든 메시지가 삭제된 경우 날짜 구분선도 숨김 처리
+                    var hasVisibleMessage = false
+
+                    // 현재 날짜 구분선 이전 메시지를 역순으로 탐색
+                    // 같은 날짜 범위 안에 표시 가능한 메시지가 있는지 확인
+                    for (i in (index - 1) downTo 0) {
+                        when (val prev = visiblePagingItems[i]) {
+
+                            // 이전 날짜 구분선을 만나면 현재 날짜 범위 탐색 종료
+                            is ChatItemUiModel.DateSeparator -> break
+
+                            // 삭제되지 않은 메시지가 존재하면 날짜 구분선 표시
+                            is ChatItemUiModel.Message -> {
+                                hasVisibleMessage = true
+                                break
+                            }
+
+                            else -> {}
+                        }
+                    }
+
+                    // 표시 가능한 메시지가 존재하는 날짜만 구분선 렌더링
+                    if (hasVisibleMessage) {
+                        DateSeparator(
+                            text = item.date,
+                            modifier = Modifier.padding(vertical = 5.dp)
                         )
                     }
                 }
-                is ChatItemUiModel.DateSeparator -> DateSeparator(
-                    text = item.date,
-                    modifier = Modifier.padding(vertical = 5.dp)
-                )
+
                 else -> {}
             }
         }

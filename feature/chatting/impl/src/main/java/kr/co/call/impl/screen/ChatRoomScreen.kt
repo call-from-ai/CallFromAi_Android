@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -155,11 +156,35 @@ fun ChatRoomScreenContent(
         }
     }
 
-    // 새 메시지 추가될 때마다 맨 아래로 스크롤
+    // 메시지 추가 시 맨 아래로 스크롤
+    var prevChatItemsSize by remember { mutableIntStateOf(state.chatItems.size) }
+
     LaunchedEffect(state.chatItems.size) {
-        if (state.chatItems.isNotEmpty()) {
+        if (state.chatItems.size > prevChatItemsSize) {
             listState.scrollToItem(0)
         }
+        prevChatItemsSize = state.chatItems.size
+    }
+
+    // 삭제된 메시지 개수가 증가한 경우 최신 메시지가 삭제되었는지 확인
+    // 현재 최신 메시지가 삭제된 경우 리스트 최하단 위치를 다시 보정
+    var prevDeletedCount by remember { mutableIntStateOf(state.deletedIds.size) }
+
+    LaunchedEffect(state.deletedIds.size) {
+        if (state.deletedIds.size > prevDeletedCount) {
+            // 가장 최신 메시지가 삭제 대상인지 확인
+            val isBottomMessageDeleted =
+                (state.chatItems.firstOrNull() as? ChatItemUiModel.Message)
+                    ?.chatMessageId
+                    ?.let { it in state.deletedIds } == true
+
+            // 최신 메시지 삭제 후 빈 공간 방지를 위해 스크롤 위치 보정
+            if (isBottomMessageDeleted) {
+                listState.scrollToItem(0)
+            }
+        }
+
+        prevDeletedCount = state.deletedIds.size
     }
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -178,7 +203,7 @@ fun ChatRoomScreenContent(
                 onProfileClick = { onIntent(ChatRoomIntent.ClickProfile(state.topHeader.imgUrl)) },
             )
 
-            if (state.showDeleteChatRoomDialog) {
+            if (state.showCallDialog) {
                 TwoButtonPopup(
                     label = stringResource(id = R.string.chat_room_call_label),
                     title = stringResource(
