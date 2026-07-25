@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -48,6 +49,7 @@ import kr.co.call.impl.component.chatroom.ai.ChatTopBar
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
+import kr.co.call.impl.util.createImageUri
 import kr.co.call.impl.util.toImageData
 import kr.co.call.impl.viewmodel.ChatRoomViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -59,9 +61,27 @@ fun ChatRoomScreen(
     viewModel: ChatRoomViewModel,
     onBack: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     val state = viewModel.collectAsState().value
     val pagingItems: LazyPagingItems<ChatItemUiModel> = viewModel.chats.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
+
+    var cameraUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+
+    val takePicture = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            cameraUri?.let {
+                viewModel.handleIntent(
+                    ChatRoomIntent.PictureTaken(it)
+                )
+            }
+        }
+    }
 
     // Photo Picker 실행 후 사진 선택 결과를 받아 Intent 전달
     val pickMedia = rememberLauncherForActivityResult(
@@ -78,7 +98,13 @@ fun ChatRoomScreen(
         when (sideEffect) {
             is ChatRoomSideEffect.ShowToast -> {}
             is ChatRoomSideEffect.Call -> {}
-            ChatRoomSideEffect.GoToCamera -> {}
+
+            ChatRoomSideEffect.GoToCamera -> {
+                val uri = context.createImageUri()
+                cameraUri = uri
+                takePicture.launch(uri)
+            }
+
             ChatRoomSideEffect.GoToGallery -> {
                 pickMedia.launch(
                     PickVisualMediaRequest(

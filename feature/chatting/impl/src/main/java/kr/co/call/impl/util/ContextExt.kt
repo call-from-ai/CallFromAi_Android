@@ -3,7 +3,9 @@ package kr.co.call.impl.util
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import androidx.core.content.FileProvider
 import kr.co.call.domain.model.chatting.ImageData
+import java.io.File
 
 /**
  * 현재 객체를 [ImageData] 인스턴스로 변환합니다.
@@ -42,5 +44,26 @@ fun Context.toImageData(uri: Uri): ImageData? {
         bytes = bytes,
         fileName = fileName,
         mimeType = mimeType,
+    )
+}
+
+/**
+ * 카메라 촬영을 위해 임시 이미지 파일을 생성하고 해당 파일의 [Uri]를 반환합니다.
+ *
+ * 캐시 디렉토리에 타임스탬프를 기반으로 한 고유한 JPEG 파일을 생성하며,
+ * [FileProvider]를 사용하여 외부 앱(카메라 등)과 안전하게 공유할 수 있는 [Uri]를 생성합니다.
+ *
+ * @return 생성된 이미지 파일의 [Uri]
+ */
+fun Context.createImageUri(): Uri {
+    val file = File(
+        cacheDir,
+        "camera_${System.currentTimeMillis()}.jpg"
+    )
+
+    return FileProvider.getUriForFile(
+        this,
+        "$packageName.fileprovider",
+        file
     )
 }
