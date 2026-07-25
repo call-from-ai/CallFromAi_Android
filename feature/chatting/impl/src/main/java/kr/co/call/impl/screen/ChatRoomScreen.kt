@@ -4,18 +4,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -26,6 +31,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOf
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -87,53 +93,69 @@ fun ChatRoomScreenContent(
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
 
-    Box(
+    val imeBottom = WindowInsets.ime.getBottom(density)
+
+    LaunchedEffect(imeBottom) {
+        if (imeBottom > 0) {
+            val lastIndex = listState.layoutInfo.totalItemsCount - 1
+            if (lastIndex >= 0) {
+                listState.animateScrollToItem(lastIndex)
+            }
+        }
+    }
+
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .background(CallTheme.colors.mainVariant5Chat)
-            .statusBarsPadding()
+            .background(CallTheme.colors.background)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(Modifier.height(8.dp))
+        // 탑바: 고정
+        ChatTopBar(
+            modifier = Modifier.fillMaxWidth(),
+            item = state.topHeader,
+            onBack = onBack,
+            onCallClick = onCallClick,
+        )
 
-            ChatTopBar(
-                modifier = Modifier.fillMaxWidth(),
-                item = state.topHeader,
-                onBack = onBack,
-                onCallClick = onCallClick,
-            )
-
+        // 리스트 + 텍스트필드 겹침 영역. 이 영역만 키보드 따라 올라감
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .imePadding()
+        ) {
+            // 리스트: Box 전체를 채움 (텍스트필드 뒤까지 깔림)
             ChatLazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .background(CallTheme.colors.background),
+                    .fillMaxSize(),
                 pagingItems = pagingItems,
                 realtimeMessages = state.chatItems,
                 listState = listState,
-                bottomPadding = overlayHeight,
+                bottomPadding = overlayHeight,   // 마지막 메시지가 텍스트필드에 안 가리게
                 deletedIds = state.deletedIds,
             )
-        }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .onSizeChanged {
-                    overlayHeight = with(density) { it.height.toDp() }
-                }
-        ) {
-            ChatTextField(
+            // 텍스트필드: 리스트 위에 겹쳐서 바닥에 고정
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                state = state.textFieldState,
-                onValueChange = onValueChange,
-                onCameraClick = onCameraClick,
-                onSendClick = onSendClick,
-            )
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged {
+                        overlayHeight = with(density) { it.height.toDp() }
+                    }
+            ) {
+                ChatTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    state = state.textFieldState,
+                    onValueChange = onValueChange,
+                    onCameraClick = onCameraClick,
+                    onSendClick = onSendClick,
+                )
 
-            Spacer(Modifier.height(15.dp))
+                Spacer(Modifier.height(15.dp))
+            }
         }
     }
 }
