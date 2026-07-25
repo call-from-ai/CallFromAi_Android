@@ -48,6 +48,7 @@ fun ChatTextField(
 ) {
     val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val hasImage = state.selectedImage != null
+    val canSend = state.text.isNotBlank()
 
     // 이미지가 있으면 라운드 사각형, 없으면 기존 pill
     val containerShape = if (hasImage) RoundedCornerShape(24.dp) else RoundedCornerShape(50.dp)
@@ -108,7 +109,8 @@ fun ChatTextField(
             CircleIcon(
                 painter = painterResource(R.drawable.ic_chat_camera),
                 contentDescription = "카메라",
-                onClick = onCameraClick,
+                enabled = if (hasImage) canSend else true,
+                onClick = if (hasImage) onSendClick else onCameraClick,
             )
 
             BasicTextField(
@@ -137,6 +139,7 @@ fun ChatTextField(
                 CircleIcon(
                     painter = painterResource(R.drawable.ic_chat_send),
                     contentDescription = "전송",
+                    enabled = canSend || hasImage,
                     onClick = onSendClick,
                 )
             } else {

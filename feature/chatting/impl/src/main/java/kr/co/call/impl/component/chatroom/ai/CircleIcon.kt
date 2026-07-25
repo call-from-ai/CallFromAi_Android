@@ -28,6 +28,7 @@ fun CircleIcon(
     modifier: Modifier = Modifier,
     painter: Painter,
     contentDescription: String? = null,
+    enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -39,13 +40,16 @@ fun CircleIcon(
             .size(36.dp)
             .clip(CircleShape)
             .background(
-                if (isPressed) {
-                    CallTheme.colors.subPressed
-                } else {
-                    CallTheme.colors.mainVariant1
+                when {
+                    !enabled -> CallTheme.colors.gray200
+                    isPressed -> CallTheme.colors.subPressed
+                    else -> CallTheme.colors.mainVariant1
                 }
             )
-            .clickable(onClick = onClick)
+            .clickable(
+                enabled = enabled,
+                onClick = onClick,
+            )
     ) {
         Icon(
             painter = painter,
