@@ -14,6 +14,7 @@ import kr.co.call.impl.model.TopHeader
  * @property status 채팅방의 데이터 로딩 및 요청 처리 상태입니다.
  * @property deletedIds 삭제 처리된 메시지 ID 집합입니다. 삭제된 메시지는 화면에서 제외하는 데 사용됩니다.
  * @property showDeleteChatRoomDialog 채팅방 삭제 확인 다이얼로그의 표시 여부입니다.
+ * @property expandedProfileUrl 현재 확대하여 표시 중인 프로필 이미지 URL입니다.
  */
 data class ChatRoomUiState(
     val topHeader: TopHeader = TopHeader(),
@@ -22,4 +23,5 @@ data class ChatRoomUiState(
     val status: LoadStatus = LoadStatus.Idle,
     val deletedIds: Set<Long> = emptySet(),
     val showDeleteChatRoomDialog: Boolean = false,
+    val expandedProfileUrl: String = "",
 )

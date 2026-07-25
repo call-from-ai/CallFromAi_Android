@@ -28,7 +28,8 @@ fun ChatTopBar(
     modifier: Modifier = Modifier,
     item: TopHeader = TopHeader(),
     onBack: () -> Unit = {},
-    onCallClick: () -> Unit = {}
+    onCallClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
 ) {
     Row(
         modifier = modifier.background(CallTheme.colors.mainVariant5Chat)
@@ -49,7 +50,8 @@ fun ChatTopBar(
 
         ProfileImage(
             profileImageUrl = item.imgUrl,
-            showCallBadge = true
+            showCallBadge = true,
+            onClick = onProfileClick,
         )
 
         Spacer(Modifier.width(12.dp))

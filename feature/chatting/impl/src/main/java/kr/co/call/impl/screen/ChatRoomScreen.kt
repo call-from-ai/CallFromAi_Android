@@ -46,6 +46,7 @@ import kr.co.call.impl.model.TopHeader
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.impl.component.chatroom.ai.ChatTopBar
+import kr.co.call.impl.component.chatroom.ai.ProfileImageOverlay
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
@@ -150,82 +151,94 @@ fun ChatRoomScreenContent(
         }
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(CallTheme.colors.background)
-    ) {
-        // 탑바: 고정
-        ChatTopBar(
-            modifier = Modifier.fillMaxWidth(),
-            item = state.topHeader,
-            onBack = onBack,
-            onCallClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
-        )
+    Box(modifier = modifier.fillMaxSize()) {
 
-        if (state.showDeleteChatRoomDialog) {
-            TwoButtonPopup(
-                label = stringResource(id = R.string.chat_room_call_label),
-                title = stringResource(
-                    id = R.string.chat_room_call_title,
-                    state.topHeader.name
-                ),
-                positiveText = "연결",
-                negativeText = "취소",
-                onPositiveClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
-                onNegativeClick = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
-                onDismissRequest = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
-            )
-        }
-
-        // 리스트 + 텍스트필드 겹침 영역. 이 영역만 키보드 따라 올라감
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .imePadding()
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(CallTheme.colors.background)
         ) {
-            // 리스트: Box 전체를 채움 (텍스트필드 뒤까지 깔림)
-            ChatLazyColumn(
-                modifier = Modifier
-                    .fillMaxSize(),
-                pagingItems = pagingItems,
-                realtimeMessages = state.chatItems,
-                listState = listState,
-                bottomPadding = overlayHeight,   // 마지막 메시지가 텍스트필드에 안 가리게
-                deletedIds = state.deletedIds,
+            // 탑바: 고정
+            ChatTopBar(
+                modifier = Modifier.fillMaxWidth(),
+                item = state.topHeader,
+                onBack = onBack,
+                onCallClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
+                onProfileClick = { onIntent(ChatRoomIntent.ClickProfile(state.topHeader.imgUrl)) },
             )
 
-            // 텍스트필드: 리스트 위에 겹쳐서 바닥에 고정
-            Column(
+            if (state.showDeleteChatRoomDialog) {
+                TwoButtonPopup(
+                    label = stringResource(id = R.string.chat_room_call_label),
+                    title = stringResource(
+                        id = R.string.chat_room_call_title,
+                        state.topHeader.name
+                    ),
+                    positiveText = "연결",
+                    negativeText = "취소",
+                    onPositiveClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
+                    onNegativeClick = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+                    onDismissRequest = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+                )
+            }
+
+            // 리스트 + 텍스트필드 겹침 영역. 이 영역만 키보드 따라 올라감
+            Box(
                 modifier = Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .onSizeChanged {
-                        overlayHeight = with(density) { it.height.toDp() }
-                    }
+                    .imePadding()
             ) {
-                ChatTextField(
+                // 리스트: Box 전체를 채움 (텍스트필드 뒤까지 깔림)
+                ChatLazyColumn(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    state = state.textFieldState,
-                    onValueChange = onValueChange,
-                    onCameraClick = { onIntent(ChatRoomIntent.ClickCamera) },
-                    onGalleryClick = { onIntent(ChatRoomIntent.ClickGallery) },
-                    onSendClick = {
-                        onIntent(
-                            ChatRoomIntent.SendMessage(
-                                message = state.textFieldState.text,
-                                image = state.textFieldState.selectedImage?.let(context::toImageData),
-                            )
-                        )
-                    },
-                    onRemoveImage = { onIntent(ChatRoomIntent.CancelImage) },
+                        .fillMaxSize(),
+                    pagingItems = pagingItems,
+                    realtimeMessages = state.chatItems,
+                    listState = listState,
+                    bottomPadding = overlayHeight,   // 마지막 메시지가 텍스트필드에 안 가리게
+                    deletedIds = state.deletedIds,
                 )
 
-                Spacer(Modifier.height(15.dp))
+                // 텍스트필드: 리스트 위에 겹쳐서 바닥에 고정
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .onSizeChanged {
+                            overlayHeight = with(density) { it.height.toDp() }
+                        }
+                ) {
+                    ChatTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        state = state.textFieldState,
+                        onValueChange = onValueChange,
+                        onCameraClick = { onIntent(ChatRoomIntent.ClickCamera) },
+                        onGalleryClick = { onIntent(ChatRoomIntent.ClickGallery) },
+                        onSendClick = {
+                            onIntent(
+                                ChatRoomIntent.SendMessage(
+                                    message = state.textFieldState.text,
+                                    image = state.textFieldState.selectedImage?.let(context::toImageData),
+                                )
+                            )
+                        },
+                        onRemoveImage = { onIntent(ChatRoomIntent.CancelImage) },
+                    )
+
+                    Spacer(Modifier.height(15.dp))
+                }
             }
+        }
+
+        // 프사 확대 오버레이 (가장 위 레이어)
+        if (state.expandedProfileUrl.isNotEmpty()) {
+            ProfileImageOverlay(
+                imageUrl = state.expandedProfileUrl,
+                onDismiss = { onIntent(ChatRoomIntent.DismissProfile) },
+            )
         }
     }
 }

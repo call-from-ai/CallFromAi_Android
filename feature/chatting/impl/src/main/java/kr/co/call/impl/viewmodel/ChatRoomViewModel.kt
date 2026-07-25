@@ -70,6 +70,8 @@ class ChatRoomViewModel @AssistedInject constructor(
             is ChatRoomIntent.PictureTaken -> uploadImages(intent.uri)
             ChatRoomIntent.CancelImage -> clearSelectedImage()
             ChatRoomIntent.DismissDeleteDialog -> dismissDeleteDialog()
+            is ChatRoomIntent.ClickProfile -> showProfile(intent.imageUrl)
+            ChatRoomIntent.DismissProfile -> dismissProfile()
         }
     }
 
@@ -120,6 +122,13 @@ class ChatRoomViewModel @AssistedInject constructor(
                 textFieldState = state.textFieldState.copy(selectedImage = null)
             )
         }
+    }
+
+    private fun showProfile(url: String) = intent {
+        reduce { state.copy(expandedProfileUrl = url) }
+    }
+    private fun dismissProfile() = intent {
+        reduce { state.copy(expandedProfileUrl = "") }
     }
 
     private fun emitNavigateToCall(characterId: Long) = intent {
