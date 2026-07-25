@@ -1,6 +1,9 @@
 package kr.co.call.impl.util
 
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.insertSeparators
+import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.impl.model.ChatItemUiModel
 
 /**
@@ -30,4 +33,33 @@ fun shouldShowDateSeparator(
         i--
     }
     return false
+}
+
+/**
+ * 채팅 아이템 목록 사이에 날짜 구분선([ChatItem.DateSeparator])을 삽입합니다.
+ *
+ * 두 메시지 사이의 생성 날짜([ChatItem.Message.createdTime])를 비교하여 날짜가 변경되는 지점에
+ * 해당 날짜 정보를 가진 구분선을 추가합니다.
+ *
+ * @return 날짜 구분선이 포함된 [PagingData]
+ */
+fun PagingData<ChatItem>.insertDateSeparators(): PagingData<ChatItem> {
+    return insertSeparators { before, after ->
+        if (before == null) return@insertSeparators null
+
+        val beforeMsg = before as? ChatItem.Message
+            ?: return@insertSeparators null
+
+        val afterMsg = after as? ChatItem.Message
+            ?: return@insertSeparators null
+
+        val beforeDate = beforeMsg.createdTime.toLocalDate()
+        val afterDate = afterMsg.createdTime.toLocalDate()
+
+        if (beforeDate != afterDate) {
+            ChatItem.DateSeparator(afterDate)
+        } else {
+            null
+        }
+    }
 }

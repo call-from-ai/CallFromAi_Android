@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.filter
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -23,6 +24,7 @@ import kr.co.call.impl.model.TextFieldState
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
 import kr.co.call.impl.util.buildOptimisticMessage
+import kr.co.call.impl.util.insertDateSeparators
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -43,13 +45,14 @@ class ChatRoomViewModel @AssistedInject constructor(
         loadHeader()
     }
 
-    // 채팅 메시지 목록을 PagingData로 불러오고, 삭제된 메시지를 제외한 뒤 UI 모델로 변환
-    // _deletedIds가 변경될 때마다 flatMapLatest로 새 페이징 흐름을 생성해 필터 적용
+    // 채팅 메시지 목록을 PagingData로 불러오고, 날짜 구분선을 삽입한 뒤 UI 모델로 변환
     val chats = chatRepository.getChats(navKey.roomId)
         .map { pagingData ->
-            pagingData.map { item ->
-                item.toUiItem()
-            }
+            pagingData
+                .insertDateSeparators()
+                .map { item ->
+                    item.toUiItem()
+                }
         }
         .cachedIn(viewModelScope)
 

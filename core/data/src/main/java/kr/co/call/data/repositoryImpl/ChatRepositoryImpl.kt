@@ -3,7 +3,7 @@ package kr.co.call.data.repositoryImpl
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.insertSeparators
+import androidx.paging.map
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -86,16 +86,7 @@ class ChatRepositoryImpl @Inject constructor(
                 ChatPagingSource(roomId)
             }
         ).flow.map { pagingData ->
-            pagingData.insertSeparators { before, after ->
-                // before == null: 리스트 맨 앞(최신 끝) → 구분선 불필요
-                if (before == null) return@insertSeparators null
-
-                val afterDate = after?.createdTime?.toLocalDate() ?: return@insertSeparators null
-                val beforeDate = before.createdTime.toLocalDate()
-
-                // 날짜가 달라지는 경계 → 구분선 삽입
-                if (beforeDate != afterDate) ChatItem.DateSeparator(afterDate) else null
-            }
+            pagingData.map { msg -> msg as ChatItem }
         }
     }
 
