@@ -27,12 +27,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flowOf
+import kr.co.call.chatting.impl.R
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.component.chatroom.ai.ChatLazyColumn
@@ -133,6 +136,21 @@ fun ChatRoomScreenContent(
             onBack = onBack,
             onCallClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
         )
+
+        if (state.showDeleteChatRoomDialog) {
+            TwoButtonPopup(
+                label = stringResource(id = R.string.chat_room_call_label),
+                title = stringResource(
+                    id = R.string.chat_room_call_title,
+                    state.topHeader.name
+                ),
+                positiveText = "연결",
+                negativeText = "취소",
+                onPositiveClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
+                onNegativeClick = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+                onDismissRequest = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+            )
+        }
 
         // 리스트 + 텍스트필드 겹침 영역. 이 영역만 키보드 따라 올라감
         Box(

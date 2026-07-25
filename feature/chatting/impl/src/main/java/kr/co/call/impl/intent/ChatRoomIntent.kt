@@ -14,6 +14,8 @@ sealed interface ChatRoomIntent {
         val characterId: Long,
     ): ChatRoomIntent
 
+    data object DismissDeleteDialog: ChatRoomIntent
+
     data class GoToCall(
         val characterId: Long,
     ): ChatRoomIntent

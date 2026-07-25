@@ -69,6 +69,7 @@ class ChatRoomViewModel @AssistedInject constructor(
             is ChatRoomIntent.ImagesPicked -> uploadImages(intent.uri)
             is ChatRoomIntent.PictureTaken -> uploadImages(intent.uri)
             ChatRoomIntent.CancelImage -> clearSelectedImage()
+            ChatRoomIntent.DismissDeleteDialog -> dismissDeleteDialog()
         }
     }
 
@@ -94,6 +95,15 @@ class ChatRoomViewModel @AssistedInject constructor(
             )
         }
     }
+
+    private fun dismissDeleteDialog() = intent {
+        reduce {
+            state.copy(
+                showDeleteChatRoomDialog = false
+            )
+        }
+    }
+
 
     private fun uploadImages(uri: Uri?) = intent {
         if (uri == null) return@intent

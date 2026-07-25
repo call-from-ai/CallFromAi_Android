@@ -9,4 +9,12 @@
         상대방이 먼저 메시지를 보내야\n다시 채팅을 시작할 수 있어요.
     </string>
 
+    <string name="chat_room_call_label">
+        통화 연결
+    </string>
+    
+    <string name="chat_room_call_title">
+        %1$s에게 바로 통화를 연결할까요?
+    </string>
+
 </resources>
