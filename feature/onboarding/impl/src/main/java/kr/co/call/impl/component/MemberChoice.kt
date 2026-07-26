@@ -87,7 +87,7 @@ fun MemberChoice(
             Surface(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .height(39.dp)
+                    .height(51.dp)
                     .clickable(
                         role= Role.Button,
                         onClick={

@@ -88,8 +88,8 @@ fun Onboarding1Screen (
                 .fillMaxSize()
                 .navigationBarsPadding()
                 .padding(
-                    start = 24.dp,
-                    end = 24.dp,
+                    start = 27.dp,
+                    end = 27.dp,
                     top = 54.dp,
                     bottom = 18.dp,
                 ),
@@ -101,6 +101,7 @@ fun Onboarding1Screen (
                 TopTitle(
                     title = "먼저 나를\n소개해볼까요?",
                     description = "전화왔어에서 사용할 나의 프로필을 완성해주세요.",
+                    horizontalPadding = 0.dp,
                 )
                 Spacer(modifier = Modifier.height(23.dp))
                 Text(
@@ -170,7 +171,10 @@ fun Onboarding1Screen (
                     ),
                     onOptionSelected = { mbti = it },
                 )
-                Spacer(modifier = Modifier.height(23.dp))
+            }
+            Column(
+                modifier=Modifier.fillMaxWidth(),
+            ) {
                 Text(
                     text = "상세 정보는 나중에 다시 수정할 수 있어요!",
                     modifier = Modifier
@@ -180,22 +184,21 @@ fun Onboarding1Screen (
                     style = CallTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                 )
+                SecondaryButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "다음",
+                    enabled = canMoveNext,
+                    onClick = {
+                        onNextClick(
+                            lastName,
+                            firstName,
+                            birthday,
+                            job,
+                            mbti,
+                        )
+                    },
+                )
             }
-
-            SecondaryButton(
-                modifier = Modifier.fillMaxWidth(),
-                text = "다음",
-                enabled = canMoveNext,
-                onClick = {
-                    onNextClick(
-                        lastName,
-                        firstName,
-                        birthday,
-                        job,
-                        mbti,
-                    )
-                },
-            )
         }
 
     if (editingNameField != null) {

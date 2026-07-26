@@ -47,8 +47,8 @@ fun RelationshipChoiceCard(
     Surface(
         modifier = modifier
             .size(
-                width = 116.dp,
-                height = 185.dp,
+                width = 106.dp,
+                height = 162.dp,
             )
             .selectable(
                 selected=selected,
@@ -70,8 +70,8 @@ fun RelationshipChoiceCard(
             modifier= Modifier
                 .fillMaxSize()
                 .padding(
-                    horizontal=12.dp,
-                    vertical=26.dp,
+                    horizontal=6.dp,
+                    vertical=13.dp,
                 ),
             horizontalAlignment=Alignment.CenterHorizontally,
         ){

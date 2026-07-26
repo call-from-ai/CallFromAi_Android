@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.Black
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -34,6 +35,7 @@ fun TopTitle(
     description: String,
     currentStep: Int?=null,
     totalStep: Int?=null,
+    horizontalPadding: Dp =14.dp,
     ) {
     val progress = if (
         currentStep != null && totalStep != null && totalStep > 0
@@ -56,12 +58,12 @@ fun TopTitle(
                 Box(
                     modifier= Modifier
                         .fillMaxWidth(progress)
-                        .fillMaxHeight()
                         .clip(
                             RoundedCornerShape(
                                 topEnd = 100.dp,
                                 bottomEnd = 100.dp),
                         )
+                        .fillMaxHeight()
                         .background(brush= MainGradient),
                 )
             }
@@ -72,7 +74,9 @@ fun TopTitle(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 14.dp),
+                    .padding(
+                        start=horizontalPadding,
+                        end = horizontalPadding),
                 verticalAlignment = Alignment.Top,
             ) {
                 Text(
@@ -91,12 +95,13 @@ fun TopTitle(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(5.dp))
-            Text(
-                text = description,
-                style = CallTheme.typography.bodySmall,
-                color = Gray400,
-            )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = description,
+            modifier=Modifier.padding(start=horizontalPadding),
+            style = CallTheme.typography.bodySmall,
+            color = Gray400,
+        )
         }
     }
 

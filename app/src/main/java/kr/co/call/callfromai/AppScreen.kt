@@ -29,6 +29,9 @@ import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
 import kr.co.call.api.Onboarding1NavKey
 import kr.co.call.api.Onboarding2NavKey
+import kr.co.call.api.Onboarding3NavKey
+import kr.co.call.api.Onboarding4NavKey
+import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
@@ -110,8 +113,32 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         onProfileClick = {
                             // 사진 선택 기능은 나중에 구현
                         },
-                        onNextClick = { _, _, _, _, _ ->
+                        onOnboarding1Next= { _, _, _, _, _ ->
                             appNavigator.navigate(Onboarding2NavKey)
+                        },
+                        onBackFromOnboarding2 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding2Next = { _, _, _, _, _ ->
+                            appNavigator.navigate(Onboarding3NavKey)
+                        },
+                        onBackFromOnboarding3 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding3Next = { _, _, _ ->
+                            appNavigator.navigate(Onboarding4NavKey)
+                        },
+                        onBackFromOnboarding4 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding4Next = { _ ->
+                            appNavigator.navigate(Onboarding5NavKey)
+                        },
+                        onBackFromOnboarding5 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding5Next = { _ ->
+                            // 온보딩 완료 후 홈화면으로 화면으로 이동
                         },
                     )
                     homeEntry()

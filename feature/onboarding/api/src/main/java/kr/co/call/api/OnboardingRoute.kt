@@ -14,5 +14,8 @@ data object Onboarding2NavKey: NavKey {
 data object Onboarding3NavKey: NavKey
 
 @Serializable
-data object Onboarding4NavKey
+data object Onboarding4NavKey: NavKey
+
+@Serializable
+data object Onboarding5NavKey: NavKey
 
