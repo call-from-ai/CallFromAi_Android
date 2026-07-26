@@ -87,7 +87,7 @@ fun MemberChoice(
             Surface(
                 modifier=Modifier
                     .fillMaxWidth()
-                    .height(55.dp)
+                    .height(39.dp)
                     .clickable(
                         role= Role.Button,
                         onClick={
@@ -136,10 +136,10 @@ fun MemberChoice(
                     expanded=false
                 },
                 modifier= Modifier
-                    .width(menuWidth)
+                    .width(114.dp)
                     .heightIn(max=420.dp),
                 offset=DpOffset(
-                    x=0.dp,
+                    x=menuWidth-114.dp,
                     y=4.dp,
                 ),
                 shape= RoundedCornerShape(15.dp),

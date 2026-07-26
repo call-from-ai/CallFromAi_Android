@@ -1,6 +1,7 @@
 package kr.co.call.impl.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,23 +24,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray100
+import kr.co.call.designsystem.theme.Gray400
+import kr.co.call.designsystem.theme.Gray600
+import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.SubRed
 
 @Composable
 fun NameBox(
-    modifier: Modifier,
-    label:String,
+    label: String,
     value: String,
-    onValueChange: (String) ->Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     ){
     Column(
         modifier=modifier
             .width(125.dp)
     ){
         Row {
-            Text(text=label)
+            Text(text=label,
+                style=CallTheme.typography.bodyMediumMedium,
+                color= Gray600,
+            )
             Text(text=" *",
-                color= SubRed
+                style=CallTheme.typography.bodyMediumMedium,
+                color= SubRed,
             )
         }
         Spacer(modifier=Modifier.height(6.dp))
@@ -51,16 +59,14 @@ fun NameBox(
                     color=Gray100,
                     shape=RoundedCornerShape(10.dp)
                 )
+                .clickable(onClick=onClick)
                 .padding(horizontal=16.dp),
             contentAlignment= Alignment.CenterStart
         ) {
-            BasicTextField(
-                value = value,
-                onValueChange = onValueChange,
-                singleLine = true,
-                textStyle = CallTheme.typography.bodyMediumMedium,
-                        modifier = Modifier
-                        .fillMaxWidth()
+            Text(
+                text = value.ifBlank { "$label 입력" },
+                color = if (value.isBlank()) Gray400 else Gray900,
+                style = CallTheme.typography.bodyMediumMedium,
             )
         }
     }
@@ -68,18 +74,13 @@ fun NameBox(
 
 @Preview(
     showBackground = true,
-    backgroundColor = 0xFFFFFFFF
+    backgroundColor = 0xFFFFFFFF,
 )
 @Composable
 private fun NameBoxPreview() {
-    var name by remember {
-        mutableStateOf("")
-    }
-
     NameBox(
-        modifier = Modifier,
         label = "이름",
-        value = name,
-        onValueChange = { name = it },
+        value = "수현",
+        onClick = {},
     )
 }

@@ -91,7 +91,7 @@ fun TopTitle(
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Text(
                 text = description,
                 style = CallTheme.typography.bodySmall,

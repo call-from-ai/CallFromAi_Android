@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -15,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -29,6 +27,8 @@ import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.Onboarding1NavKey
+import kr.co.call.api.Onboarding2NavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
@@ -51,7 +51,7 @@ import kr.co.call.callfromai.util.toMainTab
 @Composable
 fun AppScreen(modifier: Modifier = Modifier) {
     // TODO: 로그인 구현 후 로그인 여부에 따른 분기처리 필요. 일단은 시작점을 홈 화면으로 설정
-    val backStack = rememberNavBackStack(HomeNavKey)
+    val backStack = rememberNavBackStack(Onboarding1NavKey)
 
     val appNavigator = remember(backStack) { AppNavigator(backStack) }
     val currentKey = backStack.lastOrNull()
@@ -106,7 +106,14 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxSize().padding(padding),
                 entryProvider = entryProvider {
                     loginEntry()
-                    onboardingEntry()
+                    onboardingEntry(
+                        onProfileClick = {
+                            // 사진 선택 기능은 나중에 구현
+                        },
+                        onNextClick = { _, _, _, _, _ ->
+                            appNavigator.navigate(Onboarding2NavKey)
+                        },
+                    )
                     homeEntry()
                     chattingEntry(
                         navigateToChatRoom = { roomId ->

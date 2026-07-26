@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +17,12 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallTheme
 import java.time.LocalDate
 import java.time.YearMonth
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.tooling.preview.Preview
+import kr.co.call.designsystem.component.bottomsheet.ConfirmBottomSheet
+import kr.co.call.designsystem.component.picker.WheelPicker
+import kr.co.call.designsystem.theme.CallFromAiTheme
 
 @Composable
 fun BottomWheel(
@@ -134,5 +141,23 @@ fun BottomWheel(
                 )
             }
         }
+    }
+}
+
+
+@Preview(
+    name = "생년월일 선택",
+    showBackground = true,
+    widthDp = 412,
+    heightDp = 800,
+)
+@Composable
+private fun BottomWheelPreview() {
+    CallFromAiTheme {
+        BottomWheel(
+            selectedDate = LocalDate.of(2001, 5, 18),
+            onConfirmClick = {},
+            onDismissRequest = {},
+        )
     }
 }

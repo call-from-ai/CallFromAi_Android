@@ -1,4 +1,3 @@
 package kr.co.call.impl.screen
 
-fun Onboarding2Screen() {
-}
+fun Onboarding5screen(){}
