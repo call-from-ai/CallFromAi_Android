@@ -8,7 +8,6 @@ import kr.co.call.impl.viewmodel.ChatRoomViewModel
 @Composable
 fun ChatRoomScreen(
     roomId: Long,
-    name: String,
     modifier: Modifier = Modifier,
     //viewModel: ChatRoomViewModel = hiltViewModel(),
     onBack: () -> Unit = {},

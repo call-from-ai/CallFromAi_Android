@@ -126,17 +126,14 @@ AI 캐릭터가 채팅뿐 아니라 **먼저 전화를 걸어오고, 예약 통�
 │
 ├── core/
 │   ├── common/                  # 공통 유틸리티, 확장 함수, 상수, 디스패처, 코루틴 모듈
-│   ├── data/                    # Repository 구현체, DTO, Mapper, DataSource
+│   ├── data/                    # Repository 구현체, Mapper, DataSource
 │   ├── database/                # Room Database, DAO, Entity
 │   ├── datastore/               # DataStore(사용자 설정, 토큰 등 로컬 데이터)
 │   ├── designsystem/            # 공통 UI, Theme, Color, Typography, Component, res
 │   ├── domain/                  # Domain Model, Repository 인터페이스, UseCase
-│   └── network/                 # Retrofit, OkHttp, API Service, 네트워크 설정
+│   └── network/                 # Retrofit, OkHttp, API Service, 네트워크 설정. DTO
 │
 └── feature/
-    ├── main/
-    │   ├── api/                 # Main 기능의 Navigation 계약(Route)
-    │   └── impl/                # Main 화면 및 비즈니스 로직 구현
     │
     ├── login/
     │   ├── api/                 # Login Navigation 계약(Route)

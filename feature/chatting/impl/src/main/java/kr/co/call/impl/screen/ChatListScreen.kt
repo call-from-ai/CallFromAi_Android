@@ -19,12 +19,12 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ChatSummary
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.component.ChatListItem
-import kr.co.call.impl.component.FrontRow
-import kr.co.call.impl.component.LoadingColumn
-import kr.co.call.impl.viewmodel.ChatListIntent
-import kr.co.call.impl.viewmodel.ChatListSideEffect
-import kr.co.call.impl.viewmodel.ChatListState
+import kr.co.call.impl.component.chatlist.ChatListItem
+import kr.co.call.impl.component.chatlist.FrontRow
+import kr.co.call.impl.component.chatlist.LoadingColumn
+import kr.co.call.impl.intent.ChatListIntent
+import kr.co.call.impl.sideeffect.ChatListSideEffect
+import kr.co.call.impl.state.ChatListState
 import kr.co.call.impl.viewmodel.ChatListViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -32,7 +32,8 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ChatListScreen(
     modifier: Modifier = Modifier,
-    onChatRoomClick: (Long, String) -> Unit,
+    onChatRoomClick: (Long) -> Unit,
+    onManagerChatRoomClick: () -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     // 상태 구독
@@ -41,13 +42,13 @@ fun ChatListScreen(
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId, sideEffect.name)
+            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
+            ChatListSideEffect.NavigateToManagerChatRoom -> onManagerChatRoomClick()
         }
     }
 
     ChatListScreenContent(
         state = state,
-        onChatRoomClick = onChatRoomClick,
         onIntent = viewModel::handleIntent,
         modifier = modifier
     )
@@ -56,7 +57,6 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
-    onChatRoomClick: (Long, String) -> Unit,
     onIntent: (ChatListIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -100,8 +100,7 @@ fun ChatListScreenContent(
                             onItemClick = {
                                 onIntent(
                                     ChatListIntent.ClickChatRoom(
-                                        roomId = chatSummary.chatRoomId,
-                                        name = chatSummary.name
+                                        roomId = chatSummary.chatRoomId
                                     )
                                 )
                             }
@@ -114,8 +113,9 @@ fun ChatListScreenContent(
                             isManager = true,
                             chatSummary = ChatSummary(
                                 name = "전화왔어 매니저",
-                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를"
-                            )
+                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를",
+                            ),
+                            onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
                         )
                     }
                 }
@@ -126,33 +126,33 @@ fun ChatListScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun ChatListScreenPreview() {
+private fun ChatListScreenContentPreview() {
     CallFromAiTheme {
         ChatListScreenContent(
-            onChatRoomClick = {} as (Long, String) -> Unit,
-            onIntent = {},
             state = ChatListState(
                 chatList = listOf(
                     ChatSummary(
                         chatRoomId = 1,
-                        image = "",
-                        name = "김철수",
-                        isMainCharacter = false,
-                        content = "안녕하세요! 오늘 날씨가 참 좋네요.",
-                        whenSubmitted = "방금 전",
-                        unReadMessageCount = "1"
+                        name = "김민지",
+                        isMainCharacter = true,
+                        content = "오늘 저녁에 뭐해?",
+                        whenSubmitted = "30분 전",
+                        unReadMessageCount = "3",
+                        isAlarmEnabled = true,
                     ),
                     ChatSummary(
                         chatRoomId = 2,
-                        image = "",
-                        name = "이영희",
-                        isMainCharacter = true,
-                        content = "오늘 뭐해? 같이 영화 볼래?",
-                        whenSubmitted = "30분 전",
-                        unReadMessageCount = "5"
+                        name = "이철수",
+                        isMainCharacter = false,
+                        content = "내일 봐!",
+                        whenSubmitted = "1시간 전",
+                        unReadMessageCount = "0",
+                        isAlarmEnabled = false,
                     )
-                )
-            )
+                ),
+                status = LoadStatus.Idle
+            ),
+            onIntent = {}
         )
     }
 }
