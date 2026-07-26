@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.FaqNavKey
@@ -107,7 +108,14 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 entryProvider = entryProvider {
                     loginEntry()
                     onboardingEntry()
-                    homeEntry()
+                    homeEntry(
+                        navigateToCallRecord = { callId ->
+                            appNavigator.navigate(CallRecordNavKey(callId = callId))
+                        },
+                        onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
