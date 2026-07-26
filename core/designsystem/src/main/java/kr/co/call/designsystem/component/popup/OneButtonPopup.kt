@@ -46,7 +46,7 @@ private fun OneButtonPopupPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun OneButtonPopupWithDescriptionPreview() {
     CallFromAiTheme {

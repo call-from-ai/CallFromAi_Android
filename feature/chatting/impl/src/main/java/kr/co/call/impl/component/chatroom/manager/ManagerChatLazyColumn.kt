@@ -2,6 +2,7 @@ package kr.co.call.impl.component.chatroom.manager
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -52,7 +53,8 @@ fun ManagerChatLazyColumn(
             when (item) {
                 is ManagerChatUiItem.Message -> ManagerChatItemContent(item = item)
                 is ManagerChatUiItem.DateSeparator -> DateSeparator(
-                    text = item.date.format(dateSeparatorFormatter)
+                    text = item.date.format(dateSeparatorFormatter),
+                    modifier = Modifier.padding(vertical = 5.dp)
                 )
             }
         }
