@@ -11,8 +11,7 @@ import kr.co.call.callfromai.util.toNavKey
 /**
  * 앱 전체 화면 전환을 담당하는 내비게이터입니다.
  *
- * Login → Onboarding → 탭 화면(Home / Chatting / MyPage) 간 이동과
- * 탭 전환을 단일 백스택 위에서 관리합니다.
+ * 화면 간 이동과 탭 전환을 단일 백스택 위에서 관리합니다.
  *
  * [AppScreen]에서 생성되며, 각 Feature의 Entry에 필요한 내비게이션 함수를
  * 전달하여 화면 이동을 처리합니다.
@@ -99,6 +98,6 @@ class AppNavigator(
         backStack += key
     }
 
-    // TODO: 모듈 간의 내비게이션 이동이 필요할 때 메서드를 작성
+    // TODO: 내비게이션 이동이 필요할 때 메서드를 작성
     // 예를 들면 온보딩 화면 -> 홈 화면, 로그인 화면 -> 온보딩 화면 등
 }

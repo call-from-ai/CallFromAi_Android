@@ -35,12 +35,15 @@ private fun pretendard(
 @Immutable
 data class CallTypography(
     // Title (line height 140%)
+    val titleExtraLargeBold: TextStyle = pretendard(34,1.4f, FontWeight.Bold),
+    val titleExtraLarge: TextStyle = pretendard(34,1.4f, FontWeight.Normal),
     val titleLarge: TextStyle      = pretendard(32, 1.4f, FontWeight.Normal),
     val titleLargeBold: TextStyle  = pretendard(32, 1.4f, FontWeight.SemiBold),
     val titleMedium: TextStyle     = pretendard(28, 1.4f, FontWeight.Normal),
     val titleMediumBold: TextStyle = pretendard(28, 1.4f, FontWeight.SemiBold),
     val titleSmall: TextStyle      = pretendard(24, 1.4f, FontWeight.Normal),
     val titleSmallBold: TextStyle  = pretendard(24, 1.4f, FontWeight.SemiBold),
+    val titleExtraSmall: TextStyle   = pretendard(18,1.4f, FontWeight.Normal),
 
     // Body (line height 150%)
     val bodyLarge: TextStyle       = pretendard(20, 1.5f, FontWeight.Normal),

@@ -10,6 +10,7 @@ android {
 
 dependencies {
     // 다른 core 모듈 의존성
+    implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:network"))
     implementation(project(":core:datastore"))

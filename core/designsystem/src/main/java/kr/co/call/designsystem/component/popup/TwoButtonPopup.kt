@@ -22,7 +22,7 @@ fun TwoButtonPopup(
     onPositiveClick: () -> Unit,
     onNegativeClick: () -> Unit,
     description: AnnotatedString? = null,
-    onDismissRequest: () -> Unit = {},
+    onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         PopupCard(label = label, title = title, description = description, modifier = modifier) {
@@ -32,6 +32,7 @@ fun TwoButtonPopup(
                 onClick = onNegativeClick,
                 containerColor = CallTheme.colors.gray200,
                 contentColor = CallTheme.colors.gray600,
+                pressedContainerColor = CallTheme.colors.gray400,
             )
         }
     }
@@ -48,6 +49,7 @@ private fun TwoButtonPopupPreview() {
             negativeText = "취소",
             onPositiveClick = {},
             onNegativeClick = {},
+            onDismissRequest = {},
         )
     }
 }

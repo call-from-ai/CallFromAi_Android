@@ -23,7 +23,7 @@ fun OneButtonPopup(
     buttonText: String,
     onButtonClick: () -> Unit,
     description: AnnotatedString? = null,
-    onDismissRequest: () -> Unit = {},
+    onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         PopupCard(label = label, title = title, description = description, modifier = modifier) {
@@ -41,6 +41,7 @@ private fun OneButtonPopupPreview() {
             title = "아직 캐릭터를\n변경할 수 없어요",
             buttonText = "확인",
             onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }
@@ -61,6 +62,7 @@ private fun OneButtonPopupWithDescriptionPreview() {
             },
             buttonText = "확인",
             onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }
