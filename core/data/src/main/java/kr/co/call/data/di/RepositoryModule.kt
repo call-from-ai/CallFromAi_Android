@@ -13,7 +13,6 @@ import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.repository.HomeRepository
-import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.domain.repository.FaqRepository
 import kr.co.call.domain.repository.MyPageRepository
 
