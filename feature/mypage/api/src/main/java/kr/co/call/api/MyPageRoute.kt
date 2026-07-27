@@ -7,4 +7,10 @@ import kotlinx.serialization.Serializable
 data object MyPageNavKey: NavKey
 
 @Serializable
+data object FaqNavKey : NavKey
+
+@Serializable
+data object TermNavKey : NavKey
+
+@Serializable
 data object ProfileNavKey: NavKey

@@ -5,3 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data object ChattingNavKey: NavKey
+
+@Serializable
+data class ChatRoomNavKey(
+    val roomId: Long,
+): NavKey
+
+@Serializable
+data object ManagerChatRoomNayKey: NavKey

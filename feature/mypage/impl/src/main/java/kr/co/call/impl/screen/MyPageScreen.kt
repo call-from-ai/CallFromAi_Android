@@ -41,6 +41,8 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
     onNavigateToProfile: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
+    navigateToFaq: () -> Unit,
+    navigateToTerms: () -> Unit,
 ) {
     val state by viewModel.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -54,9 +56,9 @@ fun MyPageScreen(
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
             is MyPageSideEffect.NavigateToCharacterManagement -> { /* TODO */ }
-            is MyPageSideEffect.NavigateToFaq -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToFaq -> { navigateToFaq() }
             is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
-            is MyPageSideEffect.NavigateToTerms -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToTerms -> { navigateToTerms() }
             is MyPageSideEffect.ShowLogoutConfirmDialog -> { showLogoutDialog = true }
             is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> { showDeleteAccountDialog=true }
             is MyPageSideEffect.NavigateToLogin -> { showLogoutDialog = false /*TODO: 로그인 화면으로 */}
@@ -116,7 +118,7 @@ private fun MyPageScreenContent(
             Column(
                 modifier = Modifier
                     .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
 
                 Spacer(modifier = Modifier.height(80.dp))
@@ -203,6 +205,8 @@ private fun MyPageScreenContent(
                         },
                     )
                 )
+
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
             if (state.loadStatus == LoadStatus.Loading) {
@@ -296,6 +300,7 @@ private fun MyPageScreenLogoutDialogPreview() {
                 negativeText = "취소",
                 onPositiveClick = {},
                 onNegativeClick = {},
+                onDismissRequest = {}
             )
     }
 }

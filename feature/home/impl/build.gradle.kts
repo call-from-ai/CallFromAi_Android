@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":feature:home:api"))
 
     // core 모듈
+    implementation(project(":core:common"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:domain"))
 
@@ -28,6 +29,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.paging.compose)
+
+    // coil
+    implementation(libs.coil.compose)
 
     // timber
     implementation(libs.timber)
@@ -36,4 +42,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // media3
+    implementation(libs.androidx.media3.exoplayer)
 }

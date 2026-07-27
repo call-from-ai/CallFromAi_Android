@@ -10,6 +10,7 @@ android {
 
 dependencies {
     // 다른 core 모듈 의존성
+    implementation(project(":core:common"))
     implementation(project(":core:domain"))
     implementation(project(":core:network"))
     implementation(project(":core:datastore"))
@@ -17,6 +18,12 @@ dependencies {
 
     // android 의존성
     implementation(libs.androidx.core.ktx)
+
+    // paging3
+    implementation(libs.androidx.paging.runtime)
+
+    // network
+    implementation(libs.okhttp)
 
     // timber
     implementation(libs.timber)
