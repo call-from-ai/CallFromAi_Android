@@ -7,6 +7,7 @@ import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import java.util.concurrent.CancellationException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,7 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadProfile() = intent {
         reduce { state.copy(loadStatus = LoadStatus.Loading) }
-        runCatching { myPageRepository.getMyProfile() }
+        myPageRepository.getMyProfile()
             .onSuccess { profile ->
                 reduce {
                     state.copy(
@@ -44,7 +45,10 @@ class ProfileViewModel @Inject constructor(
                 }
             }
             .onFailure { e ->
-                reduce { state.copy(loadStatus = LoadStatus.Error(e.message ?: "프로필 불러오기 실패")) }
+                if (e is CancellationException) throw e
+                reduce {
+                    state.copy(loadStatus = LoadStatus.Error(e.message ?: "프로필 불러오기 실패"))
+                }
             }
     }
 

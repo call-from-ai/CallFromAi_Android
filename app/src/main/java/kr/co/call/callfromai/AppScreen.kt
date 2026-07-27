@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -34,6 +32,7 @@ import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.ProfileNavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
@@ -138,6 +137,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     myPageEntry(
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToProfile = { appNavigator.navigate(ProfileNavKey) },
                         onBack = { appNavigator.popBackStack() },
                     )
                 }
