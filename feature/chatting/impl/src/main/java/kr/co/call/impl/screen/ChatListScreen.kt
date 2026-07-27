@@ -11,20 +11,28 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import android.widget.Toast
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.call.chatting.impl.R
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ChatSummary
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.component.ChatListItem
-import kr.co.call.impl.component.FrontRow
-import kr.co.call.impl.component.LoadingColumn
-import kr.co.call.impl.viewmodel.ChatListIntent
-import kr.co.call.impl.viewmodel.ChatListSideEffect
-import kr.co.call.impl.viewmodel.ChatListState
+import kr.co.call.impl.component.chatlist.ChatListItem
+import kr.co.call.impl.component.chatlist.FrontRow
+import kr.co.call.impl.component.chatlist.LoadingColumn
+import kr.co.call.impl.intent.ChatListIntent
+import kr.co.call.impl.sideeffect.ChatListSideEffect
+import kr.co.call.impl.state.ChatListState
 import kr.co.call.impl.viewmodel.ChatListViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -32,22 +40,25 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ChatListScreen(
     modifier: Modifier = Modifier,
-    onChatRoomClick: (Long, String) -> Unit,
+    onChatRoomClick: (Long) -> Unit,
+    onManagerChatRoomClick: () -> Unit,
     viewModel: ChatListViewModel = hiltViewModel()
 ) {
     // 상태 구독
     val state = viewModel.collectAsState().value
+    val context = LocalContext.current
 
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId, sideEffect.name)
+            is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
+            ChatListSideEffect.NavigateToManagerChatRoom -> onManagerChatRoomClick()
+            is ChatListSideEffect.ShowToast -> Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
         }
     }
 
     ChatListScreenContent(
         state = state,
-        onChatRoomClick = onChatRoomClick,
         onIntent = viewModel::handleIntent,
         modifier = modifier
     )
@@ -56,7 +67,6 @@ fun ChatListScreen(
 @Composable
 fun ChatListScreenContent(
     state: ChatListState,
-    onChatRoomClick: (Long, String) -> Unit,
     onIntent: (ChatListIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,6 +75,38 @@ fun ChatListScreenContent(
             .background(CallTheme.colors.mainVariant5Chat)
             .statusBarsPadding()
     ) {
+        if (state.showDeleteChatRoomDialog) {
+            val description = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(color = CallTheme.colors.gray800)
+                ) {
+                    append(stringResource(R.string.delete_chat_room_description))
+                }
+
+                append("\n")
+
+                withStyle(
+                    SpanStyle(color = CallTheme.colors.mainVariant1)
+                ) {
+                    append(stringResource(R.string.delete_chat_room_warning))
+                }
+            }
+
+            // 채팅방 목록에서 지우기 팝업
+            TwoButtonPopup(
+                label = "목록에서 지우기",
+                title = "채팅방에서 나가시겠습니까?",
+                description = description,
+                positiveText = "확인",
+                negativeText = "취소",
+                labelSpacerHeight = 13.dp,
+                descriptionSpacerHeight = 25.dp,
+                onPositiveClick = { onIntent(ChatListIntent.DeleteChatRoom(state.deleteTargetRoomId)) },
+                onNegativeClick = { onIntent(ChatListIntent.DismissDeleteDialog) },
+                onDismissRequest = { onIntent(ChatListIntent.DismissDeleteDialog) },
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -100,8 +142,21 @@ fun ChatListScreenContent(
                             onItemClick = {
                                 onIntent(
                                     ChatListIntent.ClickChatRoom(
-                                        roomId = chatSummary.chatRoomId,
-                                        name = chatSummary.name
+                                        roomId = chatSummary.chatRoomId
+                                    )
+                                )
+                            },
+                            onAlarmClick = {
+                                onIntent(
+                                    ChatListIntent.UpdateAlarmSetting(
+                                        roomId = chatSummary.chatRoomId
+                                    )
+                                )
+                            },
+                            onDeleteClick = {
+                                onIntent(
+                                    ChatListIntent.ClickDeleteChatRoom(
+                                        roomId = chatSummary.chatRoomId
                                     )
                                 )
                             }
@@ -114,8 +169,9 @@ fun ChatListScreenContent(
                             isManager = true,
                             chatSummary = ChatSummary(
                                 name = "전화왔어 매니저",
-                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를"
-                            )
+                                content = "안녕하세요, 전화왔어 매니저입니다!",
+                            ),
+                            onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
                         )
                     }
                 }
@@ -126,33 +182,34 @@ fun ChatListScreenContent(
 
 @Preview(showBackground = true)
 @Composable
-private fun ChatListScreenPreview() {
+private fun ChatListScreenContentPreview() {
     CallFromAiTheme {
         ChatListScreenContent(
-            onChatRoomClick = {} as (Long, String) -> Unit,
-            onIntent = {},
             state = ChatListState(
                 chatList = listOf(
                     ChatSummary(
                         chatRoomId = 1,
-                        image = "",
-                        name = "김철수",
-                        isMainCharacter = false,
-                        content = "안녕하세요! 오늘 날씨가 참 좋네요.",
-                        whenSubmitted = "방금 전",
-                        unReadMessageCount = "1"
+                        name = "김민지",
+                        isMainCharacter = true,
+                        content = "오늘 저녁에 뭐해?",
+                        whenSubmitted = "30분 전",
+                        unReadMessageCount = "3",
+                        isAlarmEnabled = true,
                     ),
                     ChatSummary(
                         chatRoomId = 2,
-                        image = "",
-                        name = "이영희",
-                        isMainCharacter = true,
-                        content = "오늘 뭐해? 같이 영화 볼래?",
-                        whenSubmitted = "30분 전",
-                        unReadMessageCount = "5"
+                        name = "이철수",
+                        isMainCharacter = false,
+                        content = "내일 봐!",
+                        whenSubmitted = "1시간 전",
+                        unReadMessageCount = "0",
+                        isAlarmEnabled = false,
                     )
-                )
-            )
+                ),
+                status = LoadStatus.Idle,
+                showDeleteChatRoomDialog = false
+            ),
+            onIntent = {}
         )
     }
 }

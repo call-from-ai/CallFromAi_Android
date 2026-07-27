@@ -3,6 +3,8 @@ package kr.co.call.designsystem.component.popup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import kr.co.call.designsystem.component.button.PrimaryButton
@@ -22,22 +24,32 @@ fun TwoButtonPopup(
     onPositiveClick: () -> Unit,
     onNegativeClick: () -> Unit,
     description: AnnotatedString? = null,
-    onDismissRequest: () -> Unit = {},
+    labelSpacerHeight: Dp = 8.dp,
+    descriptionSpacerHeight: Dp = 8.dp,
+    onDismissRequest: () -> Unit,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        PopupCard(label = label, title = title, description = description, modifier = modifier) {
+        PopupCard(
+            label = label,
+            title = title,
+            description = description,
+            labelSpacerHeight = labelSpacerHeight,
+            descriptionSpacerHeight = descriptionSpacerHeight,
+            modifier = modifier,
+        ) {
             PrimaryButton(text = positiveText, onClick = onPositiveClick)
             PrimaryButton(
                 text = negativeText,
                 onClick = onNegativeClick,
                 containerColor = CallTheme.colors.gray200,
                 contentColor = CallTheme.colors.gray600,
+                pressedContainerColor = CallTheme.colors.gray400,
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun TwoButtonPopupPreview() {
     CallFromAiTheme {
@@ -48,6 +60,7 @@ private fun TwoButtonPopupPreview() {
             negativeText = "취소",
             onPositiveClick = {},
             onNegativeClick = {},
+            onDismissRequest = {},
         )
     }
 }

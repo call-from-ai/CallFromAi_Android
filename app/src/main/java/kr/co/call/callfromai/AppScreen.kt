@@ -3,7 +3,9 @@ package kr.co.call.callfromai
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -18,14 +20,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
+import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
+import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
@@ -56,8 +64,10 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val showBottomBar = when (currentKey) {
         is HomeNavKey,
         is ChattingNavKey,
-        is MyPageNavKey -> true
-
+        is MyPageNavKey,
+        is FaqNavKey,
+        is TermNavKey -> true
+        is ManagerChatRoomNayKey -> false
         else -> false
     }
 
@@ -86,9 +96,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 )
             }
         },
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
-        ),
+        contentWindowInsets = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+            .exclude(WindowInsets.ime),
 
         ) { padding ->
         CompositionLocalProvider(
@@ -96,28 +106,38 @@ fun AppScreen(modifier: Modifier = Modifier) {
         ) {
             NavDisplay(
                 backStack = backStack,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding),
+                modifier = Modifier.fillMaxSize().padding(padding),
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
                 entryProvider = entryProvider {
                     loginEntry()
                     onboardingEntry()
-                    homeEntry()
+                    homeEntry(
+                        navigateToCallRecord = { callId ->
+                            appNavigator.navigate(CallRecordNavKey(callId = callId))
+                        },
+                        onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
                     chattingEntry(
-                        navigateToChatRoom = { roomId, name ->
-                            appNavigator.navigate(ChatRoomNavKey(roomId = roomId, name = name))
+                        navigateToChatRoom = { roomId ->
+                            appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
+                        },
+                        navigateToManagerChatRoom = {
+                            appNavigator.navigate(ManagerChatRoomNayKey)
                         },
                         onBack = {
                             appNavigator.popBackStack()
                         }
                     )
                     myPageEntry(
-                        navigateToCharacterManagement = {
-                            appNavigator.navigate(CharacterManagementNavKey)
-                        },
-                        onBack = {
-                            appNavigator.popBackStack()
-                        }
+                        navigateToFaq = { appNavigator.navigate(FaqNavKey) },
+                        navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
+                        onBack = { appNavigator.popBackStack() },
                     )
                 }
             )

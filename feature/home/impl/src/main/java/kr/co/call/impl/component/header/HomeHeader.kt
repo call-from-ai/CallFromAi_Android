@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +51,9 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 fun HomeHeader(
     summary: HomeSummaryUiModel,
     hasUnreadNotification: Boolean,
+    onCharacterChangeClick: () -> Unit,
+    onNotificationClick: () -> Unit,
+    onCallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -60,14 +65,15 @@ fun HomeHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(265.dp)
-                .background(CallTheme.colors.mainVariant3),
+                .background(CallTheme.colors.mainVariant3)
+                .systemBarsPadding(),
         )
 
         Row(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
-                    top = 7.dp,
+                    top = 12.dp,
                     end = 3.dp,
                 ),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -75,7 +81,7 @@ fun HomeHeader(
         ) {
             // 메인 연인 교체하기 버튼
             Button(
-                onClick = {},
+                onClick = onCharacterChangeClick,
                 modifier = Modifier.size(
                     width = 93.dp,
                     height = 24.dp,
@@ -86,7 +92,7 @@ fun HomeHeader(
                     contentColor = CallTheme.colors.gray800,
                 ),
                 contentPadding = PaddingValues(
-                    horizontal = 4.dp,
+                    horizontal = 6.dp,
                     vertical = 3.dp,
                 ),
             ) {
@@ -99,9 +105,9 @@ fun HomeHeader(
                 )
             }
 
-            Box(
+            IconButton(
+                onClick = onNotificationClick,
                 modifier = Modifier.size(48.dp),
-                contentAlignment = Alignment.Center,
             ) {
                 Box(modifier = Modifier.size(24.dp)) {
                     // 알림 아이콘
@@ -160,7 +166,7 @@ fun HomeHeader(
 
         // 전화하기 버튼
         FilledIconButton(
-            onClick = {},
+            onClick = onCallClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -216,6 +222,9 @@ private fun HomeHeaderPreview() {
                 callStreakDaysText = "12일",
             ),
             hasUnreadNotification = true,
+            onCharacterChangeClick = {},
+            onNotificationClick = {},
+            onCallClick = {},
         )
     }
 }

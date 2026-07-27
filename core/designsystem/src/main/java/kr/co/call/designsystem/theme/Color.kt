@@ -65,6 +65,13 @@ val LandingGradient=Brush.linearGradient(
 )
 
 
+val ChatGradientReverse = Brush.horizontalGradient(
+    listOf(
+        Color(0xFFFFA3BD),
+        Color(0xFFFF789F)
+    )
+)
+
 // ---------- Design System Colors ----------
 @Immutable
 data class CallColors(
@@ -103,6 +110,7 @@ data class CallColors(
     val mainGradient: Brush = MainGradient,
     val chatGradient: Brush = ChatGradient,
     val landingGradient: Brush=LandingGradient,
+    val chatGradientReverse: Brush = ChatGradientReverse,
 )
 
 val LocalCallColors = staticCompositionLocalOf { CallColors() }

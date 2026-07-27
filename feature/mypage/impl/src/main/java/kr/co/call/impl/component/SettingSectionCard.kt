@@ -27,7 +27,7 @@ import kr.co.call.designsystem.theme.CallTheme
 @Composable
 fun SettingsSectionCard(
     modifier: Modifier = Modifier,
-    title: String? = "",
+    title: String = "",
     items: List<@Composable () -> Unit>,
 ) {
     val cardShape = RoundedCornerShape(20.dp)
@@ -40,7 +40,7 @@ fun SettingsSectionCard(
             .border(width = 1.dp, color = CallTheme.colors.gray100, shape =cardShape )
     ) {
         // 메뉴 제목
-        if (title != null) {
+        if (title.isNotBlank()) {
             Text(
                 text = title,
                 style = CallTheme.typography.bodySmallBold,

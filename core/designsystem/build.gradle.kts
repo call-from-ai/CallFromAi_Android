@@ -19,4 +19,5 @@ dependencies {
 
     //timber
     implementation(libs.timber)
+    implementation(libs.androidx.ui.graphics)
 }

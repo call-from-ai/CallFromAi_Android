@@ -78,7 +78,7 @@ private fun PrimaryButtonPreview() {
                 onClick = {},
                 containerColor = CallTheme.colors.gray200,
                 contentColor = CallTheme.colors.gray600,
-                pressedContainerColor = CallTheme.colors.gray400
+                pressedContainerColor = CallTheme.colors.gray400,
             )
         }
     }

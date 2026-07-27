@@ -1,7 +1,6 @@
 package kr.co.call.impl.component.history
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,15 +10,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.mock.CallMockData
@@ -122,17 +125,22 @@ private fun CallHistoryCard(
 
         // 부재중 통화가 아닐 경우 기록 버튼 표시
         if (!isMissed) {
-            Image(
-                painter = painterResource(
-                    id = kr.co.call.designsystem.R.drawable.ic_home_record,
-                ),
-                contentDescription = "통화 기록 보기",
+            IconButton(
+                onClick = onRecordClick,
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 32.dp)
-                    .size(42.dp)
-                    .clickable(onClick = onRecordClick),
-            )
+                    .size(42.dp),
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = R.drawable.ic_home_record,
+                    ),
+                    contentDescription = "통화 기록 보기",
+                    modifier = Modifier.size(42.dp),
+                    tint = Color.Unspecified,
+                )
+            }
         }
 
         HorizontalDivider(
@@ -153,13 +161,13 @@ private fun CallHistoryIcon(
 ) {
     val iconResource = when (iconType) {
         CallHistoryIconType.SENT ->
-            kr.co.call.designsystem.R.drawable.img_home_call_send
+            R.drawable.img_home_call_send
 
         CallHistoryIconType.RECEIVED ->
-            kr.co.call.designsystem.R.drawable.img_home_call_received
+            R.drawable.img_home_call_received
 
         CallHistoryIconType.MISSED ->
-            kr.co.call.designsystem.R.drawable.img_home_call_missed
+            R.drawable.img_home_call_missed
     }
     val iconSize = when (iconType) {
         CallHistoryIconType.SENT -> DpSize(26.dp, 23.dp)
