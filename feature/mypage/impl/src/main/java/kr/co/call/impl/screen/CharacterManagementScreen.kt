@@ -16,7 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -44,15 +46,25 @@ fun CharacterManagementScreen(
 ) {
     val state by viewModel.collectAsState()
 
-    var chatHistoryTarget by remember { mutableStateOf<AiCharacter?>(null) }
-    var deleteTarget by remember { mutableStateOf<AiCharacter?>(null) }
+    var showChatHistory by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
     var showMainDeleteBlocked by remember { mutableStateOf(false) }
     var showAddBlocked by remember { mutableStateOf(false) }
 
+    // 팝업 내용
+    var chatHistoryCharacter by remember { mutableStateOf<AiCharacter?>(null) }
+    var deleteCharacter by remember { mutableStateOf<AiCharacter?>(null) }
+
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is CharacterManagementSideEffect.ShowChatHistorySummary -> chatHistoryTarget = sideEffect.aiCharacter
-            is CharacterManagementSideEffect.ShowDeleteConfirmDialog -> deleteTarget = sideEffect.aiCharacter
+            is CharacterManagementSideEffect.ShowChatHistorySummary -> {
+                chatHistoryCharacter = sideEffect.aiCharacter
+                showChatHistory = true
+            }
+            is CharacterManagementSideEffect.ShowDeleteConfirmDialog -> {
+                deleteCharacter = sideEffect.aiCharacter
+                showDeleteConfirm = true
+            }
             is CharacterManagementSideEffect.ShowMainCharacterDeleteBlocked -> showMainDeleteBlocked = true
             is CharacterManagementSideEffect.ShowAddCharacterBlocked -> showAddBlocked = true
             is CharacterManagementSideEffect.NavigateToAddCharacter -> navigateToAddCharacter()
@@ -67,31 +79,37 @@ fun CharacterManagementScreen(
     )
 
     // 팝업 - 채팅 기록 보기
-    chatHistoryTarget?.let { character ->
-        OneButtonPopup(
-            label = "채팅 기록 보기",
-            description = buildAnnotatedString { append(character.summary) },
-            buttonText = "확인",
-            onButtonClick = { chatHistoryTarget = null },
-            onDismissRequest = { chatHistoryTarget = null },
-        )
+    if (showChatHistory) {
+        chatHistoryCharacter?.let { character ->
+            OneButtonPopup(
+                label = "채팅 기록 보기",
+                description = buildAnnotatedString { append(character.summary) },
+                buttonText = "확인",
+                onButtonClick = { showChatHistory = false },
+                onDismissRequest = { showChatHistory = false },
+            )
+        }
     }
 
     // 팝업 - 캐릭터 영구 삭제 확인
-    deleteTarget?.let { character ->
-        TwoButtonPopup(
-            label = "캐릭터 영구 삭제",
-            title = "${character.name}와 헤어지시겠습니까?",
-            description = buildAnnotatedString { append("데이터 복구 및 재사용 불가합니다.") },
-            positiveText = "삭제",
-            negativeText = "취소",
-            onPositiveClick = {
-                viewModel.handleIntent(CharacterManagementIntent.ConfirmDeleteCharacter(character))
-                deleteTarget = null
-            },
-            onNegativeClick = { deleteTarget = null },
-            onDismissRequest = { deleteTarget = null },
-        )
+    if (showDeleteConfirm) {
+        deleteCharacter?.let { character ->
+            TwoButtonPopup(
+                label = "캐릭터 영구 삭제",
+                title = "${character.name}와 헤어지시겠습니까?",
+                description = buildAnnotatedString { append("데이터 복구 및 재사용 불가합니다.") },
+                positiveText = "삭제",
+                negativeText = "취소",
+                onPositiveClick = {
+                    viewModel.handleIntent(
+                        CharacterManagementIntent.ConfirmDeleteCharacter(character)
+                    )
+                    showDeleteConfirm = false
+                },
+                onNegativeClick = { showDeleteConfirm = false },
+                onDismissRequest = { showDeleteConfirm = false },
+            )
+        }
     }
 
     // 팝업 - 캐릭터 영구 삭제
@@ -111,7 +129,11 @@ fun CharacterManagementScreen(
             label = "캐릭터 추가하기",
             title = "아직 캐릭터를\n추가할 수 없어요",
             description = buildAnnotatedString {
-                append("새로운 캐릭터를 만든 후 24시간이 지나면\n또 다른 캐릭터를 만들 수 있어요")
+                append("새로운 캐릭터를 만든 후 ")
+                withStyle(SpanStyle(color = CallTheme.colors.mainVariant1)) {
+                    append("24시간")
+                }
+                append("이 지나면\n또 다른 캐릭터를 만들 수 있어요")
             },
             buttonText = "확인",
             onButtonClick = { showAddBlocked = false },
@@ -168,7 +190,8 @@ private fun CharacterManagementScreenContent(
             onClick = { onIntent(CharacterManagementIntent.ClickAddCharacter) },
             containerColor = CallTheme.colors.mainVariant4,
             contentColor = CallTheme.colors.white,
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier
+                .padding(bottom = 24.dp)
                 .padding(horizontal = 16.dp)
         )
     }
@@ -209,6 +232,7 @@ private fun ChatHistoryPopupPreview() {
             description = buildAnnotatedString { append("아이스티를 커피보다 좋아하며, 늦은 저녁 시간에 대화하는 것을 선호해요. 디자인과 여행 이야기에 관심이 많고, 반존대를 편안하게 느껴요. ") },
             buttonText = "확인",
             onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }
@@ -230,6 +254,7 @@ private fun DeleteConfirmPopupPreview() {
             negativeText = "취소",
             onPositiveClick = {},
             onNegativeClick = {},
+            onDismissRequest = {},
         )
     }
 }
@@ -248,6 +273,7 @@ private fun MainDeleteBlockedPopupPreview() {
             title = "현재 메인으로 선택된\n연인은 삭제가 불가능합니다.",
             buttonText = "확인",
             onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }
@@ -265,10 +291,15 @@ private fun AddBlockedPopupPreview() {
             label = "캐릭터 추가하기",
             title = "아직 캐릭터를\n추가할 수 없어요",
             description = buildAnnotatedString {
-                append("새로운 캐릭터를 만든 후 24시간이 지나면\n또 다른 캐릭터를 만들 수 있어요")
+                append("새로운 캐릭터를 만든 후 ")
+                withStyle(SpanStyle(color = CallTheme.colors.mainVariant1)) {
+                    append("24시간")
+                }
+                append("이 지나면\n또 다른 캐릭터를 만들 수 있어요")
             },
             buttonText = "확인",
             onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }

@@ -4,12 +4,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.CallRecordMockRepository
 import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
 import kr.co.call.data.repositoryImpl.HomeMockRepository
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.repository.HomeRepository
