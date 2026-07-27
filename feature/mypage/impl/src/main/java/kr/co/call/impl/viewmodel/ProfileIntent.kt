@@ -5,6 +5,6 @@ sealed interface ProfileIntent {
     data object ClickSubscription : ProfileIntent
     data class ToggleAllNotification(val enabled: Boolean) : ProfileIntent
     data class ToggleLateNightCall(val enabled: Boolean) : ProfileIntent
-    data object ClickDoNotDisturbTime : ProfileIntent
+    data object ClickDisturbTime : ProfileIntent
     data object ClickCallTimeManagement : ProfileIntent
 }

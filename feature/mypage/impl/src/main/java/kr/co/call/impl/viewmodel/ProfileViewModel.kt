@@ -25,7 +25,7 @@ class ProfileViewModel @Inject constructor(
         when (intent) {
             is ProfileIntent.ClickEditProfile -> navigate(ProfileSideEffect.NavigateToEditProfile)
             is ProfileIntent.ClickSubscription -> navigate(ProfileSideEffect.NavigateToSubscription)
-            is ProfileIntent.ClickDoNotDisturbTime -> navigate(ProfileSideEffect.NavigateToDoNotDisturbTime)
+            is ProfileIntent.ClickDisturbTime -> navigate(ProfileSideEffect.NavigateToDisturbTime)
             is ProfileIntent.ClickCallTimeManagement -> navigate(ProfileSideEffect.NavigateToCallTimeManagement)
             is ProfileIntent.ToggleAllNotification -> toggleAllNotification(intent.enabled)
             is ProfileIntent.ToggleLateNightCall -> toggleLateNightCall(intent.enabled)

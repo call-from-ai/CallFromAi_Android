@@ -14,3 +14,15 @@ data object TermNavKey : NavKey
 
 @Serializable
 data object ProfileNavKey: NavKey
+
+@Serializable
+data object EditProfileNavKey : NavKey
+
+@Serializable
+data object SubscriptionNavKey : NavKey
+
+@Serializable
+data object DisturbTimeNavKey : NavKey
+
+@Serializable
+data object CallTimeManagementNavKey : NavKey

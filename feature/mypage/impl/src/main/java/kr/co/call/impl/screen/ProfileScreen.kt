@@ -49,6 +49,10 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit,
+    navigateToEditProfile: () -> Unit,
+    navigateToSubscription: () -> Unit,
+    navigateToDisturbTime: () -> Unit,
+    navigateToCallTimeManagement: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -56,10 +60,10 @@ fun ProfileScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ProfileSideEffect.NavigateToEditProfile -> { /* TODO: 내 정보 수정 화면 */ }
-            is ProfileSideEffect.NavigateToSubscription -> { /* TODO: 구독 관리 화면 */ }
-            is ProfileSideEffect.NavigateToDoNotDisturbTime -> { /* TODO: 방해 금지 시간 화면 */ }
-            is ProfileSideEffect.NavigateToCallTimeManagement -> { /* TODO: 전화 시간 관리 화면 */ }
+            is ProfileSideEffect.NavigateToEditProfile -> navigateToEditProfile()
+            is ProfileSideEffect.NavigateToSubscription -> navigateToSubscription()
+            is ProfileSideEffect.NavigateToDisturbTime -> navigateToDisturbTime()
+            is ProfileSideEffect.NavigateToCallTimeManagement -> navigateToCallTimeManagement()
         }
     }
 
@@ -150,8 +154,8 @@ private fun ProfileScreenContent(
                         SettingsMenuContent(
                             icon = "\uD83D\uDEAB",
                             label = "방해 금지 시간",
-                            onClick = { onIntent(ProfileIntent.ClickDoNotDisturbTime) },
-                            trailing = { TimeRangeTrailing(text = state.doNotDisturbTimeText) },
+                            onClick = { onIntent(ProfileIntent.ClickDisturbTime) },
+                            trailing = { TimeRangeTrailing(text = state.DisturbTimeText) },
                         )
                     },
                     {
