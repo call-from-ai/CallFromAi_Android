@@ -30,6 +30,10 @@ val SubPressed = Color(0xFFED5988)
 val SubPressed2 = Color(0xFFFCB4C1)
 val SubPressed3 = Color(0xFF1F0A03)
 
+// ---------- Call actions ----------
+val CallAccept = Color(0xFF35C56C)
+val CallDecline = Color(0xFFF55245)
+
 // ---------- Grayscale ----------
 val Black = Color(0xFF1A1A1A)
 val Gray900 = Color(0xFF2E2B2C)
@@ -95,6 +99,10 @@ data class CallColors(
     val subPressed: Color = SubPressed,
     val subPressed2: Color = SubPressed2,
     val subPressed3: Color = SubPressed3,
+
+    // Call actions
+    val callAccept: Color = CallAccept,
+    val callDecline: Color = CallDecline,
 
     // Grayscale
     val black: Color = Black,
