@@ -27,6 +27,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CallNavKey
 import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
@@ -39,6 +40,7 @@ import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
+import kr.co.call.impl.entry.callEntry
 import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
@@ -117,10 +119,23 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     loginEntry()
                     onboardingEntry()
                     homeEntry(
+                        navigateToCall = { characterId, characterName ->
+                            appNavigator.navigate(
+                                CallNavKey(
+                                    characterId = characterId,
+                                    characterName = characterName,
+                                ),
+                            )
+                        },
                         navigateToCallRecord = { callId ->
                             appNavigator.navigate(CallRecordNavKey(callId = callId))
                         },
                         onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
+                    callEntry(
+                        onCallFinished = {
                             appNavigator.popBackStack()
                         },
                     )

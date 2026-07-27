@@ -6,7 +6,10 @@ sealed interface HomeSideEffect {
     data object NavigateToCharacterOnboarding : HomeSideEffect
 
     // 전화하기 확인 -> 전화 화면으로 이동
-    data object NavigateToCall : HomeSideEffect
+    data class NavigateToCall(
+        val characterId: Long,
+        val characterName: String,
+    ) : HomeSideEffect
 
     data class NavigateToCallRecord(
         val callId: Long,
