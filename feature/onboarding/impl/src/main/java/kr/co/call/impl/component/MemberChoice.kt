@@ -46,13 +46,13 @@ import kr.co.call.designsystem.theme.SubRed
 
 @Composable
 fun MemberChoice(
-    modifier: Modifier=Modifier,
     label: String,
     selectedOption: String, //드롭다운이 보여줄 값
     placeholder: String,
     options:List<String>, //선택 가능한 목록
     onOptionSelected: (String)->Unit,//선택됐을 때 실행할 동작
     required: Boolean=false,
+    modifier: Modifier=Modifier,
     ){
     var expanded by rememberSaveable {
         mutableStateOf(false)

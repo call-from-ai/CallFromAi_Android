@@ -53,8 +53,8 @@ import kotlin.math.roundToInt
 
 @Composable
 fun TempControl (
-    modifier: Modifier= Modifier,
     onTemperatureChange: (Int)->Unit,
+    modifier: Modifier= Modifier,
 ) {
     var temperature by rememberSaveable {
         mutableIntStateOf(50)

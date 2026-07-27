@@ -33,7 +33,7 @@ fun Onboarding5Screen(
     modifier: Modifier = Modifier,
 ){
     var selectedPreferTime by rememberSaveable {
-    mutableStateOf<PreferTime?>(null)
+    mutableStateOf(initialPreferTime)
     }
     Column(
         modifier = modifier
@@ -90,6 +90,7 @@ fun Onboarding5Screen(
                     bottom = 18.dp,
                 ),
                 text = "다음",
+                enabled=selectedPreferTime != null,
                 onClick = { selectedPreferTime?.let(onNextClick) },
             )
         }

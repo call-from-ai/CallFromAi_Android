@@ -58,7 +58,7 @@ fun Onboarding6Screen(
 ){
     var isCallNowPressed by remember {mutableStateOf(false)}
     var isCallLaterPressed by remember {mutableStateOf(false)}
-    var showCallDialog by rememberSaveable {mutableStateOf(false)}
+    var isCallDialogVisible by rememberSaveable {mutableStateOf(false)}
 
     Column(
         modifier=modifier
@@ -94,7 +94,7 @@ fun Onboarding6Screen(
                     isCallNowPressed = it
                 },
             text="지금 전화할래",
-            onClick= { showCallDialog=true },
+            onClick= { isCallDialogVisible=true },
             containerColor=CallTheme.colors.mainVariant3,
             contentColor=if(isCallNowPressed){
                 Black
@@ -156,18 +156,18 @@ fun Onboarding6Screen(
             }
         }
     }
-    if (showCallDialog){
+    if (isCallDialogVisible){
         TwoButtonPopup(
             label="통화 연결",
             title="${firstName}에게 바로\n통화를 연결할까요?",
             positiveText = "연결",
             negativeText = "취소",
             onPositiveClick = {
-                showCallDialog=false
+                isCallDialogVisible=false
                 onCallNowClick()
             },
             onNegativeClick = {
-                showCallDialog=false
+                isCallDialogVisible=false
             },
             onDismissRequest = {},
         )

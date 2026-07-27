@@ -27,10 +27,10 @@ import androidx.compose.runtime.getValue
 
 @Composable
 fun ProfileChoice(
-    modifier: Modifier,
     imageUrl: String?,
     onClick: ()->Unit,
-    size: Dp =99.dp
+    size: Dp =99.dp,
+    modifier: Modifier,
 ){
     val interactionSource=remember{MutableInteractionSource()}
     val isPressed by interactionSource.collectIsPressedAsState()

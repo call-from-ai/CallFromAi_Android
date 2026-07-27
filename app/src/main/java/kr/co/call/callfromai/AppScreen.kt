@@ -3,9 +3,7 @@ package kr.co.call.callfromai
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -14,20 +12,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.FaqNavKey
@@ -50,6 +44,7 @@ import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
 import kr.co.call.callfromai.util.toMainTab
+import kr.co.call.impl.viewmodel.OnboardingViewModel
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -90,49 +85,74 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val bottomBarPadding = remember(bottomBarHeightPx) {
         with(density) { bottomBarHeightPx.toDp() }
     }
-    //온보딩2에서 입력한 이름을 보관
-    var aiFirstName by rememberSaveable {
-        mutableStateOf("")
-    }
+
+    val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             if (showBottomBar) {
-            MainBottomBar(
-                currentTab = currentTab,
-                onTabSelected = appNavigator::navigateToTab,
-                modifier = Modifier
-                    .onSizeChanged { bottomBarHeightPx = it.height },
-            )
+                MainBottomBar(
+                    currentTab = currentTab,
+                    onTabSelected = appNavigator::navigateToTab,
+                    modifier = Modifier
+                        .onSizeChanged { bottomBarHeightPx = it.height },
+                )
             }
         },
-        contentWindowInsets = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
-            .exclude(WindowInsets.ime),
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+        ),
 
-    ) {
-        padding ->
+        ) {
+            padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.fillMaxSize().padding(padding),
-                entryDecorators = listOf(
-                    rememberSaveableStateHolderNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator(),
-                ),
                 entryProvider = entryProvider {
                     loginEntry()
-                    onboardingEntry()
-                    homeEntry(
-                        navigateToCallRecord = { callId ->
-                            appNavigator.navigate(CallRecordNavKey(callId = callId))
+                    onboardingEntry(
+                        onboardingViewModel=onboardingViewModel,
+                        onProfileClick = {
+                            // 사진 선택 기능은 나중에 구현
                         },
-                        onCallRecordBack = {
+                        onOnboarding1Next= {
+                            appNavigator.navigate(Onboarding2NavKey)
+                        },
+                        onBackFromOnboarding2 = {
                             appNavigator.popBackStack()
                         },
+                        onOnboarding2Next = {
+                            appNavigator.navigate(Onboarding3NavKey)
+                        },
+                        onBackFromOnboarding3 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding3Next = {
+                            appNavigator.navigate(Onboarding4NavKey)
+                        },
+                        onBackFromOnboarding4 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding4Next = {
+                            appNavigator.navigate(Onboarding5NavKey)
+                        },
+                        onBackFromOnboarding5 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding5Next = {
+                            appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onOnboarding6CallNow = {
+                            // TODO: 실제 통화 화면으로 이동
+                        },
+                        onOnboarding6CallLater = {
+                            appNavigator.navigate(HomeNavKey)
+                        },
                     )
+                    homeEntry()
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
