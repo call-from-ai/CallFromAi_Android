@@ -42,6 +42,7 @@ fun MyPageScreen(
     viewModel: MyPageViewModel = hiltViewModel(),
     navigateToFaq: () -> Unit,
     navigateToTerms: () -> Unit,
+    onNavigateToCharacterManagement: () -> Unit = {},
 ) {
     val state by viewModel.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -54,7 +55,7 @@ fun MyPageScreen(
             is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
-            is MyPageSideEffect.NavigateToCharacterManagement -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToCharacterManagement -> onNavigateToCharacterManagement()
             is MyPageSideEffect.NavigateToFaq -> { navigateToFaq() }
             is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToTerms -> { navigateToTerms() }
