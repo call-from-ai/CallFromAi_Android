@@ -10,4 +10,5 @@ fun CallInfo.toUiModel(): CallRecordUiModel =
         calledAtText = TimeUtil.toCallHistoryDateText(calledAt),
         characterName = characterName,
         recordingUrl = recordingUrl,
+        durationMillis = durationMillis,
     )
