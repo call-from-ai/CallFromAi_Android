@@ -63,7 +63,7 @@ fun Onboarding1Screen (
         mutableStateOf("")
     }
     var birthday by remember {
-        mutableStateOf(LocalDate.of(2001, 5, 18))
+        mutableStateOf(LocalDate.of(2000, 1, 1))
     }
     var job by rememberSaveable {
         mutableStateOf("")

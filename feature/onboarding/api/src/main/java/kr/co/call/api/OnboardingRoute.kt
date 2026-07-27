@@ -19,3 +19,6 @@ data object Onboarding4NavKey: NavKey
 @Serializable
 data object Onboarding5NavKey: NavKey
 
+@Serializable
+data object Onboarding6NavKey: NavKey
+

@@ -7,6 +7,7 @@ import kr.co.call.api.Onboarding2NavKey
 import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
+import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.impl.screen.Onboarding1Screen
 import kr.co.call.impl.screen.Onboarding2Screen
 import kr.co.call.impl.screen.Onboarding3Screen
@@ -17,6 +18,7 @@ import kr.co.call.impl.screen.SpeechStyle
 import java.time.LocalDate
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.Trait
+import kr.co.call.impl.screen.Onboarding6Screen
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
     onProfileClick: () -> Unit,
@@ -45,6 +47,9 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding4Next: (List<Trait>) -> Unit,
     onBackFromOnboarding5: () -> Unit,
     onOnboarding5Next: (PreferTime) -> Unit,
+    onboarding6FirstName: String,
+    onOnboarding6CallNow: () -> Unit,
+    onOnboarding6CallLater: () -> Unit,
 ) {
     entry<Onboarding1NavKey> {
         Onboarding1Screen(
@@ -79,6 +84,14 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         Onboarding5Screen(
             onBackClick = onBackFromOnboarding5,
             onNextClick = onOnboarding5Next,
+        )
+    }
+
+    entry<Onboarding6NavKey> {
+        Onboarding6Screen(
+            firstName = onboarding6FirstName,
+            onCallNowClick = onOnboarding6CallNow,
+            onCallLaterClick = onOnboarding6CallLater,
         )
     }
 }

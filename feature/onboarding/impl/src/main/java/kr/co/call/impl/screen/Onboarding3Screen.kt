@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.component.button.SecondaryButton
@@ -27,7 +28,7 @@ import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.SubGray2
 import kr.co.call.designsystem.theme.White
-import kr.co.call.impl.component.BackTopBar
+import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.RelationshipChoiceCard
 import kr.co.call.impl.component.SpeechChoice
 import kr.co.call.impl.component.TempControl
@@ -74,7 +75,7 @@ fun Onboarding3Screen(
             .background(White)
             .navigationBarsPadding(),
     ) {
-        BackTopBar(
+        BackStepBar(
             onBackClick = onBackClick,
         )
         TopTitle(
@@ -84,111 +85,119 @@ fun Onboarding3Screen(
             totalStep = 4,
             horizontalPadding = 27.dp,
         )
+        Spacer(modifier=Modifier.height(5.dp))
 
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(horizontal = 27.dp)
-                .background(
-                    SubGray2
-                )
+                .fillMaxWidth()
+                .background(SubGray2),
         ) {
-            Spacer(modifier = Modifier.height(26.dp))
-
-            androidx.compose.material3.Text(
-                text = "어떤 말투로 대화할까요?",
-                style = CallTheme.typography.bodySmall,
-                color = Gray400,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(17.dp),
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 27.dp),
             ) {
-                SpeechChoice(
-                    text = "반말",
-                    selected = selectedSpeech == SpeechStyle.CASUAL,
-                    onClick = { selectedSpeech = SpeechStyle.CASUAL },
+                Spacer(modifier = Modifier.height(26.dp))
+
+                androidx.compose.material3.Text(
+                    text = "어떤 말투로 대화할까요?",
+                    style = CallTheme.typography.bodySmall,
+                    color = Gray400,
                 )
-                SpeechChoice(
-                    text = "반존대",
-                    selected = selectedSpeech == SpeechStyle.SEMI_FORMAL,
-                    onClick = { selectedSpeech = SpeechStyle.SEMI_FORMAL },
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(17.dp),
+                ) {
+                    SpeechChoice(
+                        text = "반말",
+                        selected = selectedSpeech == SpeechStyle.CASUAL,
+                        onClick = { selectedSpeech = SpeechStyle.CASUAL },
+                    )
+                    SpeechChoice(
+                        text = "반존대",
+                        selected = selectedSpeech == SpeechStyle.SEMI_FORMAL,
+                        onClick = { selectedSpeech = SpeechStyle.SEMI_FORMAL },
+                    )
+                    SpeechChoice(
+                        text = "존댓말",
+                        selected = selectedSpeech == SpeechStyle.FORMAL,
+                        onClick = { selectedSpeech = SpeechStyle.FORMAL },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(26.dp))
+
+                androidx.compose.material3.Text(
+                    text = "어떤 관계로 시작할까요?",
+                    style = CallTheme.typography.bodySmall,
+                    color = Gray400,
                 )
-                SpeechChoice(
-                    text = "존댓말",
-                    selected = selectedSpeech == SpeechStyle.FORMAL,
-                    onClick = { selectedSpeech = SpeechStyle.FORMAL },
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        space=11.dp,
+                        alignment=Alignment.CenterHorizontally
+                    ),
+                ) {
+                    RelationshipChoiceCard(
+                        imageRes = R.drawable.relationship_some,
+                        title = "썸",
+                        description = "설레는 시작",
+                        selected = selectedRelationship == Relationship.SOME,
+                        onClick = { selectedRelationship = Relationship.SOME },
+                    )
+                    RelationshipChoiceCard(
+                        imageRes = R.drawable.relationship_first,
+                        title = "연애 초기",
+                        description = "달달한 사이",
+                        selected = selectedRelationship == Relationship.EARLY_DATING,
+                        onClick = { selectedRelationship = Relationship.EARLY_DATING },
+                    )
+                    RelationshipChoiceCard(
+                        imageRes = R.drawable.relationship_old,
+                        title = "오래된 연인",
+                        description = "편안한 관계",
+                        selected = selectedRelationship == Relationship.LONG_TERM,
+                        onClick = { selectedRelationship = Relationship.LONG_TERM },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(25.dp))
+
+                TempControl(
+                    modifier = Modifier.fillMaxWidth(),
+                    onTemperatureChange = { temperature = it },
                 )
             }
-
-            Spacer(modifier = Modifier.height(26.dp))
-
-            androidx.compose.material3.Text(
-                text = "어떤 관계로 시작할까요?",
-                style = CallTheme.typography.bodySmall,
-                color = Gray400,
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                RelationshipChoiceCard(
-                    imageRes = R.drawable.relationship_some,
-                    title = "썸",
-                    description = "설레는 시작",
-                    selected = selectedRelationship == Relationship.SOME,
-                    onClick = { selectedRelationship = Relationship.SOME },
-                )
-                RelationshipChoiceCard(
-                    imageRes = R.drawable.relationship_first,
-                    title = "연애 초기",
-                    description = "달달한 사이",
-                    selected = selectedRelationship == Relationship.EARLY_DATING,
-                    onClick = { selectedRelationship = Relationship.EARLY_DATING },
-                )
-                RelationshipChoiceCard(
-                    imageRes = R.drawable.relationship_old,
-                    title = "오래된 연인",
-                    description = "편안한 관계",
-                    selected = selectedRelationship == Relationship.LONG_TERM,
-                    onClick = { selectedRelationship = Relationship.LONG_TERM },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            TempControl(
-                modifier = Modifier.fillMaxWidth(),
-                onTemperatureChange = { temperature = it },
+            SecondaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        SubGray2
+                    )
+                    .padding(
+                        start = 27.dp,
+                        end = 27.dp,
+                        bottom = 18.dp,
+                    ),
+                text = "다음",
+                enabled = canMoveNext,
+                onClick = {
+                    onNextClick(
+                        selectedSpeech!!,
+                        selectedRelationship!!,
+                        temperature,
+                    )
+                },
             )
         }
-        Spacer(modifier = Modifier.weight(1f))
-        SecondaryButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    SubGray2
-                )
-                .padding(
-                    start = 27.dp,
-                    end = 27.dp,
-                    bottom = 18.dp,
-                ),
-            text = "다음",
-            enabled = canMoveNext,
-            onClick = {
-                onNextClick(
-                    selectedSpeech!!,
-                    selectedRelationship!!,
-                    temperature,
-                )
-            },
-        )
     }
 }
 

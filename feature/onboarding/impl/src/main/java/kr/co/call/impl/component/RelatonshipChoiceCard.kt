@@ -47,8 +47,8 @@ fun RelationshipChoiceCard(
     Surface(
         modifier = modifier
             .size(
-                width = 106.dp,
-                height = 162.dp,
+                width = 110.dp,
+                height = 172.dp,
             )
             .selectable(
                 selected=selected,
@@ -88,7 +88,7 @@ fun RelationshipChoiceCard(
 
             Text(
                 text=title,
-                style= CallTheme.typography.bodyLargeBold.copy(
+                style= CallTheme.typography.bodyMediumBold.copy(
                     brush=ChatGradient
                 ),
                 textAlign =TextAlign.Center,

@@ -25,7 +25,7 @@ import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.SubGray2
 import kr.co.call.designsystem.theme.White
-import kr.co.call.impl.component.BackTopBar
+import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.KeywordChoice
 import kr.co.call.impl.component.TopTitle
 
@@ -48,7 +48,7 @@ fun Onboarding4Screen(
             .fillMaxSize()
             .background(White),
     ) {
-        BackTopBar(onBackClick = onBackClick)
+        BackStepBar(onBackClick = onBackClick)
 
         TopTitle(
             title = "어떤 매력에\n끌리나요?",

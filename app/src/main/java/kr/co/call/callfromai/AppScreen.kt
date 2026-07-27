@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -32,6 +34,7 @@ import kr.co.call.api.Onboarding2NavKey
 import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
+import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
@@ -82,7 +85,10 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val bottomBarPadding = remember(bottomBarHeightPx) {
         with(density) { bottomBarHeightPx.toDp() }
     }
-
+    //온보딩2에서 입력한 이름을 보관
+    var aiFirstName by rememberSaveable {
+        mutableStateOf("")
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
@@ -119,7 +125,8 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         onBackFromOnboarding2 = {
                             appNavigator.popBackStack()
                         },
-                        onOnboarding2Next = { _, _, _, _, _ ->
+                        onOnboarding2Next = { _, _,firstName, _, _ ->
+                            aiFirstName=firstName
                             appNavigator.navigate(Onboarding3NavKey)
                         },
                         onBackFromOnboarding3 = {
@@ -138,7 +145,14 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.popBackStack()
                         },
                         onOnboarding5Next = { _ ->
-                            // 온보딩 완료 후 홈화면으로 화면으로 이동
+                            appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onboarding6FirstName = aiFirstName,
+                        onOnboarding6CallNow = {
+                            // TODO: 실제 통화 화면으로 이동
+                        },
+                        onOnboarding6CallLater = {
+                            appNavigator.navigate(HomeNavKey)
                         },
                     )
                     homeEntry()

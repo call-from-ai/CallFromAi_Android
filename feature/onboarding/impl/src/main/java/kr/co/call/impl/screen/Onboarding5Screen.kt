@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.SubGray2
 import kr.co.call.designsystem.theme.White
-import kr.co.call.impl.component.BackTopBar
+import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.TopTitle
 import androidx.compose.runtime.getValue
@@ -29,11 +29,11 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 fun Onboarding5Screen(
     onBackClick: () -> Unit,
     onNextClick: (PreferTime) -> Unit,
-    initialPreferTime: PreferTime = PreferTime.DAY,
+    initialPreferTime: PreferTime? = null,
     modifier: Modifier = Modifier,
 ){
     var selectedPreferTime by rememberSaveable {
-    mutableStateOf(initialPreferTime)
+    mutableStateOf<PreferTime?>(null)
     }
     Column(
         modifier = modifier
@@ -44,7 +44,7 @@ fun Onboarding5Screen(
             )
             .background(White),
     ) {
-        BackTopBar(onBackClick = onBackClick)
+        BackStepBar(onBackClick = onBackClick)
 
         TopTitle(
             title = "언제 먼저 통화를\n걸어드리면 좋을까요?",
@@ -90,7 +90,7 @@ fun Onboarding5Screen(
                     bottom = 18.dp,
                 ),
                 text = "다음",
-                onClick = { onNextClick(selectedPreferTime) },
+                onClick = { selectedPreferTime?.let(onNextClick) },
             )
         }
     }

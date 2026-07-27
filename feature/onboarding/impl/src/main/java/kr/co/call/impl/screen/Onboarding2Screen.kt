@@ -34,7 +34,7 @@ import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.White
 import kr.co.call.impl.component.AgeInputField
-import kr.co.call.impl.component.BackTopBar
+import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
@@ -88,7 +88,7 @@ fun Onboarding2Screen(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            BackTopBar(onBackClick = onBackClick)
+            BackStepBar(onBackClick = onBackClick)
 
             TopTitle(
                 title = "내 이상형 설정,\n4단계면 끝나요",
@@ -157,7 +157,7 @@ fun Onboarding2Screen(
                     label = "직업",
                     selectedOption = job,
                     placeholder = "직업을 선택해주세요",
-                    options = listOf("학생", "직장인", "프리랜서", "기타"),
+                    options = listOf("학생", "직장인", "기타"),
                     onOptionSelected = { job = it },
                     required = true,
                 )

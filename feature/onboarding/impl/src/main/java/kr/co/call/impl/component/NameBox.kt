@@ -64,7 +64,7 @@ fun NameBox(
             contentAlignment= Alignment.CenterStart
         ) {
             Text(
-                text = value.ifBlank { "$label 입력" },
+                text = value.ifBlank { " " },
                 color = if (value.isBlank()) Gray400 else Gray900,
                 style = CallTheme.typography.bodyMediumMedium,
             )

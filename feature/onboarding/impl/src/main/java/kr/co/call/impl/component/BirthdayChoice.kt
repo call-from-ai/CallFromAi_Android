@@ -123,7 +123,7 @@ private fun LocalDate.toDisplayText(): String {
 private fun BirthdayChoicePreview() {
     CallFromAiTheme {
         BirthdayChoice(
-            selectedDate = LocalDate.of(2001, 5, 18),
+            selectedDate = LocalDate.of(2000, 1, 1),
             onDateSelected = {},
             modifier = Modifier
                 .fillMaxWidth()
