@@ -44,5 +44,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // media3
+    implementation(libs.androidx.media3.common)
     implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 }
