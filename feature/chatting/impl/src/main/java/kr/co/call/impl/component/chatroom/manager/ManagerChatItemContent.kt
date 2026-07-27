@@ -25,6 +25,7 @@ import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
 import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.model.ManagerChatUiItem
+import kr.co.call.impl.util.highlightText
 
 /**
  * 매니저 채팅 화면에서 메시지 타입에 따른 UI 콘텐츠를 렌더링하는 컴포저블 함수입니다.

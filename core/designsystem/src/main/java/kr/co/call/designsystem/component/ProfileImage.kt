@@ -2,11 +2,14 @@ package kr.co.call.designsystem.component
 
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,16 +32,22 @@ fun ProfileImage(
     profileImageUrl: String?,
     modifier: Modifier = Modifier,
     showCallBadge: Boolean = false,
+    onClick: (() -> Unit)? = null,
 ) {
     val defaultProfile = painterResource(
         id = kr.co.call.designsystem.R.drawable.img_profile_url_default,
     )
 
     Box(
-        modifier = modifier.size(
-            width = 49.dp,
-            height = 51.dp,
-        ),
+        modifier = modifier
+            .size(width = 49.dp, height = 51.dp)
+            .then(
+                if (onClick != null) Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onClick,
+                ) else Modifier
+            ),
     ) {
         AsyncImage(
             model = profileImageUrl?.takeIf { it.isNotBlank() },

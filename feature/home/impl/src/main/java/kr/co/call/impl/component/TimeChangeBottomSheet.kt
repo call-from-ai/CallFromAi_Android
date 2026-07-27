@@ -38,9 +38,12 @@ fun TimeChangeBottomSheet(
     // 월 경계를 포함한 연속 날짜와 30분 단위 시간을 생성
     val today = remember { LocalDate.now() }
     val dates = remember(today) {
-        (-30L..90L).map { dayOffset ->
-            today.plusDays(dayOffset)
-        }
+        val startDate = today.minusDays(30)
+        val endDate = today.plusYears(1)
+
+        generateSequence(startDate) { date -> date.plusDays(1) }
+            .takeWhile { date -> !date.isAfter(endDate) }
+            .toList()
     }
     val times = remember {
         List(48) { index -> LocalTime.MIN.plusMinutes(index * 30L) }
@@ -48,7 +51,7 @@ fun TimeChangeBottomSheet(
 
     // 상태의 선택값을 휠 초기 위치로 사용
     val initialDateIndex = dates.indexOf(selectedDate).takeIf { index -> index >= 0 }
-        ?: 30
+        ?: dates.indexOf(today)
     val initialTimeIndex = times.indexOf(selectedTime).takeIf { index -> index >= 0 } ?: 0
     val dateListState = rememberLazyListState(
         initialFirstVisibleItemIndex = initialDateIndex,
@@ -148,10 +151,13 @@ private fun TimeWheelPicker(
 private fun TimeWheelPickerPreview() {
     CallFromAiTheme {
         val selectedDate = LocalDate.of(2025, 3, 15)
-        val dates = remember {
-            (-30L..90L).map { dayOffset ->
-                selectedDate.plusDays(dayOffset)
-            }
+        val dates = remember(selectedDate) {
+            val startDate = selectedDate.minusDays(30)
+            val endDate = selectedDate.plusYears(1)
+
+            generateSequence(startDate) { date -> date.plusDays(1) }
+                .takeWhile { date -> !date.isAfter(endDate) }
+                .toList()
         }
         val times = remember {
             List(48) { index ->
@@ -162,7 +168,9 @@ private fun TimeWheelPickerPreview() {
         TimeWheelPicker(
             dates = dates,
             times = times,
-            dateListState = rememberLazyListState(initialFirstVisibleItemIndex = 30),
+            dateListState = rememberLazyListState(
+                initialFirstVisibleItemIndex = dates.indexOf(selectedDate),
+            ),
             timeListState = rememberLazyListState(initialFirstVisibleItemIndex = 20),
             onDateSelected = {},
             onTimeSelected = {},

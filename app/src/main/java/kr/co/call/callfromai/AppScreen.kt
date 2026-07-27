@@ -3,7 +3,9 @@ package kr.co.call.callfromai
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -20,9 +22,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.FaqNavKey
@@ -101,9 +106,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
             )
             }
         },
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
-        ),
+        contentWindowInsets = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+            .exclude(WindowInsets.ime),
 
     ) {
         padding ->
@@ -113,49 +118,21 @@ fun AppScreen(modifier: Modifier = Modifier) {
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.fillMaxSize().padding(padding),
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator(),
+                ),
                 entryProvider = entryProvider {
                     loginEntry()
-                    onboardingEntry(
-                        onProfileClick = {
-                            // 사진 선택 기능은 나중에 구현
+                    onboardingEntry()
+                    homeEntry(
+                        navigateToCallRecord = { callId ->
+                            appNavigator.navigate(CallRecordNavKey(callId = callId))
                         },
-                        onOnboarding1Next= { _, _, _, _, _ ->
-                            appNavigator.navigate(Onboarding2NavKey)
-                        },
-                        onBackFromOnboarding2 = {
+                        onCallRecordBack = {
                             appNavigator.popBackStack()
-                        },
-                        onOnboarding2Next = { _, _,firstName, _, _ ->
-                            aiFirstName=firstName
-                            appNavigator.navigate(Onboarding3NavKey)
-                        },
-                        onBackFromOnboarding3 = {
-                            appNavigator.popBackStack()
-                        },
-                        onOnboarding3Next = { _, _, _ ->
-                            appNavigator.navigate(Onboarding4NavKey)
-                        },
-                        onBackFromOnboarding4 = {
-                            appNavigator.popBackStack()
-                        },
-                        onOnboarding4Next = { _ ->
-                            appNavigator.navigate(Onboarding5NavKey)
-                        },
-                        onBackFromOnboarding5 = {
-                            appNavigator.popBackStack()
-                        },
-                        onOnboarding5Next = { _ ->
-                            appNavigator.navigate(Onboarding6NavKey)
-                        },
-                        onboarding6FirstName = aiFirstName,
-                        onOnboarding6CallNow = {
-                            // TODO: 실제 통화 화면으로 이동
-                        },
-                        onOnboarding6CallLater = {
-                            appNavigator.navigate(HomeNavKey)
                         },
                     )
-                    homeEntry()
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
