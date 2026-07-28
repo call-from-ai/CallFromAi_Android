@@ -38,8 +38,8 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 @Composable
 fun SubscriptionScreen(
+    modifier: Modifier,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
     viewModel: SubscriptionViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
@@ -59,23 +59,26 @@ fun SubscriptionScreen(
     }
 
     SubscriptionScreenContent(
+        modifier = modifier,
         state = state,
         onIntent = viewModel::handleIntent,
         onBackClick = onBackClick,
-        modifier = modifier,
     )
 
     if (showComingSoon) {
-        ComingSoonScreen(onBackClick = { showComingSoon = false })
+        ComingSoonScreen(
+            modifier = Modifier,
+            onBackClick = { showComingSoon = false },
+        )
     }
 }
 
 @Composable
 private fun SubscriptionScreenContent(
+    modifier: Modifier,
     state: SubscriptionState,
     onIntent: (SubscriptionIntent) -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier
@@ -136,6 +139,7 @@ private fun SubscriptionScreenContent(
 private fun SubscriptionScreenPreview() {
     CallFromAiTheme {
         SubscriptionScreenContent(
+            modifier = Modifier,
             state = SubscriptionState(
                 plans = SubscriptionPlanMock.plans,
                 currentPlanId = SubscriptionPlanMock.DEFAULT_CURRENT_PLAN_ID,

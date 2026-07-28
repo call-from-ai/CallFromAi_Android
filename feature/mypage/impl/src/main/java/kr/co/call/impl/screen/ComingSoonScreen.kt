@@ -29,8 +29,8 @@ import kr.co.call.impl.component.CommonTopAppBar
 
 @Composable
 fun ComingSoonScreen(
+    modifier: Modifier,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = onBackClick,
@@ -77,7 +77,8 @@ fun ComingSoonScreen(
 private fun ComingSoonScreenPreview(){
     CallFromAiTheme {
         ComingSoonScreen(
-            onBackClick = {}
+            modifier = Modifier,
+            onBackClick = {},
         )
     }
 }

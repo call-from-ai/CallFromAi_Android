@@ -90,7 +90,10 @@ fun MyPageScreen(
 
     // 준비중 화면 다이얼로그
     if (showComingSoon) {
-        ComingSoonScreen(onBackClick = { showComingSoon = false })
+        ComingSoonScreen(
+            modifier = Modifier,
+            onBackClick = { showComingSoon = false },
+        )
     }
 }
 

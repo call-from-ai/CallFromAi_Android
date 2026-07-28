@@ -42,6 +42,7 @@ import kr.co.call.impl.viewmodel.DisturbTimeState
 import kr.co.call.impl.viewmodel.DisturbTimeViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import java.util.Locale
 
 @Composable
 fun DisturbTimeScreen(
@@ -211,9 +212,9 @@ private fun TimeField(
 // 본문 필드 표시 (09:00 -> 09시, 09:30 -> 09시 30분)
 private fun formatDisturbTimeLabel(time: LocalTime): String {
     return if (time.minute == 0) {
-        String.format("%02d시", time.hour)
+        String.format(Locale.getDefault(), "%02d시", time.hour)
     } else {
-        String.format("%02d시 %02d분", time.hour, time.minute)
+        String.format(Locale.getDefault(), "%02d시 %02d분", time.hour, time.minute)
     }
 }
 
