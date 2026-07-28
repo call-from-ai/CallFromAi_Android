@@ -27,6 +27,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.CallTimeManagementNavKey
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.DisturbTimeNavKey
@@ -40,13 +41,13 @@ import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
+import kr.co.call.callfromai.util.toMainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
-import kr.co.call.callfromai.util.toMainTab
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -92,20 +93,19 @@ fun AppScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             if (showBottomBar) {
-            MainBottomBar(
-                currentTab = currentTab,
-                onTabSelected = appNavigator::navigateToTab,
-                modifier = Modifier
-                    .onSizeChanged { bottomBarHeightPx = it.height },
-            )
+                MainBottomBar(
+                    currentTab = currentTab,
+                    onTabSelected = appNavigator::navigateToTab,
+                    modifier = Modifier
+                        .onSizeChanged { bottomBarHeightPx = it.height },
+                )
             }
         },
         contentWindowInsets = WindowInsets.safeDrawing
             .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
             .exclude(WindowInsets.ime),
 
-    ) {
-        padding ->
+        ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
@@ -141,6 +141,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     myPageEntry(
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
                         navigateToProfile = { appNavigator.navigate(ProfileNavKey) },
                         navigateToEditProfile = { appNavigator.navigate(EditProfileNavKey) },
                         navigateToSubscription = { appNavigator.navigate(SubscriptionNavKey) },

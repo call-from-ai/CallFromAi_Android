@@ -3,11 +3,13 @@ package kr.co.call.impl.entry
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.DisturbTimeNavKey
 import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.impl.screen.CharacterManagementScreen
 import kr.co.call.api.ProfileNavKey
 import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.TermNavKey
@@ -21,6 +23,7 @@ import kr.co.call.impl.screen.SubscriptionScreen
 import kr.co.call.impl.screen.TermScreen
 
 fun EntryProviderScope<NavKey>.myPageEntry(
+    navigateToCharacterManagement: () -> Unit,
     navigateToFaq: () -> Unit,
     navigateToTerms: () -> Unit,
     navigateToProfile: () -> Unit,
@@ -32,9 +35,17 @@ fun EntryProviderScope<NavKey>.myPageEntry(
 ) {
     entry<MyPageNavKey> {
         MyPageScreen(
+            onNavigateToCharacterManagement = navigateToCharacterManagement,
             navigateToFaq = navigateToFaq,
             navigateToTerms = navigateToTerms,
             onNavigateToProfile = navigateToProfile,
+        )
+    }
+
+    entry<CharacterManagementNavKey> {
+        CharacterManagementScreen(
+            onBackClick = onBack,
+            navigateToAddCharacter = { /* TODO: 캐릭터 추가 화면 연결 */ },
         )
     }
 
