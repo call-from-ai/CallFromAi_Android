@@ -23,6 +23,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.CallRecordNavKey
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.FaqNavKey
@@ -38,6 +39,7 @@ import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
+import kr.co.call.callfromai.util.toMainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.homeEntry
@@ -103,9 +105,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
         contentWindowInsets = WindowInsets.safeDrawing.only(
             WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
         ),
-
-        ) {
-            padding ->
+        ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
@@ -178,6 +178,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     myPageEntry(
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
                         onBack = { appNavigator.popBackStack() },
                     )
                 }

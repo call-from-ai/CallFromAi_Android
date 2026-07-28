@@ -33,7 +33,7 @@ import kr.co.call.designsystem.theme.CallTheme
 internal fun PopupCard(
     modifier: Modifier = Modifier,
     label: String,
-    title: String,
+    title: String?,
     description: AnnotatedString? = null,
     labelSpacerHeight: Dp = 8.dp,
     descriptionSpacerHeight: Dp = 8.dp,
@@ -59,13 +59,16 @@ internal fun PopupCard(
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.height(labelSpacerHeight))
-        Text(
-            text = title,
-            style = CallTheme.typography.bodyLargeBold,
-            color = CallTheme.colors.black,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        if (title != null) {
+            Spacer(modifier = Modifier.height(labelSpacerHeight))
+            Text(
+                text = title,
+                style = CallTheme.typography.bodyLargeBold,
+                color = CallTheme.colors.black,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         if (description != null) {
             Spacer(modifier = Modifier.height(descriptionSpacerHeight))
             Text(
