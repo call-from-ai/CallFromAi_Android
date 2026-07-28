@@ -2,21 +2,21 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.Trait
 import kr.co.call.impl.screen.Relationship
 import kr.co.call.impl.screen.SpeechStyle
+import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.viewmodel.container
 import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor() : ViewModel() {
-
-    private val _uiState = MutableStateFlow(OnboardingUiState())
-    val uiState = _uiState.asStateFlow()
+class OnboardingViewModel @Inject constructor() : ViewModel(),
+    ContainerHost<OnboardingUiState, Nothing> {
+        override val container=container<OnboardingUiState, Nothing>(
+            initialState= OnboardingUiState(),
+        )
 
     fun updateUserProfile(
         lastName: String,
@@ -24,17 +24,17 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         birthday: LocalDate,
         job: String,
         mbti: String,
-    ) {
-        _uiState.update {
-            it.copy(
-                userLastName = lastName,
-                userFirstName = firstName,
-                userBirthday = birthday,
-                userJob = job,
-                userMbti = mbti,
-            )
+    ) =intent{
+        reduce{
+                state.copy(
+                    userLastName = lastName,
+                    userFirstName = firstName,
+                    userBirthday = birthday,
+                    userJob = job,
+                    userMbti = mbti,
+                )
+            }
         }
-    }
 
     fun updateAiProfile(
         age: String,
@@ -42,9 +42,9 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         firstName: String,
         job: String,
         mbti: String,
-    ) {
-        _uiState.update {
-            it.copy(
+    )=intent {
+        reduce {
+            state.copy(
                 aiFirstName = firstName,
                 aiLastName = lastName,
                 aiAge = age,
@@ -59,9 +59,9 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
         speechStyle: SpeechStyle,
         relationship: Relationship,
         temperature: Int,
-    ) {
-        _uiState.update {
-            it.copy(
+    ) =intent {
+        reduce {
+            state.copy(
                 speechStyle = speechStyle,
                 relationship = relationship,
                 temperature = temperature,
@@ -70,15 +70,17 @@ class OnboardingViewModel @Inject constructor() : ViewModel() {
     }
 
 
-    fun updateTraits(traits: List<Trait>) {
-        _uiState.update {
-            it.copy(traits = traits)
+    fun updateTraits(traits: List<Trait>
+    )=intent{
+        reduce {
+            state.copy(traits = traits)
         }
     }
 
-    fun updatePreferTime(preferTime: PreferTime) {
-        _uiState.update {
-            it.copy(preferTime = preferTime)
+    fun updatePreferTime(preferTime: PreferTime
+    )=intent {
+        reduce {
+            state.copy(preferTime = preferTime)
         }
     }
 }

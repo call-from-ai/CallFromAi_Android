@@ -110,7 +110,11 @@ fun Onboarding4Screen(
                         bottom = 18.dp,
                     ),
                 text = "다음",
-                onClick = { onNextClick(selectedTraits) },
+                enabled=selectedTraits.isNotEmpty(),
+                onClick = { if(selectedTraits.isNotEmpty()) {
+                    onNextClick(selectedTraits)
+                }
+                          },
             )
         }
     }

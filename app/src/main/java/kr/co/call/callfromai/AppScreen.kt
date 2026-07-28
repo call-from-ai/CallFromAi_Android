@@ -22,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.FaqNavKey
@@ -146,13 +147,23 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.navigate(Onboarding6NavKey)
                         },
                         onOnboarding6CallNow = {
-                            // TODO: 실제 통화 화면으로 이동
+                            //나중에 전화화면으로 바꾸기
+                            appNavigator.navigate(HomeNavKey)
                         },
                         onOnboarding6CallLater = {
                             appNavigator.navigate(HomeNavKey)
                         },
                     )
-                    homeEntry()
+                    homeEntry(
+                        navigateToCallRecord = { callId ->
+                            appNavigator.navigate(
+                                CallRecordNavKey(callId = callId),
+                            )
+                        },
+                        onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
