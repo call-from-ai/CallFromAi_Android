@@ -2,11 +2,12 @@ package kr.co.call.impl.viewmodel
 
 sealed interface CallIncomingSideEffect {
     data class RequestMicrophonePermission(
-        val callId: String,
+        val callId: Long,
     ) : CallIncomingSideEffect
 
     data class NavigateToCall(
-        val callId: String,
+        val callId: Long,
+        val characterId: Long,
     ) : CallIncomingSideEffect
 
     data object Finish : CallIncomingSideEffect

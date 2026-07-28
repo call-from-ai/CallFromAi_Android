@@ -1,8 +1,8 @@
 package kr.co.call.domain.repository
 
 interface CallControlRepository {
-    suspend fun startCall(): String
-    suspend fun acceptCall(callId: String)
-    suspend fun rejectCall(callId: String)
-    suspend fun endCall(callId: String)
+    suspend fun startCall(): Long
+    suspend fun acceptCall(callId: Long)
+    suspend fun rejectCall(callId: Long)
+    suspend fun endCall(callId: Long)
 }

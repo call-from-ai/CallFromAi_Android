@@ -1,13 +1,18 @@
 package kr.co.call.impl.viewmodel
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kr.co.call.domain.repository.CallSessionRepository
+import kr.co.call.impl.viewmodel.model.CallDirection
 import kr.co.call.impl.viewmodel.state.CallPhase
 import kr.co.call.impl.viewmodel.state.CallState
 import org.orbitmvi.orbit.Container
@@ -16,6 +21,7 @@ import org.orbitmvi.orbit.viewmodel.container
 
 // 통화 종료 시 2.5초 후에 홈으로 이동 처리를 위한 변수
 private const val CALL_ENDED_HOME_DELAY_MILLIS = 2500L
+private const val DURATION_UPDATE_INTERVAL_MILLIS = 1000L
 
 @HiltViewModel
 class CallViewModel @Inject constructor(
@@ -28,6 +34,9 @@ class CallViewModel @Inject constructor(
         initialState = CallState(),
     )
 
+    private var durationJob: Job? = null
+    private var callStartedAtMillis: Long? = null
+
     init {
         observeSessionState()
     }
@@ -35,8 +44,9 @@ class CallViewModel @Inject constructor(
     fun handleIntent(intent: CallIntent) {
         when (intent) {
             is CallIntent.Initialize -> initialize(
+                callId = intent.callId,
                 characterId = intent.characterId,
-                characterName = intent.characterName,
+                direction = intent.direction,
             )
             is CallIntent.MicrophonePermissionResult -> {
                 handleMicrophonePermissionResult(intent.isGranted)
@@ -48,34 +58,52 @@ class CallViewModel @Inject constructor(
     }
 
     private fun initialize(
+        callId: Long,
         characterId: Long,
-        characterName: String,
+        direction: CallDirection,
     ) = intent {
-        if (state.characterId == characterId && state.character.name == characterName) {
+        if (
+            state.callId == callId &&
+            state.characterId == characterId &&
+            state.direction == direction
+        ) {
             return@intent
         }
 
         reduce {
             state.copy(
+                callId = callId,
                 characterId = characterId,
-                character = state.character.copy(name = characterName),
+                direction = direction,
             )
         }
     }
 
     private fun finishCall() = intent {
+        if (state.phase == CallPhase.ENDING || state.phase == CallPhase.ENDED) return@intent
+
+        val endedDurationSeconds = currentDurationSeconds()
+        durationJob?.cancel()
+        durationJob = null
+        callStartedAtMillis = null
+
         reduce {
-            state.copy(phase = CallPhase.ENDING)
+            state.copy(
+                phase = CallPhase.ENDING,
+                durationSeconds = endedDurationSeconds,
+                endedDurationSeconds = endedDurationSeconds,
+            )
         }
-        runCatching {
+        try {
             callSessionRepository.endSession()
-        }.onFailure {
-            reduce {
-                state.copy(phase = CallPhase.ERROR)
-            }
-        }.onSuccess {
             reduce {
                 state.copy(phase = CallPhase.ENDED)
+            }
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
+        } catch (_: Throwable) {
+            reduce {
+                state.copy(phase = CallPhase.ERROR)
             }
         }
         delay(CALL_ENDED_HOME_DELAY_MILLIS)
@@ -95,13 +123,32 @@ class CallViewModel @Inject constructor(
     }
 
     private fun startSession() = intent {
-        if (!callSessionRepository.startSession()) {
+        val didStart = try {
+            callSessionRepository.startSession()
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
+        } catch (_: Throwable) {
+            false
+        }
+
+        if (!didStart) {
             reduce {
                 state.copy(phase = CallPhase.ERROR)
             }
             delay(CALL_ENDED_HOME_DELAY_MILLIS)
             postSideEffect(CallSideEffect.FinishCall)
+            return@intent
         }
+
+        callStartedAtMillis = SystemClock.elapsedRealtime()
+        reduce {
+            state.copy(
+                phase = CallPhase.READY,
+                durationSeconds = 0,
+                endedDurationSeconds = null,
+            )
+        }
+        startDurationTimer()
     }
 
     // 마이크 권한 요청 결과에 따른 처리
@@ -131,5 +178,31 @@ class CallViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun startDurationTimer() {
+        if (durationJob?.isActive == true) return
+
+        durationJob = viewModelScope.launch {
+            while (isActive) {
+                delay(DURATION_UPDATE_INTERVAL_MILLIS)
+                val durationSeconds = currentDurationSeconds()
+                intent {
+                    if (state.phase != CallPhase.READY) return@intent
+
+                    reduce {
+                        state.copy(durationSeconds = durationSeconds)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun currentDurationSeconds(): Int {
+        val startedAtMillis = callStartedAtMillis ?: return 0
+        return ((SystemClock.elapsedRealtime() - startedAtMillis) / 1000L)
+            .coerceAtLeast(0L)
+            .coerceAtMost(Int.MAX_VALUE.toLong())
+            .toInt()
     }
 }

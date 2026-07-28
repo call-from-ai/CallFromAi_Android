@@ -4,7 +4,17 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CallNavKey(
+data class CallIncomingNavKey(
+    val callId: Long,
     val characterId: Long,
-    val characterName: String,
 ) : NavKey
+
+@Serializable
+data class CallSendingNavKey(
+    val characterId: Long,
+) : NavKey
+
+data class IncomingCallInfo(
+    val callId: Long,
+    val characterId: Long,
+)

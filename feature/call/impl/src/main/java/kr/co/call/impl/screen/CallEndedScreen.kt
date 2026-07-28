@@ -38,7 +38,9 @@ fun CallEndedScreen(
             Spacer(modifier = Modifier.height(22.dp))
             CallHeader(direction = state.direction)
             Spacer(modifier = Modifier.height(13.dp))
-            CallDuration(durationSeconds = state.durationSeconds)
+            CallDuration(
+                durationSeconds = state.endedDurationSeconds ?: state.durationSeconds,
+            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = state.character.name,
@@ -48,7 +50,7 @@ fun CallEndedScreen(
             Spacer(modifier = Modifier.height(70.dp))
             Text(
                 text = if (state.phase == CallPhase.ERROR) {
-                    "통화를 종료했어요"
+                    "통화를 종료하지 못했어요"
                 } else {
                     "통화가 종료되었어요"
                 },
@@ -69,6 +71,7 @@ private fun CallEndedScreenPreview() {
                 direction = CallDirection.INCOMING,
                 phase = CallPhase.ENDED,
                 durationSeconds = 15 * 60 + 38,
+                endedDurationSeconds = 15 * 60 + 38,
             ),
         )
     }

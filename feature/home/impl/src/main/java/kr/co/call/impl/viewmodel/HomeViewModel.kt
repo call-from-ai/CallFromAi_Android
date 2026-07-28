@@ -137,7 +137,6 @@ class HomeViewModel @Inject constructor(
             postSideEffect(
                 HomeSideEffect.NavigateToCall(
                     characterId = confirmation.characterId,
-                    characterName = confirmation.characterName,
                 ),
             )
         } catch (cancellationException: CancellationException) {

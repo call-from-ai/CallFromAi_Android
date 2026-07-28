@@ -55,7 +55,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToCharacterOnboarding: () -> Unit = {},
-    onNavigateToCall: (Long, String) -> Unit = { _, _ -> },
+    onNavigateToCall: (Long) -> Unit = {},
     onNavigateToCallRecord: (Long) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
@@ -70,10 +70,7 @@ fun HomeScreen(
             }
 
             is HomeSideEffect.NavigateToCall -> {
-                onNavigateToCall(
-                    sideEffect.characterId,
-                    sideEffect.characterName,
-                )
+                onNavigateToCall(sideEffect.characterId)
             }
 
             is HomeSideEffect.NavigateToCallRecord -> {

@@ -8,7 +8,7 @@ import kr.co.call.impl.screen.CallRecordScreen
 import kr.co.call.impl.screen.HomeScreen
 
 fun EntryProviderScope<NavKey>.homeEntry(
-    navigateToCall: (Long, String) -> Unit,
+    navigateToCall: (Long) -> Unit,
     navigateToCallRecord: (Long) -> Unit,
     onCallRecordBack: () -> Unit,
 ) {

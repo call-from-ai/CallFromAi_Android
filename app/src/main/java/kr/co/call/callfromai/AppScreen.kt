@@ -27,7 +27,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import kr.co.call.api.CallNavKey
+import kr.co.call.api.CallSendingNavKey
 import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
@@ -119,11 +119,10 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     loginEntry()
                     onboardingEntry()
                     homeEntry(
-                        navigateToCall = { characterId, characterName ->
+                        navigateToCall = { characterId ->
                             appNavigator.navigate(
-                                CallNavKey(
+                                CallSendingNavKey(
                                     characterId = characterId,
-                                    characterName = characterName,
                                 ),
                             )
                         },

@@ -46,8 +46,9 @@ import org.orbitmvi.orbit.compose.collectSideEffect
  */
 @Composable
 fun CallIncomingScreen(
-    callId: String,
-    onNavigateToCall: (String) -> Unit,
+    callId: Long,
+    characterId: Long,
+    onNavigateToCall: (Long, Long) -> Unit,
     onFinished: () -> Unit,
     modifier: Modifier = Modifier,
     onShowMessage: (String) -> Unit = {},
@@ -63,8 +64,13 @@ fun CallIncomingScreen(
         },
     )
 
-    LaunchedEffect(callId) {
-        viewModel.handleIntent(CallIncomingIntent.Initialize(callId))
+    LaunchedEffect(callId, characterId) {
+        viewModel.handleIntent(
+            CallIncomingIntent.Initialize(
+                callId = callId,
+                characterId = characterId,
+            ),
+        )
     }
 
     viewModel.collectSideEffect { sideEffect ->
@@ -74,7 +80,10 @@ fun CallIncomingScreen(
             }
 
             is CallIncomingSideEffect.NavigateToCall -> {
-                onNavigateToCall(sideEffect.callId)
+                onNavigateToCall(
+                    sideEffect.callId,
+                    sideEffect.characterId,
+                )
             }
 
             CallIncomingSideEffect.Finish -> onFinished()

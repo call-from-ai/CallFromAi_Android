@@ -47,8 +47,9 @@ import org.orbitmvi.orbit.compose.collectSideEffect
  */
 @Composable
 fun CallScreen(
+    callId: Long,
     characterId: Long,
-    characterName: String,
+    direction: CallDirection,
     onCallFinished: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CallViewModel = hiltViewModel(),
@@ -64,11 +65,12 @@ fun CallScreen(
         },
     )
 
-    LaunchedEffect(characterId, characterName) {
+    LaunchedEffect(callId, characterId, direction) {
         viewModel.handleIntent(
             CallIntent.Initialize(
+                callId = callId,
                 characterId = characterId,
-                characterName = characterName,
+                direction = direction,
             ),
         )
     }

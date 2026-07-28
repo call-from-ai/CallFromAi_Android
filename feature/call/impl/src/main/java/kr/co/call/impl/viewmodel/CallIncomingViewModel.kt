@@ -23,7 +23,10 @@ class CallIncomingViewModel @Inject constructor(
 
     fun handleIntent(intent: CallIncomingIntent) {
         when (intent) {
-            is CallIncomingIntent.Initialize -> initialize(intent.callId)
+            is CallIncomingIntent.Initialize -> initialize(
+                callId = intent.callId,
+                characterId = intent.characterId,
+            )
             CallIncomingIntent.AcceptCall -> requestMicrophonePermission()
             is CallIncomingIntent.MicrophonePermissionResult -> {
                 handleMicrophonePermissionResult(intent.isGranted)
@@ -32,11 +35,19 @@ class CallIncomingViewModel @Inject constructor(
         }
     }
 
-    private fun initialize(callId: String) = intent {
-        if (state.callId.isNotBlank()) return@intent
+    private fun initialize(
+        callId: Long,
+        characterId: Long,
+    ) = intent {
+        if (state.callId == callId && state.characterId == characterId) {
+            return@intent
+        }
 
         reduce {
-            state.copy(callId = callId)
+            state.copy(
+                callId = callId,
+                characterId = characterId,
+            )
         }
     }
 
@@ -44,7 +55,7 @@ class CallIncomingViewModel @Inject constructor(
         if (state.loadStatus == LoadStatus.Loading) return@intent
 
         val callId = state.callId
-        if (callId.isBlank()) {
+        if (callId <= 0L) {
             postSideEffect(
                 CallIncomingSideEffect.ShowMessage("통화 정보를 확인할 수 없습니다."),
             )
@@ -78,7 +89,7 @@ class CallIncomingViewModel @Inject constructor(
 
     private fun acceptCall() = intent {
         val callId = state.callId
-        if (callId.isBlank()) {
+        if (callId <= 0L) {
             reduce {
                 state.copy(loadStatus = LoadStatus.Idle)
             }
@@ -91,7 +102,10 @@ class CallIncomingViewModel @Inject constructor(
                 state.copy(loadStatus = LoadStatus.Idle)
             }
             postSideEffect(
-                CallIncomingSideEffect.NavigateToCall(callId),
+                CallIncomingSideEffect.NavigateToCall(
+                    callId = callId,
+                    characterId = state.characterId,
+                ),
             )
         } catch (cancellationException: CancellationException) {
             throw cancellationException
@@ -110,7 +124,7 @@ class CallIncomingViewModel @Inject constructor(
         if (state.loadStatus == LoadStatus.Loading) return@intent
 
         val callId = state.callId
-        if (callId.isBlank()) {
+        if (callId <= 0L) {
             postSideEffect(
                 CallIncomingSideEffect.ShowMessage("통화 정보를 확인할 수 없습니다."),
             )

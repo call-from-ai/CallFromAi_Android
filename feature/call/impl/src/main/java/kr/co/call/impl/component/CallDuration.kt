@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -42,7 +43,7 @@ private fun Int.toCallDuration(): String {
     val safeSeconds = coerceAtLeast(0)
     val minutes = safeSeconds / 60
     val seconds = safeSeconds % 60
-    return "%02d:%02d".format(minutes, seconds)
+    return String.format(Locale.US, "%02d:%02d", minutes, seconds)
 }
 
 @Preview(showBackground = true)

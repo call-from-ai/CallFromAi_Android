@@ -1,9 +1,12 @@
 package kr.co.call.impl.viewmodel
 
+import kr.co.call.impl.viewmodel.model.CallDirection
+
 sealed interface CallIntent {
     data class Initialize(
+        val callId: Long,
         val characterId: Long,
-        val characterName: String,
+        val direction: CallDirection,
     ) : CallIntent
 
     data class MicrophonePermissionResult(

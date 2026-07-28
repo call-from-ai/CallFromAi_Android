@@ -2,7 +2,8 @@ package kr.co.call.impl.viewmodel
 
 sealed interface CallIncomingIntent {
     data class Initialize(
-        val callId: String,
+        val callId: Long,
+        val characterId: Long,
     ) : CallIncomingIntent
 
     data object AcceptCall : CallIncomingIntent
