@@ -1,6 +1,11 @@
 package kr.co.call.impl.component.history
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,11 +14,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -74,11 +82,34 @@ private fun CallHistoryCard(
 ) {
     // Missed type
     val isMissed = callHistory.iconType == CallHistoryIconType.MISSED
+    val cardInteractionSource = remember { MutableInteractionSource() }
+    val isCardPressed by cardInteractionSource.collectIsPressedAsState()
+    val recordButtonInteractionSource = remember { MutableInteractionSource() }
+    val isRecordButtonPressed by recordButtonInteractionSource.collectIsPressedAsState()
 
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(if (isMissed) 70.dp else 90.dp),
+            .height(if (isMissed) 70.dp else 90.dp)
+            .background(
+                color = if (isCardPressed) {
+                    CallTheme.colors.mainVariant2
+                } else {
+                    CallTheme.colors.background
+                },
+            )
+            .then(
+                if (isMissed) {
+                    Modifier
+                } else {
+                    Modifier.clickable(
+                        interactionSource = cardInteractionSource,
+                        indication = null,
+                        onClickLabel = "통화 기록 보기",
+                        onClick = onRecordClick,
+                    )
+                },
+            ),
     ) {
         CallHistoryIcon(
             iconType = callHistory.iconType,
@@ -130,14 +161,28 @@ private fun CallHistoryCard(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 32.dp)
-                    .size(42.dp),
+                    .size(42.dp)
+                    .background(
+                        color = if (isRecordButtonPressed) {
+                            CallTheme.colors.mainVariant2
+                        } else {
+                            CallTheme.colors.background
+                        },
+                        shape = CircleShape,
+                    )
+                    .border(
+                        width = 1.dp,
+                        color = CallTheme.colors.mainVariant2,
+                        shape = CircleShape,
+                    ),
+                interactionSource = recordButtonInteractionSource,
             ) {
                 Icon(
                     painter = painterResource(
-                        id = R.drawable.ic_home_record,
+                        id = R.drawable.ic_home_call_record_view,
                     ),
                     contentDescription = "통화 기록 보기",
-                    modifier = Modifier.size(42.dp),
+                    modifier = Modifier.size(24.dp),
                     tint = Color.Unspecified,
                 )
             }
