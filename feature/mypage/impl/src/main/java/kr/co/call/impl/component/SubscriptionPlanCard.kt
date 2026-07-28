@@ -101,7 +101,7 @@ fun SubscriptionPlanCard(
                 // 플랜 가격
                 Text(
                     text = plan.priceLabel,
-                    style = if (isCurrent) {
+                    style = if (isSelected) {
                         CallTheme.typography.bodyMediumBold.copy(
                             brush = CallTheme.colors.chatGradient
                         )
