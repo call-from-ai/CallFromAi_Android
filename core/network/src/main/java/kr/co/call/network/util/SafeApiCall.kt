@@ -25,13 +25,7 @@ suspend fun <T : Any> safeApiCall(
 ): T {
     return try {
         val response = call()
-        if (!response.isSuccess) {
-            throw ApiException(
-                httpCode = null,
-                serverCode = response.code,
-                message = response.message,
-            )
-        }
+        response.throwIfNotSuccess()
         response.result
             ?: throw ApiException(
                 httpCode = null,
@@ -56,13 +50,7 @@ suspend fun safeApiCallUnit(
 ) {
     try {
         val response = call()
-        if (!response.isSuccess) {
-            throw ApiException(
-                httpCode = null,
-                serverCode = response.code,
-                message = response.message,
-            )
-        }
+        response.throwIfNotSuccess()
     } catch (e: CancellationException) {
         throw e
     } catch (e: ApiException) {
@@ -72,7 +60,7 @@ suspend fun safeApiCallUnit(
     }
 }
 
-private fun HttpException.toApiException(parser: ErrorResponseParser): ApiException {
+private suspend fun HttpException.toApiException(parser: ErrorResponseParser): ApiException {
     val body = parser.parse(this)
     return ApiException(
         httpCode = code(),
@@ -80,4 +68,15 @@ private fun HttpException.toApiException(parser: ErrorResponseParser): ApiExcept
         message = body?.message ?: message(),
         cause = this,
     )
+}
+
+
+private fun ApiResponse<*>.throwIfNotSuccess() {
+    if (!isSuccess) {
+        throw ApiException(
+            httpCode = null,
+            serverCode = code,
+            message = message.ifBlank { "요청을 처리하지 못했습니다." },
+        )
+    }
 }

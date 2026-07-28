@@ -1,6 +1,8 @@
 package kr.co.call.network.util
 
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 import kr.co.call.network.dto.ErrorBodyDto
@@ -16,11 +18,12 @@ class ErrorResponseParser @Inject constructor(
     private val gson: Gson,
 ) {
 
-    fun parse(httpException: HttpException): ErrorBodyDto? {
-        return runCatching {
-            val raw = httpException.response()?.errorBody()?.string()
-            if (raw.isNullOrBlank()) return null
-            gson.fromJson(raw, ErrorBodyDto::class.java)
-        }.getOrNull()
-    }
+    suspend fun parse(httpException: HttpException): ErrorBodyDto? =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val raw = httpException.response()?.errorBody()?.string()
+                if (raw.isNullOrBlank()) return@runCatching null
+                gson.fromJson(raw, ErrorBodyDto::class.java)
+            }.getOrNull()
+        }
 }
