@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,12 +34,17 @@ fun ComingSoonScreen(
 ) {
     Dialog(
         onDismissRequest = onBackClick,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .background(CallTheme.colors.background),
+                .background(CallTheme.colors.white)
+                .statusBarsPadding()
+                .navigationBarsPadding(),
         ) {
             // 상단 앱 바
             CommonTopAppBar(onBackClick = onBackClick)
