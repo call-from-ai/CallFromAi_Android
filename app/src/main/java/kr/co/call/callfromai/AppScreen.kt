@@ -110,7 +110,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
         contentWindowInsets = WindowInsets.safeDrawing.only(
             WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
         ).exclude(WindowInsets.ime),
-
         ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
