@@ -77,10 +77,23 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
         }
     }
 
+    //
     fun updatePreferTime(preferTime: PreferTime
     )=intent {
         reduce {
             state.copy(preferTime = preferTime)
+        }
+    }
+
+    //
+    fun onCreateAiSuccess(name: String
+    ) = intent {
+        reduce {
+            state.copy(
+                aiFirstName = name,
+                isCreatingAi = false,
+                createAiError = null,
+            )
         }
     }
 }

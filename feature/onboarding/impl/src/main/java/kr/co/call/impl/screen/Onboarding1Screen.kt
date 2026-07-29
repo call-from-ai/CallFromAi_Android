@@ -63,7 +63,7 @@ fun Onboarding1Screen (
         mutableStateOf("")
     }
     var birthday by remember {
-        mutableStateOf(LocalDate.of(2000, 1, 1))
+        mutableStateOf<LocalDate?>(null)
     }
     var job by rememberSaveable {
         mutableStateOf("")
@@ -79,7 +79,10 @@ fun Onboarding1Screen (
         mutableStateOf("")
     }
     val canMoveNext =
-        lastName.isNotBlank() && firstName.isNotBlank() && job.isNotBlank()
+        lastName.isNotBlank() &&
+            firstName.isNotBlank() &&
+            birthday != null &&
+            job.isNotBlank()
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -189,13 +192,15 @@ fun Onboarding1Screen (
                     text = "다음",
                     enabled = canMoveNext,
                     onClick = {
-                        onNextClick(
-                            lastName,
-                            firstName,
-                            birthday,
-                            job,
-                            mbti,
-                        )
+                        birthday?.let { selectedBirthday ->
+                            onNextClick(
+                                lastName,
+                                firstName,
+                                selectedBirthday,
+                                job,
+                                mbti,
+                            )
+                        }
                     },
                 )
             }

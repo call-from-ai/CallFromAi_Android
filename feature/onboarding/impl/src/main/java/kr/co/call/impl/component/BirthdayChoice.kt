@@ -37,7 +37,7 @@ import androidx.compose.runtime.getValue
 
 @Composable
 fun BirthdayChoice(
-    selectedDate: LocalDate,
+    selectedDate: LocalDate?,
     onDateSelected: (LocalDate)->Unit,
     modifier: Modifier =Modifier,
 ){
@@ -80,8 +80,9 @@ fun BirthdayChoice(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ){
                 Text(
-                    text=selectedDate.toDisplayText(),
-                    color= Gray900,
+                    text = selectedDate?.toDisplayText()
+                        ?: "생년월일을 입력해주세요",
+                    color = if (selectedDate == null) Gray600 else Gray900,
                     style = CallTheme.typography.bodyMediumMedium,
                 )
 
@@ -99,7 +100,7 @@ fun BirthdayChoice(
 
     if (showBottomWheel) {
         BottomWheel(
-            selectedDate = selectedDate,
+            selectedDate = selectedDate ?: LocalDate.now(),
             onConfirmClick = { newDate ->
                 onDateSelected(newDate)
                 showBottomWheel = false
@@ -123,7 +124,7 @@ private fun LocalDate.toDisplayText(): String {
 private fun BirthdayChoicePreview() {
     CallFromAiTheme {
         BirthdayChoice(
-            selectedDate = LocalDate.of(2000, 1, 1),
+            selectedDate = null,
             onDateSelected = {},
             modifier = Modifier
                 .fillMaxWidth()

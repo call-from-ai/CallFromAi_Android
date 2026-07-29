@@ -31,4 +31,7 @@ data class OnboardingUiState(
 
     //5단계
     val preferTime: PreferTime? = null,
+    
+    val isCreatingAi: Boolean=false,
+    val createAiError: String?=null,
 )

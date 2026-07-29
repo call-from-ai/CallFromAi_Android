@@ -72,8 +72,8 @@ fun Onboarding4Screen(
                     end = 27.dp,
                     top = 20.dp,
                 ),
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
                 maxItemsInEachRow = 3,
             ) {
                 Trait.entries.forEach { trait ->
