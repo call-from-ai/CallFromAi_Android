@@ -33,19 +33,10 @@ import kr.co.call.impl.component.RelationshipChoiceCard
 import kr.co.call.impl.component.SpeechChoice
 import kr.co.call.impl.component.TempControl
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.model.Relationship
+import kr.co.call.impl.viewmodel.model.SpeechStyle
 import kr.co.call.onboarding.impl.R
 
-enum class SpeechStyle{
-    CASUAL,
-    SEMI_FORMAL,
-    FORMAL
-}
-
-enum class Relationship{
-    SOME,
-    EARLY_DATING,
-    LONG_TERM
-}
 
 @Composable
 fun Onboarding3Screen(

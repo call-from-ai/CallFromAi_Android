@@ -3,8 +3,8 @@ package kr.co.call.impl.viewmodel
 import androidx.compose.runtime.Composable
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.Trait
-import kr.co.call.impl.screen.Relationship
-import kr.co.call.impl.screen.SpeechStyle
+import kr.co.call.impl.viewmodel.model.Relationship
+import kr.co.call.impl.viewmodel.model.SpeechStyle
 import java.time.LocalDate
 
 data class OnboardingUiState(
@@ -32,7 +32,7 @@ data class OnboardingUiState(
 
     //5단계
     val preferTime: PreferTime? = null,
-    
+
     val isCreatingAi: Boolean=false,
     val createAiError: String?=null,
 )

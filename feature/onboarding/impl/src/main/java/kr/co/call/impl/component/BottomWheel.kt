@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,16 +19,19 @@ import kr.co.call.designsystem.theme.CallTheme
 import java.time.LocalDate
 import java.time.YearMonth
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.filter
 import kr.co.call.designsystem.component.bottomsheet.ConfirmBottomSheet
 import kr.co.call.designsystem.component.picker.WheelPicker
 import kr.co.call.designsystem.theme.CallFromAiTheme
 
 @Composable
 fun BottomWheel(
-    selectedDate: LocalDate,
-    onConfirmClick: (LocalDate) -> Unit,
+    selectedDate: LocalDate?,
+    onConfirmClick: (LocalDate?) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ){
@@ -35,28 +39,63 @@ fun BottomWheel(
         (1900..LocalDate.now().year).toList()
     }
 
+    val initialDate = selectedDate ?: LocalDate.now()
+
     var draftDate by remember(selectedDate) {
-        mutableStateOf(selectedDate)
+        mutableStateOf(initialDate)
     }
 
     val yearState = rememberLazyListState(
         initialFirstVisibleItemIndex = years
-            .indexOf(selectedDate.year)
+            .indexOf(initialDate.year)
             .coerceAtLeast(0),
     )
     val monthState = rememberLazyListState(
-        initialFirstVisibleItemIndex = selectedDate.monthValue - 1,
+        initialFirstVisibleItemIndex = initialDate.monthValue - 1,
     )
     val dayState = rememberLazyListState(
-        initialFirstVisibleItemIndex = selectedDate.dayOfMonth - 1,
+        initialFirstVisibleItemIndex = initialDate.dayOfMonth - 1,
     )
+    //사용자가 휠 움직였는지 기록
+    var hasUserChangedDate by rememberSaveable {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(yearState) {
+        snapshotFlow { yearState.isScrollInProgress }
+            .filter { it }
+            .collect {
+                hasUserChangedDate = true
+            }
+    }
+
+    LaunchedEffect(monthState) {
+        snapshotFlow { monthState.isScrollInProgress }
+            .filter { it }
+            .collect {
+                hasUserChangedDate = true
+            }
+    }
+
+    LaunchedEffect(dayState) {
+        snapshotFlow { dayState.isScrollInProgress }
+            .filter { it }
+            .collect {
+                hasUserChangedDate = true
+            }
+    }
+
 
     ConfirmBottomSheet(
         title = "생년월일 선택",
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         onConfirmClick = {
-            onConfirmClick(draftDate)
+            val confirmedDate = when {
+                selectedDate != null -> draftDate
+                hasUserChangedDate -> draftDate
+                else -> null
+            }
+            onConfirmClick(confirmedDate)
         },
     ) {
         Box(

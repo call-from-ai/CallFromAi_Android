@@ -4,8 +4,8 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.Trait
-import kr.co.call.impl.screen.Relationship
-import kr.co.call.impl.screen.SpeechStyle
+import kr.co.call.impl.viewmodel.model.Relationship
+import kr.co.call.impl.viewmodel.model.SpeechStyle
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.time.LocalDate

@@ -100,9 +100,11 @@ fun BirthdayChoice(
 
     if (showBottomWheel) {
         BottomWheel(
-            selectedDate = selectedDate ?: LocalDate.now(),
+            selectedDate = selectedDate,
             onConfirmClick = { newDate ->
-                onDateSelected(newDate)
+                if(newDate != null) {
+                    onDateSelected(newDate)
+                }
                 showBottomWheel = false
             },
             onDismissRequest = {

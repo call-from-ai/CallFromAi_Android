@@ -38,6 +38,8 @@ import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.model.Mbti
+import kr.co.call.impl.viewmodel.state.Onboarding1State
 
 private enum class EditingNameField {
     LAST_NAME,
@@ -46,13 +48,7 @@ private enum class EditingNameField {
 @Composable
 fun Onboarding1Screen (
     onProfileClick:()->Unit,
-    onNextClick: (
-        lastName: String,
-        firstName: String,
-        birthday: LocalDate,
-        job: String,
-        mbti: String,
-            )->Unit,
+    onNextClick: (Onboarding1State)->Unit,
     modifier: Modifier =Modifier,
     profileImageURl: String?=null,
 ) {
@@ -166,12 +162,7 @@ fun Onboarding1Screen (
                     label = "MBTI",
                     selectedOption = mbti,
                     placeholder = "MBTI를 선택해주세요",
-                    options = listOf(
-                        "INFP", "INFJ", "ENFP", "ENFJ",
-                        "INTP", "INTJ", "ENTP", "ENTJ",
-                        "ISFP", "ISFJ", "ESFP", "ESFJ",
-                        "ISTP", "ISTJ", "ESTP", "ESTJ",
-                    ),
+                    options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
                 )
             }
@@ -194,11 +185,13 @@ fun Onboarding1Screen (
                     onClick = {
                         birthday?.let { selectedBirthday ->
                             onNextClick(
-                                lastName,
-                                firstName,
-                                selectedBirthday,
-                                job,
-                                mbti,
+                                Onboarding1State(
+                                    lastName=lastName,
+                                    firstName=firstName,
+                                    birthday=selectedBirthday,
+                                    job=job,
+                                    mbti=mbti,
+                                )
                             )
                         }
                     },
@@ -255,22 +248,4 @@ fun Onboarding1Screen (
         )
     }
 }
-}
-
-@Preview(
-    name = "Onboarding 1 Screen",
-    showBackground = true,
-    backgroundColor = 0xFFFFFFFF,
-)
-@Composable
-private fun Onboarding1ScreenPreview() {
-    CallFromAiTheme {
-        Onboarding1Screen(
-            onProfileClick = {},
-            onNextClick = { lastName, firstName, birthday, job, mbti ->
-                // Preview에서는 동작하지 않음
-            },
-            profileImageURl = null,
-        )
-    }
 }

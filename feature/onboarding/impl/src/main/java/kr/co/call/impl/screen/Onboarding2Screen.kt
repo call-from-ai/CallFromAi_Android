@@ -40,6 +40,8 @@ import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.model.Mbti
+import kr.co.call.impl.viewmodel.state.Onboarding2State
 
 
 private enum class Onboarding2EditingNameField {
@@ -50,13 +52,7 @@ private enum class Onboarding2EditingNameField {
 fun Onboarding2Screen(
     onBackClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onNextClick: (
-        age: String,
-        lastName: String,
-        firstName: String,
-        job: String,
-        mbti: String,
-    ) -> Unit,
+    onNextClick: (Onboarding2State) -> Unit,
     modifier: Modifier = Modifier,
     profileImageUrl: String? = null,
 ) {
@@ -169,12 +165,7 @@ fun Onboarding2Screen(
                     label = "MBTI",
                     selectedOption = mbti,
                     placeholder = "MBTI를 선택해주세요",
-                    options = listOf(
-                        "INFP", "INFJ", "ENFP", "ENFJ",
-                        "INTP", "INTJ", "ENTP", "ENTJ",
-                        "ISFP", "ISFJ", "ESFP", "ESFJ",
-                        "ISTP", "ISTJ", "ESTP", "ESTJ",
-                    ),
+                    options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
                 )
             }
@@ -201,11 +192,13 @@ fun Onboarding2Screen(
                     enabled = canMoveNext,
                     onClick = {
                         onNextClick(
-                            age,
-                            lastName,
-                            firstName,
-                            job,
-                            mbti,
+                            Onboarding2State(
+                                age=age,
+                                lastName=lastName,
+                                firstName=firstName,
+                                job=job,
+                                mbti=mbti,
+                            )
                         )
                     },
                 )
@@ -252,22 +245,5 @@ fun Onboarding2Screen(
                     .padding(horizontal = 16.dp, vertical = 13.dp),
             )
         }
-    }
-}
-
-@Preview(
-    name = "Onboarding 2 Screen",
-    showBackground = true,
-    widthDp = 393,
-    heightDp = 852,
-)
-@Composable
-private fun Onboarding2ScreenPreview() {
-    CallFromAiTheme {
-        Onboarding2Screen(
-            onBackClick = {},
-            onProfileClick = {},
-            onNextClick = { _, _, _, _, _ -> },
-        )
     }
 }

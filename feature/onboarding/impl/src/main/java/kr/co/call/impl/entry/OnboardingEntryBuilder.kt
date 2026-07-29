@@ -36,13 +36,13 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     entry<Onboarding1NavKey> {
         Onboarding1Screen(
             onProfileClick = onProfileClick,
-            onNextClick = { lastName, firstName, birthday, job, mbti ->
+            onNextClick = {state ->
                 onboardingViewModel.updateUserProfile(
-                    lastName = lastName,
-                    firstName = firstName,
-                    birthday = birthday,
-                    job = job,
-                    mbti = mbti,
+                    lastName = state.lastName,
+                    firstName = state.firstName,
+                    birthday = state.birthday,
+                    job = state.job,
+                    mbti = state.mbti,
                 )
                 onOnboarding1Next()
             },
@@ -53,13 +53,13 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         Onboarding2Screen(
             onBackClick = onBackFromOnboarding2,
             onProfileClick = onProfileClick,
-            onNextClick ={ age, lastName, firstName, job, mbti ->
+            onNextClick ={ state ->
                 onboardingViewModel.updateAiProfile(
-                    age = age,
-                    lastName = lastName,
-                    firstName = firstName,
-                    job = job,
-                    mbti = mbti,
+                    age = state.age,
+                    lastName = state.lastName,
+                    firstName = state.firstName,
+                    job = state.job,
+                    mbti = state.mbti,
                 )
 
                 onOnboarding2Next()
