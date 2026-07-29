@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -55,7 +53,6 @@ import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
-import kr.co.call.callfromai.util.toMainTab
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -128,6 +125,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     loginEntry(
                         navigateToLogin={
                             appNavigator.navigate(LoginNavKey)
+                        },
+                        navigateToOnboarding = {
+                            appNavigator.navigate(OnboardingNavKey)
                         },
                         navigateToHome = {
                             appNavigator.navigate(HomeNavKey)

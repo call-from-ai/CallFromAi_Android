@@ -1,7 +1,8 @@
 package kr.co.call.network.api
 
+import kr.co.call.network.dto.ApiResponse
+import kr.co.call.network.dto.login.LoginTokenResult
 import kr.co.call.network.dto.login.TokenReissueRequestDto
-import kr.co.call.network.dto.login.TokenReissueResponseDto
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -14,5 +15,5 @@ interface TokenReissueApi {
     @POST("auth/reissue")
     suspend fun reissue(
         @Body request: TokenReissueRequestDto,
-    ): Response<TokenReissueResponseDto>
+    ): Response<ApiResponse<LoginTokenResult>>
 }

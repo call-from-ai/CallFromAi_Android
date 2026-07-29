@@ -37,15 +37,23 @@ class LoginViewModel @Inject constructor(
             loginRepository.loginWithKakao(
                 kakaoAccessToken = kakaoAccessToken,
             )
-        .onSuccess {
+        .onSuccess { loginToken ->
             //로그인 요청 성공
             reduce {
                 LoadStatus.Idle
             }
 
-            postSideEffect(
-                LoginSideEffect.NavigateToNext,
-            )
+            val sideEffect=
+                when {
+                    loginToken.needsTermsAgreement ->
+                        LoginSideEffect.NavigateToAgreement
+                    loginToken.needsOnboarding ->
+                        LoginSideEffect.NavigateToOnboarding
+
+                    else ->
+                        LoginSideEffect.NavigateToHome
+                }
+            postSideEffect(sideEffect)
         }.onFailure { error ->
             val message=error.message ?:"로그인에 실패했습니다."
             reduce { LoadStatus.Error(message)}

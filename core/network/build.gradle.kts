@@ -13,11 +13,18 @@ val localProperties = Properties().apply {
     }
 }
 
+val baseUrl=localProperties.getProperty("BASE_URL")
+    ?: error("BASE_URL가 local.properties에 없습니다.")
+
 android {
     namespace = "kr.co.call.network"
 
     defaultConfig {
-        //TODO: baseUrl 불러오기
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"$baseUrl\"",
+        )
     }
 
     buildFeatures {

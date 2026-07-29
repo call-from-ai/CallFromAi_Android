@@ -102,7 +102,7 @@ object NetworkModule {
         okHttpClient: OkHttpClient,
     ): Retrofit{
         return Retrofit.Builder()
-            .baseUrl("https://api.lovecall.example.com/api/v1/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(gsonConverterFactory)
             .build()
@@ -128,7 +128,7 @@ object NetworkModule {
         reissueOkHttpClient: OkHttpClient,
     ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://api.lovecall.example.com/api/v1/")
+            .baseUrl(BuildConfig.BASE_URL)
             .client(reissueOkHttpClient)
             .addConverterFactory(gsonConverterFactory)
             .build()

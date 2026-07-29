@@ -8,13 +8,6 @@ data class TermDto(
     val isRequired: Boolean,
 )
 
-data class GetTermsResponseDto(
-    val isSuccess: Boolean,
-    val code: String,
-    val message: String,
-    val result: List<TermDto>?,
-)
-
 data class AgreeTermsRequestDto(
     val agreements: List<TermAgreementDto>,
 )
@@ -22,10 +15,4 @@ data class AgreeTermsRequestDto(
 data class TermAgreementDto(
     val termId:Long,
     val isAgreed: Boolean
-)
-
-data class AgreeTermsResponseDto(
-    val isSuccess:Boolean,
-    val code: String,
-    val message: String,
 )

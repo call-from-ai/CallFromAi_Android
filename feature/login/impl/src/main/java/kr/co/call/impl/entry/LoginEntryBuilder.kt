@@ -38,6 +38,7 @@ fun EntryProviderScope<NavKey>.loginEntry(
     navigateToAgreementDetail:(AgreementTerm)->Unit,
     navigateAfterAgreement:()->Unit,
     onBack: ()->Unit,
+    navigateToOnboarding: ()->Unit,
 ) {
     entry<LandingNavKey> {
         val landingViewModel=hiltViewModel<LandingViewModel>()
@@ -71,14 +72,20 @@ fun EntryProviderScope<NavKey>.loginEntry(
          */
         loginViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
-                LoginSideEffect.NavigateToNext -> {
+                LoginSideEffect.NavigateToAgreement -> {
                     navigateToAgreement()
+                }
+                LoginSideEffect.NavigateToOnboarding ->{
+                    navigateToOnboarding()
+                }
+                LoginSideEffect.NavigateToHome -> {
+                    navigateToHome()
                 }
 
                 is LoginSideEffect.ShowError -> {
                     Toast.makeText(
                         context,
-                        "로그인에 실패했습니다.",
+                        "서버 로그인 실패: ${sideEffect.message}",
                         Toast.LENGTH_SHORT,
                     ).show()
                     Timber.e("서버 로그인 실패: ${sideEffect.message}")

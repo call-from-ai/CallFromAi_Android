@@ -105,7 +105,6 @@ class TokenAuthenticator @Inject constructor(
                 val reissueResponse = try {
                     tokenReissueApi.reissue(
                         request = TokenReissueRequestDto(
-                            accessToken = currentAccessToken,
                             refreshToken = currentRefreshToken,
                         ),
                     )
@@ -244,8 +243,8 @@ class TokenAuthenticator @Inject constructor(
          * encodedPath의 전체 경로도 /api/v1/부터 작성한다.
          */
         val AUTH_FREE_PATHS = setOf(
-            "/api/v1/auth/kakao",
-            "/api/v1/auth/reissue",
+            "/auth/kakao",
+            "/auth/reissue",
         )
     }
 }
