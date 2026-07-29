@@ -3,7 +3,7 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.domain.repository.LoginRepository
-import kr.co.call.impl.viewmodel.state.LoginState
+import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.ContainerHost
 import javax.inject.Inject
 import org.orbitmvi.orbit.viewmodel.container
@@ -16,10 +16,10 @@ import org.orbitmvi.orbit.viewmodel.container
 class LoginViewModel @Inject constructor(
     private val loginRepository: LoginRepository,
 ): ViewModel(),
-    ContainerHost<LoginState, LoginSideEffect> {
+    ContainerHost<LoadStatus, LoginSideEffect> {
     override val container =
-        container<LoginState, LoginSideEffect>(
-            initialState = LoginState(),
+        container<LoadStatus, LoginSideEffect>(
+            initialState = LoadStatus.Idle,
         )
 
     /**
@@ -31,40 +31,28 @@ class LoginViewModel @Inject constructor(
     ) = intent {
         // 로그인 요청이 시작됐음을 UI 상태에 반영
         reduce {
-            state.copy(
-                isLoading = true,
-            )
+            LoadStatus.Loading
         }
 
             loginRepository.loginWithKakao(
                 kakaoAccessToken = kakaoAccessToken,
             )
         .onSuccess {
-            // 서버 로그인과 토큰 저장이 완료된 상태
+            //로그인 요청 성공
             reduce {
-                state.copy(
-                    isLoading = false,
-                )
+                LoadStatus.Idle
             }
 
-            // 로그인 성공 후 약관 화면으로 이동하도록 Entry에 전달
             postSideEffect(
                 LoginSideEffect.NavigateToNext,
             )
         }.onFailure { error ->
-            // 로그인 요청 실패 시 로딩 상태를 종료
-            reduce {
-                state.copy(
-                    isLoading = false,
-                )
-            }
+            val message=error.message ?:"로그인에 실패했습니다."
+            reduce { LoadStatus.Error(message)}
 
             // 서버 또는 카카오 로그인 오류 메시지를 화면에 전달
             postSideEffect(
-                LoginSideEffect.ShowError(
-                    message = error.message
-                        ?: "로그인 실패",
-                ),
+                LoginSideEffect.ShowError(message),
             )
         }
     }

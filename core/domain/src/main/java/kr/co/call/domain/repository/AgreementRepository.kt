@@ -1,6 +1,7 @@
 package kr.co.call.domain.repository
 
 import kr.co.call.domain.model.login.AgreementTerm
+import kr.co.call.domain.model.login.TermAgreement
 
 /**
  * 약관 목록 조회와 약관 동의 요청을 담당하는 Repository입니다.
@@ -9,6 +10,6 @@ import kr.co.call.domain.model.login.AgreementTerm
 interface AgreementRepository {
     suspend fun getTerms(): Result<List<AgreementTerm>>
     suspend fun agreeTerms(
-        agreements: Map<Long, Boolean>
+        agreements: List<TermAgreement>,
     ): Result<Unit>
 }

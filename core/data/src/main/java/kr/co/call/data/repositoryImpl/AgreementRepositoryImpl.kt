@@ -3,6 +3,7 @@ package kr.co.call.data.repositoryImpl
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.model.login.AgreementTerm
+import kr.co.call.domain.model.login.TermAgreement
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.dto.login.AgreeTermsRequestDto
@@ -63,15 +64,15 @@ class AgreementRepositoryImpl @Inject constructor(
      * 사용자가 선택한 약관별 동의 여부를 서버에 전달합니다.
      */
     override suspend fun agreeTerms(
-        agreements: Map<Long, Boolean>,
+        agreements: List<TermAgreement>,
     ): Result<Unit> {
         return try {
             val response = agreementApi.agreeTerms(
                 request = AgreeTermsRequestDto(
-                    agreements = agreements.map { (termId, isAgreed) ->
+                    agreements = agreements.map { agreement ->
                         TermAgreementDto(
-                            termId = termId,
-                            isAgreed = isAgreed,
+                            termId = agreement.termId,
+                            isAgreed = agreement.isAgreed,
                         )
                     },
                 ),

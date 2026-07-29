@@ -12,7 +12,13 @@ val localProperties = Properties().apply {
 
 val kakaoNativeAppKey =
     localProperties.getProperty("KAKAO_NATIVE_APP_KEY")
-        ?: error("local.properties에 KAKAO_NATIVE_APP_KEY가 없음")
+        ?:  throw GradleException(
+            """
+            local.properties에 KAKAO_NATIVE_APP_KEY가 없습니다.
+            local.properties에 다음을 추가해주세요.
+            KAKAO_NATIVE_APP_KEY= xxxx
+            """.trimIndent()
+        )
 
 android {
     namespace = "kr.co.call.callfromai"
