@@ -1,5 +1,6 @@
 package kr.co.call.impl.viewmodel
 
+import androidx.compose.runtime.Composable
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.component.Trait
 import kr.co.call.impl.screen.Relationship
