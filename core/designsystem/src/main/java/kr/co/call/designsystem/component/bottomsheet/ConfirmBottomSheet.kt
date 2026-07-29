@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -106,9 +107,11 @@ internal fun ConfirmBottomSheetContent(
     sheetHeight: Dp? = 387.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    // 고정 높이보다 본문 + 버튼 합이 크면 하단(저장 버튼)이 잘림 이슈 대응-> null이면 wrap
+    // 고정 높이 모드: height() 후 인셋이면 콘텐츠 영역이 줄어 버튼이 잘릴 수 있음
+    // 인셋/하단 패딩을 바깥에 두고, 본문은 heightIn(min)으로 하한만 맞춤 -> 전체 높이가 인셋만큼 늘어남
+    // sheetHeight == null: 콘텐츠 wrap (프로필 피커 등)
     val heightModifier = if (sheetHeight != null) {
-        Modifier.height(sheetHeight)
+        Modifier.heightIn(min = sheetHeight)
     } else {
         Modifier.wrapContentHeight()
     }
@@ -116,9 +119,9 @@ internal fun ConfirmBottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .then(heightModifier)
             .navigationBarsPadding()
-            .padding(bottom = 16.dp),
+            .padding(bottom = 16.dp)
+            .then(heightModifier),
     ) {
         // 2줄 제목은 82dp 안에서 Bottom 정렬 시 상단이 시트 모서리에 붙음 -> 높이/상단 여백 확보
         val isMultiLineTitle = title.contains('\n')

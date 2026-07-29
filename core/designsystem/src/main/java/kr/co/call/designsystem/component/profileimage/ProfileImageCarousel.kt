@@ -115,17 +115,17 @@ internal fun ProfileImageCarousel(
                 val offsetFraction = pageOffset.coerceIn(0f, 1f)
 
                 val scaleX = lerp(
-                    start = SideScaleX,
+                    start = SIDE_SCALE_X,
                     stop = 1f,
                     fraction = 1f - offsetFraction,
                 )
                 val scaleY = lerp(
-                    start = SideScaleY,
+                    start = SIDE_SCALE_Y,
                     stop = 1f,
                     fraction = 1f - offsetFraction,
                 )
                 val dimAlpha = lerp(
-                    start = SideDimAlpha,
+                    start = SIDE_DIM_ALPHA,
                     stop = 0f,
                     fraction = 1f - offsetFraction,
                 )
@@ -191,13 +191,13 @@ private fun ProfileImagePageIndicator(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(pageCount) { index ->
-            val selected = index == currentPage
+            val isSelected = index == currentPage
             Box(
                 modifier = Modifier
-                    .size(if (selected) 6.dp else 5.dp)
+                    .size(if (isSelected) 6.dp else 5.dp)
                     .clip(CircleShape)
                     .background(
-                        if (selected) {
+                        if (isSelected) {
                             CallTheme.colors.mainVariant1
                         } else {
                             CallTheme.colors.gray200
@@ -213,11 +213,11 @@ internal val CenterImageWidth = 225.dp
 internal val CenterImageHeight = 249.dp
 
 /** 양옆 카드 배율 */
-internal const val SideScaleX = 160f / 225f
-internal const val SideScaleY = 179f / 249f
+internal const val SIDE_SCALE_X = 160f / 225f
+internal const val SIDE_SCALE_Y = 179f / 249f
 
-/** 비선택 카드  알파값 */
-private const val SideDimAlpha = 0.4f
+/** 비선택 카드 dim 알파 */
+private const val SIDE_DIM_ALPHA = 0.4f
 
 private val CardCornerRadius = 20.dp
 private val PageSpacing = (-24).dp

@@ -107,7 +107,7 @@ internal fun ProfileImageGenderToggle(
         ) {
             GenderSegmentLabel(
                 label = "남자",
-                selected = currentGender == ProfileImageGender.MALE,
+                isSelected = currentGender == ProfileImageGender.MALE,
                 onClick = { select(ProfileImageGender.MALE) },
                 modifier = Modifier
                     .width(segmentWidth)
@@ -115,7 +115,7 @@ internal fun ProfileImageGenderToggle(
             )
             GenderSegmentLabel(
                 label = "여자",
-                selected = currentGender == ProfileImageGender.FEMALE,
+                isSelected = currentGender == ProfileImageGender.FEMALE,
                 onClick = { select(ProfileImageGender.FEMALE) },
                 modifier = Modifier
                     .width(segmentWidth)
@@ -128,12 +128,12 @@ internal fun ProfileImageGenderToggle(
 @Composable
 private fun GenderSegmentLabel(
     label: String,
-    selected: Boolean,
+    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val textColor by animateColorAsState(
-        targetValue = if (selected) {
+        targetValue = if (isSelected) {
             CallTheme.colors.mainVariant1
         } else {
             CallTheme.colors.gray800
@@ -148,7 +148,11 @@ private fun GenderSegmentLabel(
     ) {
         Text(
             text = label,
-            style = if(selected) CallTheme.typography.bodySmallBold else CallTheme.typography.bodySmall,
+            style = if (isSelected) {
+                CallTheme.typography.bodySmallBold
+            } else {
+                CallTheme.typography.bodySmall
+            },
             color = textColor,
         )
     }
