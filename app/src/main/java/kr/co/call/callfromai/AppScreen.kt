@@ -25,6 +25,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import kr.co.call.api.AgreementDetailNavKey
+import kr.co.call.api.AgreementNavKey
 import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.CharacterManagementNavKey
@@ -34,11 +36,14 @@ import kr.co.call.api.DisturbTimeNavKey
 import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
+import kr.co.call.api.LandingNavKey
+import kr.co.call.api.LoginNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
 import kr.co.call.api.ProfileNavKey
 import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.TermNavKey
+import kr.co.call.api.OnboardingNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
@@ -60,7 +65,7 @@ import kr.co.call.impl.entry.onboardingEntry
 @Composable
 fun AppScreen(modifier: Modifier = Modifier) {
     // TODO: 로그인 구현 후 로그인 여부에 따른 분기처리 필요. 일단은 시작점을 홈 화면으로 설정
-    val backStack = rememberNavBackStack(HomeNavKey)
+    val backStack = rememberNavBackStack(LandingNavKey)
 
     val appNavigator = remember(backStack) { AppNavigator(backStack) }
     val currentKey = backStack.lastOrNull()
@@ -117,7 +122,35 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     rememberViewModelStoreNavEntryDecorator(),
                 ),
                 entryProvider = entryProvider {
-                    loginEntry()
+                    loginEntry(
+                        navigateToLogin={
+                            appNavigator.navigate(LoginNavKey)
+                        },
+                        navigateToOnboarding = {
+                            appNavigator.navigate(OnboardingNavKey)
+                        },
+                        navigateToHome = {
+                            appNavigator.navigate(HomeNavKey)
+                        },
+                        navigateToAgreement={
+                            appNavigator.navigate(AgreementNavKey)
+                        },
+                        navigateToAgreementDetail={term ->
+                            appNavigator.navigate(
+                                AgreementDetailNavKey(
+                                    termId = term.termId,
+                                    title = term.title,
+                                    content = term.content,
+                                ),
+                            )
+                        },
+                        navigateAfterAgreement={
+                            appNavigator.navigate(OnboardingNavKey)
+                        },
+                        onBack={
+                            appNavigator.popBackStack()
+                        }
+                    )
                     onboardingEntry()
                     homeEntry(
                         navigateToCallRecord = { callId ->

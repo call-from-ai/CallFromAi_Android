@@ -35,44 +35,21 @@ import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.White
+import kr.co.call.domain.model.login.AgreementTerm
 import kr.co.call.impl.component.AgreementItem
 import kr.co.call.impl.component.CheckBox
 import kr.co.call.impl.component.NextButton
-import kr.co.call.impl.viewmodel.AgreementUiState
+import kr.co.call.impl.viewmodel.state.AgreementUiState
 import kr.co.call.login.impl.R
-
-enum class AgreementType(
-    val title: String,
-    val isRequired: Boolean,
-){
-    SERVICE(
-        title="서비스 이용 약관 동의",
-        isRequired = true,
-    ),
-    PRIVACY(
-        title="개인정보 수집/이용 동의",
-        isRequired = true,
-    ),
-    MARKETING(
-        title="마케팅 정보 수신 동의",
-        isRequired = false,
-    ),
-    DATA_USAGE(
-        title="대화 데이터의 서비스 개선 활용 동의",
-        isRequired = false,
-    ),
-}
-
 @Composable
 fun AgreementScreen(
     modifier: Modifier,
     uiState: AgreementUiState,
     onNextClick:()->Unit,
-    onAgreementViewClick:(AgreementType)->Unit,
-    onAgreementToggle: (AgreementType)->Unit,
+    onAgreementViewClick:(AgreementTerm)->Unit,
+    onAgreementToggle: (Long)->Unit,
     onAllAgreementsCheckedChange: (Boolean) -> Unit
 ) {
-    val agreementTypes= AgreementType.entries
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -155,16 +132,16 @@ fun AgreementScreen(
                         color = Gray100,
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    agreementTypes.forEach { agreementType ->
+                    uiState.terms.forEach { term->
                         AgreementItem(
-                            title = agreementType.title,
-                            isRequired = agreementType.isRequired,
-                            isChecked = agreementType in uiState.checkedAgreements,
+                            title = term.title,
+                            isRequired = term.isRequired,
+                            isChecked = term.termId in uiState.checkedTermIds,
                             onCheckedChange = {
-                                onAgreementToggle(agreementType)
+                                onAgreementToggle(term.termId)
                             },
                             onViewClick = {
-                                onAgreementViewClick(agreementType)
+                                onAgreementViewClick(term)
                             },
                             modifier = Modifier.padding(vertical = 2.dp)
                         )
@@ -206,7 +183,28 @@ private fun AgreementScreenPreview() {
     CallFromAiTheme {
         AgreementScreen(
             modifier = Modifier,
-            uiState = AgreementUiState(),
+            uiState = AgreementUiState(
+                terms = listOf(
+                    AgreementTerm(
+                        termId = 1L,
+                        title = "서비스 이용약관 동의",
+                        content = "# 서비스 이용약관",
+                        isRequired = true,
+                    ),
+                    AgreementTerm(
+                        termId = 2L,
+                        title = "개인정보 수집/이용 동의",
+                        content = "# 개인정보 수집 및 이용",
+                        isRequired = true,
+                    ),
+                    AgreementTerm(
+                        termId = 3L,
+                        title = "마케팅 정보 수신 동의",
+                        content = "# 마케팅 정보 수신",
+                        isRequired = false,
+                    ),
+                ),
+            ),
             onAgreementToggle = {},
             onAllAgreementsCheckedChange = {},
             onAgreementViewClick = {},
