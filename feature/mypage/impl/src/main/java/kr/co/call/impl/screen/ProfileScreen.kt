@@ -155,7 +155,7 @@ private fun ProfileScreenContent(
                             icon = "\uD83D\uDEAB",
                             label = "방해 금지 시간",
                             onClick = { onIntent(ProfileIntent.ClickDisturbTime) },
-                            trailing = { TimeRangeTrailing(text = state.DisturbTimeText) },
+                            trailing = { TimeRangeTrailing(text = state.disturbTimeText) },
                         )
                     },
                     {
