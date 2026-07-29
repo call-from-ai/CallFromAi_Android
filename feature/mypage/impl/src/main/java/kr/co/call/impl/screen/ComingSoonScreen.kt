@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,17 +29,22 @@ import kr.co.call.impl.component.CommonTopAppBar
 
 @Composable
 fun ComingSoonScreen(
+    modifier: Modifier,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Dialog(
         onDismissRequest = onBackClick,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .background(CallTheme.colors.background),
+                .background(CallTheme.colors.white)
+                .statusBarsPadding()
+                .navigationBarsPadding(),
         ) {
             // 상단 앱 바
             CommonTopAppBar(onBackClick = onBackClick)
@@ -45,10 +53,10 @@ fun ComingSoonScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // 로고 아이콘
                     Icon(
-                        /**TODO: 실제 앱 로고 아이콘으로 교체 */
-                        painter = painterResource(id = R.drawable.ic_mypage_ticket),
+                        painter = painterResource(id = R.drawable.ic_chat_manager),
                         modifier = Modifier.size(81.dp),
-                        contentDescription = null,
+                        contentDescription = "앱 로고",
+                        tint = Color.Unspecified
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     // 텍스트
@@ -69,7 +77,8 @@ fun ComingSoonScreen(
 private fun ComingSoonScreenPreview(){
     CallFromAiTheme {
         ComingSoonScreen(
-            onBackClick = {}
+            modifier = Modifier,
+            onBackClick = {},
         )
     }
 }

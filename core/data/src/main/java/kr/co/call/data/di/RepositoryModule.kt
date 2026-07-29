@@ -5,16 +5,24 @@ import dagger.Binds
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.call.data.repositoryImpl.AgreementRepositoryImpl
+import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
+import kr.co.call.data.repositoryImpl.CallRecordMockRepository
+import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
+import kr.co.call.data.repositoryImpl.HomeMockRepository
+import kr.co.call.domain.repository.AICharacterRepository
+import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.repository.ChatRepository
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
 import kr.co.call.domain.repository.HomeRepository
+import kr.co.call.domain.repository.FaqRepository
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.domain.repository.MyPageRepository
+
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -25,12 +33,21 @@ abstract class RepositoryModule {
     abstract fun bindChatRepository(
         chatRepositoryImpl: ChatRepositoryImpl
     ): ChatRepository
+
     @Binds
     @Singleton
     abstract fun bindHomeRepository(
-        homeRepositoryImpl: HomeRepositoryImpl,
+        homeMockRepository: HomeMockRepository,
     ): HomeRepository
+
     @Binds
+    @Singleton
+    abstract fun bindCallRecordRepository(
+        callRecordMockRepository: CallRecordMockRepository,
+    ): CallRecordRepository
+
+    @Binds
+    @Singleton
     abstract fun bindMyPageRepository(
         impl: MyPageRepositoryImpl
     ): MyPageRepository
@@ -44,4 +61,16 @@ abstract class RepositoryModule {
     abstract fun bindAgreementRepository(
         agreementRepositoryImpl: AgreementRepositoryImpl,
     ): AgreementRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCharacterRepository(
+        impl: AICharacterRepositoryImpl
+    ): AICharacterRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFaqRepository(
+        impl: FaqRepositoryImpl
+    ): FaqRepository
 }

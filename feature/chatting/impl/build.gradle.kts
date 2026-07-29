@@ -29,6 +29,13 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // coil
+    implementation(libs.coil.compose)
+
+    // paging3
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+
     // timber
     implementation(libs.timber)
 

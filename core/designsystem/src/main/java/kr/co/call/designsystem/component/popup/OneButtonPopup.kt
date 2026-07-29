@@ -19,7 +19,7 @@ import kr.co.call.designsystem.theme.CallTheme
 fun OneButtonPopup(
     modifier: Modifier = Modifier,
     label: String,
-    title: String,
+    title: String? = null,
     buttonText: String,
     onButtonClick: () -> Unit,
     description: AnnotatedString? = null,
@@ -46,7 +46,7 @@ private fun OneButtonPopupPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun OneButtonPopupWithDescriptionPreview() {
     CallFromAiTheme {

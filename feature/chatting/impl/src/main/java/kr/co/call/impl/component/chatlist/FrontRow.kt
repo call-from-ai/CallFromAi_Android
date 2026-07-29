@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.designsystem.component.ProfileImage
 import kr.co.call.domain.model.chatting.ChatSummary
 
 @Composable
@@ -48,29 +48,19 @@ fun FrontRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        // 프로필 이미지.
-        // TODO: 추후 Coil을 통한 이미지 로드로 교체
-        Box(
-            modifier = Modifier
-                .size(52.dp)
-                .clip(CircleShape)
-                .background(CallTheme.colors.gray100),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (isManager) {
-                Image(
-                    painter = painterResource(R.drawable.ic_chat_manager),
-                    contentDescription = "매니저",
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Text(
-                    text = chatSummary.name.take(1),
-                    style = CallTheme.typography.bodyMediumBold,
-                    color = CallTheme.colors.gray600,
-                )
-            }
+        if (isManager) {
+            Image(
+                painter = painterResource(R.drawable.ic_chat_manager),
+                contentDescription = "매니저",
+                modifier = Modifier
+                    .size(52.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        } else {
+            ProfileImage(
+                profileImageUrl = chatSummary.image,
+            )
         }
 
         // 이름 + 최근 메시지

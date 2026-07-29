@@ -11,10 +11,18 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import android.widget.Toast
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.call.chatting.impl.R
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.chatting.ChatSummary
@@ -38,12 +46,14 @@ fun ChatListScreen(
 ) {
     // 상태 구독
     val state = viewModel.collectAsState().value
+    val context = LocalContext.current
 
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is ChatListSideEffect.NavigateToChatRoom -> onChatRoomClick(sideEffect.roomId)
             ChatListSideEffect.NavigateToManagerChatRoom -> onManagerChatRoomClick()
+            is ChatListSideEffect.ShowToast -> Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -65,6 +75,38 @@ fun ChatListScreenContent(
             .background(CallTheme.colors.mainVariant5Chat)
             .statusBarsPadding()
     ) {
+        if (state.showDeleteChatRoomDialog) {
+            val description = buildAnnotatedString {
+                withStyle(
+                    SpanStyle(color = CallTheme.colors.gray800)
+                ) {
+                    append(stringResource(R.string.delete_chat_room_description))
+                }
+
+                append("\n")
+
+                withStyle(
+                    SpanStyle(color = CallTheme.colors.mainVariant1)
+                ) {
+                    append(stringResource(R.string.delete_chat_room_warning))
+                }
+            }
+
+            // 채팅방 목록에서 지우기 팝업
+            TwoButtonPopup(
+                label = "목록에서 지우기",
+                title = "채팅방에서 나가시겠습니까?",
+                description = description,
+                positiveText = "확인",
+                negativeText = "취소",
+                labelSpacerHeight = 13.dp,
+                descriptionSpacerHeight = 25.dp,
+                onPositiveClick = { onIntent(ChatListIntent.DeleteChatRoom(state.deleteTargetRoomId)) },
+                onNegativeClick = { onIntent(ChatListIntent.DismissDeleteDialog) },
+                onDismissRequest = { onIntent(ChatListIntent.DismissDeleteDialog) },
+            )
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
@@ -103,6 +145,20 @@ fun ChatListScreenContent(
                                         roomId = chatSummary.chatRoomId
                                     )
                                 )
+                            },
+                            onAlarmClick = {
+                                onIntent(
+                                    ChatListIntent.UpdateAlarmSetting(
+                                        roomId = chatSummary.chatRoomId
+                                    )
+                                )
+                            },
+                            onDeleteClick = {
+                                onIntent(
+                                    ChatListIntent.ClickDeleteChatRoom(
+                                        roomId = chatSummary.chatRoomId
+                                    )
+                                )
                             }
                         )
                     }
@@ -113,7 +169,7 @@ fun ChatListScreenContent(
                             isManager = true,
                             chatSummary = ChatSummary(
                                 name = "전화왔어 매니저",
-                                content = "수현님, 반가워요! 👋🏻 오늘은 어떤 이야기를",
+                                content = "안녕하세요, 전화왔어 매니저입니다!",
                             ),
                             onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
                         )
@@ -150,7 +206,8 @@ private fun ChatListScreenContentPreview() {
                         isAlarmEnabled = false,
                     )
                 ),
-                status = LoadStatus.Idle
+                status = LoadStatus.Idle,
+                showDeleteChatRoomDialog = false
             ),
             onIntent = {}
         )

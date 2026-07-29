@@ -3,7 +3,9 @@ package kr.co.call.callfromai
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -22,19 +24,30 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.AgreementDetailNavKey
 import kr.co.call.api.AgreementNavKey
+import kr.co.call.api.CallRecordNavKey
+import kr.co.call.api.CallTimeManagementNavKey
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
+import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditProfileNavKey
+import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.LandingNavKey
 import kr.co.call.api.LoginNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.ProfileNavKey
+import kr.co.call.api.SubscriptionNavKey
+import kr.co.call.api.TermNavKey
 import kr.co.call.api.OnboardingNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
+import kr.co.call.callfromai.util.toMainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.homeEntry
@@ -63,7 +76,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val showBottomBar = when (currentKey) {
         is HomeNavKey,
         is ChattingNavKey,
-        is MyPageNavKey -> true
+        is MyPageNavKey,
+        is FaqNavKey,
+        is TermNavKey -> true
         is ManagerChatRoomNayKey -> false
         else -> false
     }
@@ -85,26 +100,28 @@ fun AppScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             if (showBottomBar) {
-            MainBottomBar(
-                currentTab = currentTab,
-                onTabSelected = appNavigator::navigateToTab,
-                modifier = Modifier
-                    .onSizeChanged { bottomBarHeightPx = it.height },
-            )
+                MainBottomBar(
+                    currentTab = currentTab,
+                    onTabSelected = appNavigator::navigateToTab,
+                    modifier = Modifier
+                        .onSizeChanged { bottomBarHeightPx = it.height },
+                )
             }
         },
-        contentWindowInsets = WindowInsets.safeDrawing.only(
-            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
-        ),
+        contentWindowInsets = WindowInsets.safeDrawing
+            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
+            .exclude(WindowInsets.ime),
 
-    ) {
-        padding ->
+        ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.fillMaxSize().padding(padding),
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                ),
                 entryProvider = entryProvider {
                     loginEntry(
                         navigateToLogin={
@@ -133,7 +150,14 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         }
                     )
                     onboardingEntry()
-                    homeEntry()
+                    homeEntry(
+                        navigateToCallRecord = { callId ->
+                            appNavigator.navigate(CallRecordNavKey(callId = callId))
+                        },
+                        onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
                     chattingEntry(
                         navigateToChatRoom = { roomId ->
                             appNavigator.navigate(ChatRoomNavKey(roomId = roomId))
@@ -145,7 +169,17 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.popBackStack()
                         }
                     )
-                    myPageEntry()
+                    myPageEntry(
+                        navigateToFaq = { appNavigator.navigate(FaqNavKey) },
+                        navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
+                        navigateToProfile = { appNavigator.navigate(ProfileNavKey) },
+                        navigateToEditProfile = { appNavigator.navigate(EditProfileNavKey) },
+                        navigateToSubscription = { appNavigator.navigate(SubscriptionNavKey) },
+                        navigateToDisturbTime = { appNavigator.navigate(DisturbTimeNavKey) },
+                        navigateToCallTimeManagement = { appNavigator.navigate(CallTimeManagementNavKey) },
+                        onBack = { appNavigator.popBackStack() },
+                    )
                 }
             )
         }
