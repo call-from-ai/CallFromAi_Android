@@ -22,18 +22,24 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.CallRecordNavKey
+import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
+import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.ProfileNavKey
+import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.Onboarding1NavKey
 import kr.co.call.api.Onboarding2NavKey
 import kr.co.call.api.Onboarding3NavKey
@@ -115,9 +121,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.fillMaxSize().padding(padding),
-                entryDecorators=listOf(
+                entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
-                    rememberViewModelStoreNavEntryDecorator (),
+                    rememberViewModelStoreNavEntryDecorator(),
                 ),
                 entryProvider = entryProvider {
                     loginEntry()
@@ -186,6 +192,11 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
                         navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
+                        navigateToProfile = { appNavigator.navigate(ProfileNavKey) },
+                        navigateToEditProfile = { appNavigator.navigate(EditProfileNavKey) },
+                        navigateToSubscription = { appNavigator.navigate(SubscriptionNavKey) },
+                        navigateToDisturbTime = { appNavigator.navigate(DisturbTimeNavKey) },
+                        navigateToCallTimeManagement = { appNavigator.navigate(CallTimeManagementNavKey) },
                         onBack = { appNavigator.popBackStack() },
                     )
                 }
