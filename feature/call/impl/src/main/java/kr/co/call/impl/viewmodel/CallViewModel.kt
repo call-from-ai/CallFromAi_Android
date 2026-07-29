@@ -3,14 +3,19 @@ package kr.co.call.impl.viewmodel
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation3.runtime.NavKey
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kr.co.call.api.CallIncomingNavKey
+import kr.co.call.api.CallSendingNavKey
 import kr.co.call.domain.repository.CallSessionRepository
 import kr.co.call.impl.viewmodel.model.CallDirection
 import kr.co.call.impl.viewmodel.state.CallPhase
@@ -23,15 +28,32 @@ import org.orbitmvi.orbit.viewmodel.container
 private const val CALL_ENDED_HOME_DELAY_MILLIS = 2500L
 private const val DURATION_UPDATE_INTERVAL_MILLIS = 1000L
 
-@HiltViewModel
-class CallViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = CallViewModel.Factory::class)
+class CallViewModel @AssistedInject constructor(
     private val callSessionRepository: CallSessionRepository,
+    @Assisted val navKey: NavKey,
 ) :
     ViewModel(),
     ContainerHost<CallState, CallSideEffect> {
 
+    @AssistedFactory
+    interface Factory {
+        fun create(navKey: NavKey): CallViewModel
+    }
+
     override val container: Container<CallState, CallSideEffect> = container(
-        initialState = CallState(),
+        initialState = when (navKey) {
+            is CallIncomingNavKey -> CallState(
+                callId = navKey.callId,
+                characterId = navKey.characterId,
+                direction = CallDirection.INCOMING,
+            )
+            is CallSendingNavKey -> CallState(
+                characterId = navKey.characterId,
+                direction = CallDirection.OUTGOING,
+            )
+            else -> error("Unsupported call navigation key: $navKey")
+        },
     )
 
     private var durationJob: Job? = null
@@ -43,39 +65,12 @@ class CallViewModel @Inject constructor(
 
     fun handleIntent(intent: CallIntent) {
         when (intent) {
-            is CallIntent.Initialize -> initialize(
-                callId = intent.callId,
-                characterId = intent.characterId,
-                direction = intent.direction,
-            )
             is CallIntent.MicrophonePermissionResult -> {
                 handleMicrophonePermissionResult(intent.isGranted)
             }
             CallIntent.EndCall -> finishCall()
             CallIntent.ToggleMicrophone -> toggleMicrophone()
             CallIntent.ToggleSpeaker -> toggleSpeaker()
-        }
-    }
-
-    private fun initialize(
-        callId: Long,
-        characterId: Long,
-        direction: CallDirection,
-    ) = intent {
-        if (
-            state.callId == callId &&
-            state.characterId == characterId &&
-            state.direction == direction
-        ) {
-            return@intent
-        }
-
-        reduce {
-            state.copy(
-                callId = callId,
-                characterId = characterId,
-                direction = direction,
-            )
         }
     }
 

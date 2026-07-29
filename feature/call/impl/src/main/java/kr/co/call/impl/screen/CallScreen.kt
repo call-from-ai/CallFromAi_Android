@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.content.ContextCompat
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -47,12 +46,9 @@ import org.orbitmvi.orbit.compose.collectSideEffect
  */
 @Composable
 fun CallScreen(
-    callId: Long,
-    characterId: Long,
-    direction: CallDirection,
     onCallFinished: () -> Unit,
+    viewModel: CallViewModel,
     modifier: Modifier = Modifier,
-    viewModel: CallViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
     val context = LocalContext.current
@@ -64,16 +60,6 @@ fun CallScreen(
             )
         },
     )
-
-    LaunchedEffect(callId, characterId, direction) {
-        viewModel.handleIntent(
-            CallIntent.Initialize(
-                callId = callId,
-                characterId = characterId,
-                direction = direction,
-            ),
-        )
-    }
 
     LaunchedEffect(Unit) {
         val isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
