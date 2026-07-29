@@ -131,16 +131,16 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 entryProvider = entryProvider {
                     loginEntry(
                         navigateToLogin={
-                            appNavigator.navigate(LoginNavKey)
+                            appNavigator.replaceAll(LoginNavKey)
                         },
                         navigateToOnboarding = {
                             appNavigator.navigate(Onboarding1NavKey)
                         },
                         navigateToHome = {
-                            appNavigator.navigate(HomeNavKey)
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement={
-                            appNavigator.navigate(AgreementNavKey)
+                            appNavigator.replaceAll(AgreementNavKey)
                         },
                         navigateToAgreementDetail={term ->
                             appNavigator.navigate(
@@ -192,10 +192,10 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         },
                         onOnboarding6CallNow = {
                             //나중에 전화화면으로 바꾸기
-                            appNavigator.navigate(HomeNavKey)
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         onOnboarding6CallLater = {
-                            appNavigator.navigate(HomeNavKey)
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                     )
                     homeEntry(
