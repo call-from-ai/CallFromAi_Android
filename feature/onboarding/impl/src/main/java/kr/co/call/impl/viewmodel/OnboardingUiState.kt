@@ -2,7 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import androidx.compose.runtime.Composable
 import kr.co.call.impl.component.PreferTime
-import kr.co.call.impl.component.Trait
+import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
 import kr.co.call.impl.viewmodel.model.SpeechStyle
 import java.time.LocalDate

@@ -25,42 +25,8 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray200
 import kr.co.call.designsystem.theme.MainVariant1
-import kr.co.call.designsystem.theme.SubGray
 import kr.co.call.designsystem.theme.White
-
-enum class Trait(
-    val keyword: String,
-    val emoji: String,
-    val label: String,
-){
-    HUMOROUS("HUMOROUS", "😃", "유머러스한"),
-    PLAYFUL("PLAYFUL", "🤡", "장난기 많은"),
-    AFFECTIONATE("AFFECTIONATE", "💕", "애교 많은"),
-    JEALOUS("JEALOUS", "❤️‍🔥", "질투심 폭발"),
-    TALKATIVE("TALKATIVE", "🗣️", "수다쟁이"),
-    DAD_JOKE_LOVER("DAD_JOKE_LOVER", "😝", "아재개그 좋아하는"),
-    HOMEBODY("HOMEBODY", "🛌", "집순이/집돌이"),
-    TEASING("TEASING", "🏀", "놀리는 걸 좋아하는"),
-    POSSESSIVE("POSSESSIVE", "📱", "집착하는"),
-    TSUNDERE("TSUNDERE", "👋", "츤데레"),
-    EXPRESSIVE("EXPRESSIVE", "😌", "표현을 많이 하는"),
-    PET_NAME_LOVER("PET_NAME_LOVER", "👄", "애칭을 자주 쓰는"),
-    EXCLUSIVE("EXCLUSIVE", "🪴", "독점욕이 있는"),
-    QUIRKY("QUIRKY", "👍", "4차원 같은"),
-    LAID_BACK("LAID_BACK", "🕶️", "털털한"),
-    OPENLY_JEALOUS("OPENLY_JEALOUS", "📑", "질투를 숨기지 않는"),
-    SHY("SHY", "🧐", "부끄러움을 많이 타는"),
-    SMOOTH_TALKER("SMOOTH_TALKER", "☄\uFE0F", "능청스러운"),
-    FREQUENT_CHECKER("FREQUENT_CHECKER", "💌", "연락을 자주 확인하는"),
-    GOOD_LISTENER("GOOD_LISTENER", "👐", "고민을 잘 들어주는"),
-    COMPLIMENTER("COMPLIMENTER", "😍", "칭찬을 많이 하는");
-
-    companion object {
-        fun fromKeyword(key: String): Trait? {
-            return entries.find { it.keyword == key }
-        }
-    }
-}
+import kr.co.call.impl.viewmodel.model.Trait
 
 @Composable
 fun KeywordChoice(

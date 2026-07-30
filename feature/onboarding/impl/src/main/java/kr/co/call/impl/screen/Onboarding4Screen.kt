@@ -15,12 +15,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import kr.co.call.impl.component.Trait
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.SubGray2
@@ -28,6 +26,7 @@ import kr.co.call.designsystem.theme.White
 import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.KeywordChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.model.Trait
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -72,8 +71,8 @@ fun Onboarding4Screen(
                     end = 27.dp,
                     top = 20.dp,
                 ),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                verticalArrangement = Arrangement.spacedBy(22.dp),
                 maxItemsInEachRow = 3,
             ) {
                 Trait.entries.forEach { trait ->

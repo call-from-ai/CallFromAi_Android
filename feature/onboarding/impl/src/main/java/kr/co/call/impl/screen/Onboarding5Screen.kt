@@ -38,10 +38,6 @@ fun Onboarding5Screen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(
-                top = 54.dp,
-                bottom = 18.dp,
-            )
             .background(White),
     ) {
         BackStepBar(onBackClick = onBackClick)

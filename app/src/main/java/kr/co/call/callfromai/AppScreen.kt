@@ -130,7 +130,7 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             appNavigator.replaceAll(LoginNavKey)
                         },
                         navigateToOnboarding = {
-                            appNavigator.navigate(Onboarding1NavKey)
+                            appNavigator.replaceAll(Onboarding1NavKey)
                         },
                         navigateToHome = {
                             appNavigator.replaceAll(HomeNavKey)

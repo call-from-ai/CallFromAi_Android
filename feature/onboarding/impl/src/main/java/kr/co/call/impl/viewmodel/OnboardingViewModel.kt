@@ -3,7 +3,7 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.impl.component.PreferTime
-import kr.co.call.impl.component.Trait
+import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
 import kr.co.call.impl.viewmodel.model.SpeechStyle
 import org.orbitmvi.orbit.ContainerHost

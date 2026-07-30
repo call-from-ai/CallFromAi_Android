@@ -182,21 +182,3 @@ fun BottomWheel(
         }
     }
 }
-
-
-@Preview(
-    name = "생년월일 선택",
-    showBackground = true,
-    widthDp = 412,
-    heightDp = 800,
-)
-@Composable
-private fun BottomWheelPreview() {
-    CallFromAiTheme {
-        BottomWheel(
-            selectedDate = LocalDate.of(2001, 5, 18),
-            onConfirmClick = {},
-            onDismissRequest = {},
-        )
-    }
-}
