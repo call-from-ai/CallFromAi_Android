@@ -20,14 +20,14 @@ import kr.co.call.designsystem.theme.CallTheme
 @Composable
 fun PhotoBubble(
     photoUrl: String,
-    time: String = "",
     modifier: Modifier = Modifier,
+    time: String = "",
 ) {
     val shape = RoundedCornerShape(
         topStart = 20.dp,
         topEnd = 20.dp,
-        bottomStart = 0.dp,
-        bottomEnd = 20.dp,
+        bottomStart = 20.dp,
+        bottomEnd = 0.dp
     )
 
     Row(

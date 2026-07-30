@@ -39,6 +39,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flowOf
 import kr.co.call.chatting.impl.R
+import kr.co.call.designsystem.component.popup.OneButtonPopup
 import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -203,6 +204,7 @@ fun ChatRoomScreenContent(
                 onProfileClick = { onIntent(ChatRoomIntent.ClickProfile(state.topHeader.imgUrl)) },
             )
 
+            // 통화 팝업 창 출력
             if (state.showCallDialog) {
                 TwoButtonPopup(
                     label = stringResource(id = R.string.chat_room_call_label),
@@ -212,9 +214,22 @@ fun ChatRoomScreenContent(
                     ),
                     positiveText = "연결",
                     negativeText = "취소",
-                    onPositiveClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
+                    onPositiveClick = { onIntent(ChatRoomIntent.GoToCall(state.topHeader.characterId)) },
                     onNegativeClick = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
                     onDismissRequest = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+                )
+            }
+
+            // 메인 캐릭터가 아닙니다 팝업창 출력
+            if (state.showNotMainDialog) {
+                OneButtonPopup(
+                    label = stringResource(id = R.string.chat_room_call_label),
+                    title = stringResource(id = R.string.chat_room_not_main_title),
+                    buttonText = "확인",
+                    onButtonClick = {
+                        onIntent(ChatRoomIntent.DismissNotMainDialog)
+                    },
+                    onDismissRequest = { onIntent(ChatRoomIntent.DismissNotMainDialog) },
                 )
             }
 

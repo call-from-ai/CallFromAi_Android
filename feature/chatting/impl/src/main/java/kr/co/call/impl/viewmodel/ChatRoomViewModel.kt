@@ -4,18 +4,13 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.filter
-import androidx.paging.insertSeparators
 import androidx.paging.map
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
-import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
@@ -77,10 +72,12 @@ class ChatRoomViewModel @AssistedInject constructor(
             is ChatRoomIntent.ImagesPicked -> uploadImages(intent.uri)
             is ChatRoomIntent.PictureTaken -> uploadImages(intent.uri)
             ChatRoomIntent.CancelImage -> clearSelectedImage()
-            ChatRoomIntent.DismissDeleteDialog -> dismissDeleteDialog()
+            ChatRoomIntent.DismissDeleteDialog -> dismissCallDialog()
             is ChatRoomIntent.ClickProfile -> showProfile(intent.imageUrl)
             ChatRoomIntent.DismissProfile -> dismissProfile()
             ChatRoomIntent.DismissPopup -> dismissPopup()
+            ChatRoomIntent.ShowNotMainDialog -> showNotMainDialog()
+            ChatRoomIntent.DismissNotMainDialog -> dismissNotMainDialog()
         }
     }
 
@@ -124,20 +121,34 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
-    // 통화 연결 확인 다이얼로그 표시 상태 변경
+    // isMain이면 통화 확인 다이얼로그, 아니면 메인 캐릭터 아님 다이얼로그 표시
     private fun showCallDialog() = intent {
-        reduce {
-            state.copy(
-                showCallDialog = true
-            )
+        if (state.topHeader.isMain) {
+            reduce { state.copy(showCallDialog = true) }
+        } else {
+            reduce { state.copy(showNotMainDialog = true) }
         }
     }
 
     // 통화 연결 확인 다이얼로그 닫기
-    private fun dismissDeleteDialog() = intent {
+    private fun dismissCallDialog() = intent {
         reduce {
             state.copy(
                 showCallDialog = false
+            )
+        }
+    }
+
+    // 메인 캐릭터가 아닙니다 다이얼로그 표시 상태 변경
+    private fun showNotMainDialog() = intent {
+        reduce { state.copy(showNotMainDialog = true) }
+    }
+
+    // 메인 캐릭터가 아닙니다 다이얼로그 닫기
+    private fun dismissNotMainDialog() = intent {
+        reduce {
+            state.copy(
+                showNotMainDialog = false
             )
         }
     }

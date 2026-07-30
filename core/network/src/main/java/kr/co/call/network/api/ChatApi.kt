@@ -24,7 +24,6 @@ import retrofit2.http.Query
  */
 interface ChatApi {
     @GET("chat-rooms")
-
     // 채팅방 목록 조회
     suspend fun getChatRoomList(): ApiResponse<ChatRoomsDTO>
 

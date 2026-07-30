@@ -17,4 +17,8 @@
         %1$s에게 바로 통화를 연결할까요?
     </string>
 
+    <string name="chat_room_not_main_title">
+        현재 메인으로 선택된 연인과의\n통화만 허용됩니다.
+    </string>
+
 </resources>
