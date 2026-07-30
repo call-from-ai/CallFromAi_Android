@@ -1,7 +1,7 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.data.util.runRepositoryCatching
+import kr.co.call.data.util.toFailure
 import kr.co.call.domain.model.login.AgreementTerm
 import kr.co.call.domain.model.login.TermAgreement
 import kr.co.call.domain.repository.AgreementRepository
@@ -26,7 +26,7 @@ class AgreementRepositoryImpl @Inject constructor(
      * 화면에서 사용할 AgreementTerm 목록으로 변환합니다.
      */
     override suspend fun getTerms(): Result<List<AgreementTerm>> =
-        runRepositoryCatching {
+        runCatching {
             safeApiCall(errorResponseParser) {
                 agreementApi.getTerms()
             }.map { dto ->
@@ -37,7 +37,10 @@ class AgreementRepositoryImpl @Inject constructor(
                     isRequired = dto.isRequired,
                 )
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(it.toFailure()) },
+        )
 
     /**
      * 사용자가 선택한 약관별 동의 여부를 서버에 전달합니다.
@@ -45,7 +48,7 @@ class AgreementRepositoryImpl @Inject constructor(
     override suspend fun agreeTerms(
         agreements: List<TermAgreement>,
     ): Result<Unit> =
-        runRepositoryCatching {
+        runCatching {
             safeApiCallUnit(errorResponseParser) {
                 agreementApi.agreeTerms(
                     request = AgreeTermsRequestDto(
@@ -58,5 +61,8 @@ class AgreementRepositoryImpl @Inject constructor(
                     ),
                 )
             }
-        }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(it.toFailure()) },
+        )
 }
