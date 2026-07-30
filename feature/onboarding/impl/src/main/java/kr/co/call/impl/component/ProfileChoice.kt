@@ -23,27 +23,27 @@ import coil.compose.AsyncImage
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.onboarding.impl.R
 import androidx.compose.runtime.getValue
+import kr.co.call.impl.viewmodel.state.ProfileChoiceState
 
 
 @Composable
 fun ProfileChoice(
-    imageUrl: String?,
+    state: ProfileChoiceState,
     onClick: ()->Unit,
-    size: Dp =99.dp,
-    modifier: Modifier,
+    modifier: Modifier=Modifier,
 ){
     val interactionSource=remember{MutableInteractionSource()}
     val isPressed by interactionSource.collectIsPressedAsState()
 
     Box(
         modifier=modifier
-            .size(size)
+            .size(state.size)
             .clickable(
                 interactionSource=interactionSource,
                 indication = null,
                 onClick=onClick, )
     ) {
-        if (imageUrl.isNullOrEmpty()){
+        if (state.imageUrl.isNullOrEmpty()){
             Image(
                 imageVector= ImageVector.vectorResource(
                     id= if(isPressed){
@@ -56,7 +56,7 @@ fun ProfileChoice(
             )
         } else{
             AsyncImage(
-                model=imageUrl,
+                model=state.imageUrl,
                 contentDescription="선택된 프로필 사진",
                 modifier=Modifier
                     .fillMaxSize()
@@ -64,20 +64,5 @@ fun ProfileChoice(
                 contentScale=ContentScale.Crop
             )
         }
-    }
-}
-
-@Preview(
-    name = "기본 프로필 이미지",
-    showBackground = true,
-)
-@Composable
-private fun ProfileChoicePreview() {
-    CallFromAiTheme {
-        ProfileChoice(
-            modifier = Modifier.padding(20.dp),
-            imageUrl = null,
-            onClick = {},
-        )
     }
 }

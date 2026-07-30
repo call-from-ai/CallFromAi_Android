@@ -42,6 +42,7 @@ import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding2State
+import kr.co.call.impl.viewmodel.state.ProfileChoiceState
 
 
 private enum class Onboarding2EditingNameField {
@@ -110,8 +111,9 @@ fun Onboarding2Screen(
                 Spacer(modifier = Modifier.height(18.dp))
 
                 ProfileChoice(
-                    modifier = Modifier,
+                    state= ProfileChoiceState(
                     imageUrl = profileImageUrl,
+                    ),
                     onClick = onProfileClick,
                 )
 
@@ -153,7 +155,7 @@ fun Onboarding2Screen(
                     label = "직업",
                     selectedOption = job,
                     placeholder = "직업을 선택해주세요",
-                    options = listOf("학생", "직장인", "기타"),
+                    options = listOf("대학생", "직장인", "기타"),
                     onOptionSelected = { job = it },
                     required = true,
                 )

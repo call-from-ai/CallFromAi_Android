@@ -21,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -59,7 +58,6 @@ import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
-import kr.co.call.impl.viewmodel.OnboardingViewModel
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -100,8 +98,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val bottomBarPadding = remember(bottomBarHeightPx) {
         with(density) { bottomBarHeightPx.toDp() }
     }
-
-    val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
@@ -159,7 +155,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         }
                     )
                     onboardingEntry(
-                        onboardingViewModel=onboardingViewModel,
                         onProfileClick = {
                             // 사진 선택 기능은 나중에 구현
                         },

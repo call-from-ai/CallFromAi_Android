@@ -1,5 +1,8 @@
 package kr.co.call.impl.entry
 
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -15,11 +18,11 @@ import kr.co.call.impl.screen.Onboarding3Screen
 import kr.co.call.impl.screen.Onboarding4Screen
 import kr.co.call.impl.screen.Onboarding5Screen
 import kr.co.call.impl.screen.Onboarding6Screen
-import kr.co.call.impl.viewmodel.OnboardingViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.getValue
+import kr.co.call.impl.viewmodel.OnboardingViewModel
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
-    onboardingViewModel: OnboardingViewModel,
     onProfileClick: () -> Unit,
     onOnboarding1Next: () -> Unit,
     onBackFromOnboarding2: () -> Unit,
@@ -34,6 +37,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding6CallLater: () -> Unit,
 ) {
     entry<Onboarding1NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding1Screen(
             onProfileClick = onProfileClick,
             onNextClick = {state ->
@@ -50,6 +54,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding2NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding2Screen(
             onBackClick = onBackFromOnboarding2,
             onProfileClick = onProfileClick,
@@ -68,6 +73,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding3NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding3Screen(
             onBackClick = onBackFromOnboarding3,
             onNextClick = { speechStyle, relationship, temperature ->
@@ -82,6 +88,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding4NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding4Screen(
             onBackClick = onBackFromOnboarding4,
             onNextClick = { traits ->
@@ -92,6 +99,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding5NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding5Screen(
             onBackClick = onBackFromOnboarding5,
             onNextClick = { preferTime ->
@@ -102,6 +110,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding6NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding6Screen(
@@ -110,4 +119,13 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
             onCallLaterClick = onOnboarding6CallLater,
         )
     }
+}
+
+@Composable
+private fun sharedOnboardingViewModel(): OnboardingViewModel {
+    val activity = checkNotNull(LocalActivity.current as? ComponentActivity)
+
+    return hiltViewModel(
+        viewModelStoreOwner =activity,
+    )
 }

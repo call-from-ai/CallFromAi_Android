@@ -40,6 +40,7 @@ import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding1State
+import kr.co.call.impl.viewmodel.state.ProfileChoiceState
 
 private enum class EditingNameField {
     LAST_NAME,
@@ -110,10 +111,11 @@ fun Onboarding1Screen (
                 )
                 Spacer(modifier = Modifier.height(18.dp))
                 ProfileChoice(
-                    modifier = Modifier,
+                    state= ProfileChoiceState(
                     imageUrl = profileImageURl,
+                        size=99.dp,
+                    ),
                     onClick = onProfileClick,
-                    size = 99.dp,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
