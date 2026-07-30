@@ -65,7 +65,10 @@ import kr.co.call.impl.entry.onboardingEntry
  * @param modifier 루트 [Box]에 적용할 [Modifier]
  */
 @Composable
-fun AppScreen(modifier: Modifier = Modifier) {
+fun AppScreen(
+    viewModel: AppViewModel,
+    modifier: Modifier = Modifier
+) {
     // TODO: 로그인 구현 후 로그인 여부에 따른 분기처리 필요. 일단은 시작점을 홈 화면으로 설정
     val backStack = rememberNavBackStack(LandingNavKey)
 
