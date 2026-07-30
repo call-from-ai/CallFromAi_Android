@@ -49,6 +49,7 @@ fun Throwable.toAppException(): AppException {
 fun Throwable.toFailure(): Throwable =
     when (this) {
         is CancellationException -> throw this
+        is Error -> throw this
         is AppException -> this
         is CharacterChangeUnavailableException -> this
         else -> toAppException()
