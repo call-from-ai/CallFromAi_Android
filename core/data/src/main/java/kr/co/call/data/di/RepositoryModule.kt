@@ -22,6 +22,12 @@ import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.domain.repository.MyPageRepository
+import kr.co.call.data.repositoryImpl.CallControlRepositoryImpl
+import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
+import kr.co.call.domain.repository.CallControlRepository
+import kr.co.call.domain.repository.CallSessionRepository
+import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
+import kr.co.call.domain.repository.CallStreamingRepository
 
 
 @Module
@@ -73,4 +79,22 @@ abstract class RepositoryModule {
     abstract fun bindFaqRepository(
         impl: FaqRepositoryImpl
     ): FaqRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCallControlRepository(
+        impl: CallControlRepositoryImpl
+    ): CallControlRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCallStreamingRepository(
+        impl: CallStreamingRepositoryImpl
+    ): CallStreamingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindCallSessionRepository(
+        impl: AndroidCallSessionRepository,
+    ): CallSessionRepository
 }

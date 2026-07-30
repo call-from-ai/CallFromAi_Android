@@ -4,8 +4,6 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import kr.co.call.domain.exception.CharacterChangeUnavailableException
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallReservation
-import kr.co.call.domain.model.home.CallReservations
 import kr.co.call.domain.model.home.HomeCharacter
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.domain.repository.HomeRepository
@@ -29,24 +27,8 @@ class HomeMockRepository @Inject constructor() : HomeRepository {
         ),
     )
 
-    private var reservations = CallReservations(
-        totalCount = 1,
-        items = listOf(
-            CallReservation(
-                id = 3L,
-                characterId = 1L,
-                firstName = "민준",
-                imageUrl = null,
-                scheduledAt = LocalDateTime.of(2026, 6, 30, 21, 0),
-            ),
-        ),
-    )
-
     override suspend fun getCharacters(): Result<List<HomeCharacter>> =
         Result.success(characters)
-
-    override suspend fun getReservations(): Result<CallReservations> =
-        Result.success(reservations)
 
     override suspend fun getCallHistories(): Result<List<CallHistory>> =
         Result.success(
@@ -81,32 +63,6 @@ class HomeMockRepository @Inject constructor() : HomeRepository {
                 callStreakDays = 12,
             ),
         )
-
-    override suspend fun changeReservationTime(
-        reservationId: Long,
-        scheduledAt: LocalDateTime,
-    ): Result<CallReservations> {
-        val hasReservation = reservations.items.any { reservation ->
-            reservation.id == reservationId
-        }
-        if (!hasReservation) {
-            return Result.failure(
-                IllegalArgumentException("변경할 예약을 찾을 수 없습니다."),
-            )
-        }
-
-        reservations = reservations.copy(
-            items = reservations.items.map { reservation ->
-                if (reservation.id == reservationId) {
-                    reservation.copy(scheduledAt = scheduledAt)
-                } else {
-                    reservation
-                }
-            },
-        )
-
-        return Result.success(reservations)
-    }
 
     override suspend fun changeMainCharacter(
         characterId: Long,

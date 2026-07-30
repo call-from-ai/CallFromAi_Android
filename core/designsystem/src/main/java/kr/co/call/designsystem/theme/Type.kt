@@ -34,6 +34,8 @@ private fun pretendard(
 
 @Immutable
 data class CallTypography(
+    val titleSuperBig: TextStyle = pretendard(40, 1f, FontWeight.SemiBold),
+
     // Title (line height 140%)
     val titleExtraLargeBold: TextStyle = pretendard(34,1.4f, FontWeight.Bold),
     val titleExtraLarge: TextStyle = pretendard(34,1.4f, FontWeight.Normal),

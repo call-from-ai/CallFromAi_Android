@@ -58,6 +58,7 @@ fun CallRecordScreen(
     val state by viewModel.collectAsState()
     val context = LocalContext.current
     val recordingUrl = state.record.recordingUrl
+    val recordingDurationMillis = state.record.durationMillis
 
     // 같은 녹음 파일은 화면이 재생성되어도 마지막 재생 위치를 복원
     var savedPositionMillis by rememberSaveable(recordingUrl) {
@@ -91,11 +92,9 @@ fun CallRecordScreen(
     }
 
     // 플레이어 상태
-    var playerState by remember(recordingUrl) {
+    var playerState by remember {
         mutableStateOf(
-            CallRecordPlayerState(
-                currentPositionMillis = savedPositionMillis,
-            ),
+            CallRecordPlayerState(),
         )
     }
 
@@ -103,7 +102,7 @@ fun CallRecordScreen(
     fun seekTo(positionMillis: Long) {
         // 최대 위치
         val maximumPosition = playerState.durationMillis
-            .takeIf { it > 0L}
+            .takeIf { it > 0L }
             ?: Long.MAX_VALUE
 
         // 재생 범위 제한
@@ -132,9 +131,11 @@ fun CallRecordScreen(
     LaunchedEffect(
         player,
         recordingUrl,
+        recordingDurationMillis,
     ) {
         playerState = CallRecordPlayerState(
             currentPositionMillis = savedPositionMillis,
+            durationMillis = recordingDurationMillis,
         )
 
         if (recordingUrl.isNullOrBlank()) {
@@ -151,14 +152,27 @@ fun CallRecordScreen(
 
     LaunchedEffect(
         player,
-        playerState.isPlaying,
+        recordingUrl,
+        recordingDurationMillis,
     ) {
-        while (
-            isActive && playerState.isPlaying
-        ) {
-            val currentPositionMillis = player.currentPosition.coerceAtLeast(0L)
+        while (isActive) {
+            val durationMillis = player.duration
+                .takeIf { duration ->
+                    duration != C.TIME_UNSET && duration > 0L
+                }
+                ?: recordingDurationMillis.takeIf { it > 0L }
+                ?: playerState.durationMillis
+            val currentPositionMillis = player.currentPosition
+                .coerceAtLeast(0L)
+                .coerceAtMost(
+                    durationMillis.takeIf { it > 0L } ?: Long.MAX_VALUE,
+                )
             playerState = playerState.copy(
                 currentPositionMillis = currentPositionMillis,
+                durationMillis = durationMillis,
+                isPlaying = player.playWhenReady &&
+                    player.playbackState != Player.STATE_ENDED &&
+                    player.playerError == null, // 버퍼링 중에도 일시정지 아이콘이 변경되도록
             )
             savedPositionMillis = currentPositionMillis
             delay(250L)
@@ -168,12 +182,6 @@ fun CallRecordScreen(
 
     DisposableEffect(player) {
         val listener = object : Player.Listener {
-            // 재생 상태가 바뀌면 재생 여부를 전달
-            override fun onIsPlayingChanged(isPlaying: Boolean){
-                playerState = playerState.copy(
-                    isPlaying = isPlaying,
-                )
-            }
             // 플레이어가 준비 상태일 때 전체 음성 길이 가져옴
             override fun onPlaybackStateChanged(playbackState: Int) {
                 when (playbackState) {
@@ -251,7 +259,7 @@ fun CallRecordScreen(
         },
         // 재생,정지버튼
         onPlayPauseClick = {
-            if (player.isPlaying) {
+            if (player.playWhenReady) {
                 player.pause()
             } else {
                 // 재생 종료되었다면 0으로 초기화
@@ -260,6 +268,10 @@ fun CallRecordScreen(
                 }
                 player.play()
             }
+            playerState = playerState.copy(
+                isPlaying = player.playWhenReady &&
+                    player.playbackState != Player.STATE_ENDED,
+            )
         },
         // 5초 후로 이동
         onForwardClick = {
