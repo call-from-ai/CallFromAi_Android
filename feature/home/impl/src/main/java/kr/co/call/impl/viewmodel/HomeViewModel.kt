@@ -2,20 +2,14 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.exception.CharacterChangeUnavailableException
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.tab.HomeHistoryTab
-import kr.co.call.impl.util.TimeRoundDirection
-import kr.co.call.impl.util.roundToMinutes
 import kr.co.call.impl.viewmodel.state.HomeDialogState
 import kr.co.call.impl.viewmodel.state.HomeState
-import kr.co.call.impl.viewmodel.state.TimeChangeState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -40,7 +34,6 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             is HomeIntent.History -> handleHistoryIntent(intent)
             is HomeIntent.Call -> handleCallIntent(intent)
-            is HomeIntent.TimeChange -> handleTimeChangeIntent(intent)
             is HomeIntent.Character -> handleCharacterIntent(intent)
             HomeIntent.DismissDialog -> dismissDialog()
         }
@@ -63,15 +56,6 @@ class HomeViewModel @Inject constructor(
                 showCallDialog(characterName = intent.characterName)
             }
             HomeIntent.Call.Confirm -> confirmCall()
-        }
-    }
-
-    private fun handleTimeChangeIntent(intent: HomeIntent.TimeChange) {
-        when (intent) {
-            HomeIntent.TimeChange.Click -> showTimeChangeBottomSheet()
-            is HomeIntent.TimeChange.SelectDate -> selectChangeDate(intent.date)
-            is HomeIntent.TimeChange.SelectTime -> selectChangeTime(intent.time)
-            HomeIntent.TimeChange.Confirm -> confirmTimeChange()
         }
     }
 
@@ -211,98 +195,6 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    // 날짜 선택
-    private fun selectChangeDate(date: LocalDate) = intent {
-        val timeChange = state.dialogState as? HomeDialogState.TimeChange
-            ?: return@intent
-
-        reduce {
-            state.copy(
-                dialogState = timeChange.copy(
-                    state = timeChange.state.copy(selectedDate = date),
-                ),
-            )
-        }
-    }
-
-    private fun showTimeChangeBottomSheet() = intent {
-
-        val initialDateTime = LocalDateTime.now().roundToMinutes(
-            intervalMinutes = 30,
-            direction = TimeRoundDirection.UP,
-        )
-
-        reduce {
-            state.copy(
-                dialogState = HomeDialogState.TimeChange(
-                    state = TimeChangeState(
-                        selectedDate = initialDateTime.toLocalDate(),
-                        selectedTime = initialDateTime.toLocalTime(),
-                    ),
-                ),
-            )
-        }
-    }
-
-    // 선택한 예약 시간 확정
-    private fun confirmTimeChange() = intent {
-        val timeChange = state.dialogState as? HomeDialogState.TimeChange
-            ?: return@intent
-        val reservationId = state.reservation.reservationId
-        if (reservationId == null) {
-            postSideEffect(
-                HomeSideEffect.ShowMessage(
-                    message = "변경할 예약을 찾을 수 없습니다.",
-                ),
-            )
-            return@intent
-        }
-
-        try {
-            val reservations = homeRepository.changeReservationTime(
-                reservationId = reservationId,
-                scheduledAt = LocalDateTime.of(
-                    timeChange.state.selectedDate,
-                    timeChange.state.selectedTime,
-                ),
-            ).getOrThrow()
-
-            reduce {
-                state.copy(
-                    reservation = reservations.toUiModel(),
-                    dialogState = null,
-                )
-            }
-            postSideEffect(
-                HomeSideEffect.ShowMessage(
-                    message = "예약 시간을 변경했습니다.",
-                ),
-            )
-        } catch (cancellationException: CancellationException) {
-            throw cancellationException
-        } catch (throwable: Throwable) {
-            postSideEffect(
-                HomeSideEffect.ShowMessage(
-                    message = throwable.message ?: "예약 시간을 변경하지 못했습니다.",
-                ),
-            )
-        }
-    }
-
-    // 시간 변경 선택
-    private fun selectChangeTime(time: LocalTime) = intent {
-        val timeChange = state.dialogState as? HomeDialogState.TimeChange
-            ?: return@intent
-
-        reduce {
-            state.copy(
-                dialogState = timeChange.copy(
-                    state = timeChange.state.copy(selectedTime = time),
-                ),
-            )
-        }
-    }
-
 
     // 온보딩으로 이동
     private fun navigateToCharacterOnboarding() = intent {
@@ -341,14 +233,12 @@ class HomeViewModel @Inject constructor(
 
         try {
             val summary = homeRepository.getSummary().getOrThrow()
-            val reservations = homeRepository.getReservations().getOrThrow()
             val callHistories = homeRepository.getCallHistories().getOrThrow()
             val characters = homeRepository.getCharacters().getOrThrow()
 
             reduce {
                 state.copy(
                     summary = summary.toUiModel(),
-                    reservation = reservations.toUiModel(),
                     callHistories = callHistories.map { history -> history.toUiModel() },
                     characters = characters.map { character -> character.toUiModel() },
                     loadStatus = LoadStatus.Idle,

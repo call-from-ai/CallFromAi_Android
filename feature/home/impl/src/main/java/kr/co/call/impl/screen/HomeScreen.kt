@@ -24,14 +24,12 @@ import kotlinx.coroutines.flow.Flow
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.home.HomeNotification
-import kr.co.call.impl.component.TimeChangeBottomSheet
 import kr.co.call.impl.component.dialog.CallConnectDialog
 import kr.co.call.impl.component.dialog.CharacterChangeConfirmDialog
 import kr.co.call.impl.component.dialog.CharacterChangeDialog
 import kr.co.call.impl.component.dialog.CharacterChangeUnavailableDialog
 import kr.co.call.impl.component.dialog.NonMainCharacterCallDialog
 import kr.co.call.impl.component.header.HomeHeader
-import kr.co.call.impl.component.header.HomeReservationCard
 import kr.co.call.impl.component.history.CallHistoryList
 import kr.co.call.impl.component.history.HomeHistorySection
 import kr.co.call.impl.component.history.NotificationListHeader
@@ -148,15 +146,6 @@ private fun
         }
 
         item {
-            HomeReservationCard(
-                reservation = state.reservation,
-                onTimeChangeClick = {
-                    onIntent(HomeIntent.TimeChange.Click)
-                },
-            )
-        }
-
-        item {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -259,26 +248,6 @@ private fun HomeDialogs(
             )
         }
 
-        // 시간 변경 팝업일 경우
-        is HomeDialogState.TimeChange -> {
-            TimeChangeBottomSheet(
-                selectedDate = dialogState.state.selectedDate,
-                selectedTime = dialogState.state.selectedTime,
-                onDateSelected = { date ->
-                    onIntent(HomeIntent.TimeChange.SelectDate(date))
-                },
-                onTimeSelected = { time ->
-                    onIntent(HomeIntent.TimeChange.SelectTime(time))
-                },
-                onConfirmClick = {
-                    onIntent(HomeIntent.TimeChange.Confirm)
-                },
-                onDismissRequest = {
-                    onIntent(HomeIntent.DismissDialog)
-                },
-            )
-        }
-
         is HomeDialogState.CallConfirmation -> {
             CallConnectDialog(
                 characterName = dialogState.characterName,
@@ -319,7 +288,6 @@ private fun HomeScreenPreview() {
         mutableStateOf(
             HomeState(
                 summary = mockData.summaryUiModel,
-                reservation = mockData.reservationUiModel,
                 callHistories = mockData.callHistoryUiModels,
                 hasUnreadNotification = mockData.hasUnreadNotification,
                 selectedHistoryTab = HomeHistoryTab.CALL_HISTORY,

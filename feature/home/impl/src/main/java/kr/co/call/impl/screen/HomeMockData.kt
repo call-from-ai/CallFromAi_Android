@@ -5,15 +5,12 @@ import java.time.LocalDateTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallReservation
-import kr.co.call.domain.model.home.CallReservations
 import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.mock.CallMockData
 import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
-import kr.co.call.impl.viewmodel.model.HomeReservationUiModel
 import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 /**
@@ -21,16 +18,12 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
  */
 data class HomeMockData(
     val summary: HomeSummary,
-    val reservations: CallReservations,
     val callHistories: List<CallHistory>,
     val hasUnreadNotification: Boolean,
     val notifications: List<HomeNotification>,
 ) {
     val summaryUiModel: HomeSummaryUiModel
         get() = summary.toUiModel()
-
-    val reservationUiModel: HomeReservationUiModel
-        get() = reservations.toUiModel()
 
     val callHistoryUiModels: List<CallHistoryUiModel>
         get() = callHistories.map { callHistory -> callHistory.toUiModel() }
@@ -49,31 +42,9 @@ fun createHomeMockData(
             totalCallCount = 24,
             callStreakDays = 12,
         ),
-        reservations = CallReservations(
-            totalCount = 2,
-            items = listOf(
-                CallReservation(
-                    id = 3L,
-                    characterId = 2L,
-                    firstName = "민준",
-                    imageUrl = null,
-                    scheduledAt = now.withHour(21).withMinute(0).withSecond(0),
-                ),
-            ),
-        ),
         callHistories = CallMockData.histories,
         hasUnreadNotification = true,
         notifications = listOf(
-            HomeNotification(
-                notificationId = 42L,
-                type = NotificationType.CALL_RESERVATION,
-                title = "통화 약속",
-                content = "오늘 밤 9시 통화 15분 뒤에 시작됩니다.",
-                isRead = false,
-                createdAt = now.minusMinutes(1),
-                characterName = "민준",
-                profileImageUrl = "https://cdn.lovecall.com/presets/male/1.jpg",
-            ),
             HomeNotification(
                 notificationId = 41L,
                 type = NotificationType.MISSED_CALL,

@@ -1,7 +1,5 @@
 package kr.co.call.impl.viewmodel
 
-import java.time.LocalDate
-import java.time.LocalTime
 import kr.co.call.impl.tab.HomeHistoryTab
 
 sealed interface HomeIntent {
@@ -28,21 +26,6 @@ sealed interface HomeIntent {
         ) : Call
 
         data object Confirm : Call
-    }
-
-    // 시간 변경
-    sealed interface TimeChange : HomeIntent {
-        data object Click : TimeChange
-
-        data class SelectDate(
-            val date: LocalDate,
-        ) : TimeChange
-
-        data class SelectTime(
-            val time: LocalTime,
-        ) : TimeChange
-
-        data object Confirm : TimeChange
     }
 
     // 캐릭터 관련

@@ -16,10 +16,6 @@ sealed interface HomeDialogState {
         val characterName: String,
     ) : HomeDialogState
 
-    data class TimeChange(
-        val state: TimeChangeState,
-    ) : HomeDialogState
-
     data class CallConfirmation(
         val characterId: Long,
         val characterName: String,

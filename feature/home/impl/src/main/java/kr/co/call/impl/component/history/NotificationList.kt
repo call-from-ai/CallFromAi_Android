@@ -2,6 +2,8 @@ package kr.co.call.impl.component.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +23,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -114,9 +118,10 @@ private fun NotificationCard(
     onCallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val callButtonInteractionSource = remember { MutableInteractionSource() }
+    val isCallButtonPressed by callButtonInteractionSource.collectIsPressedAsState()
     val cardShape = RoundedCornerShape(20.dp)
     val cardHeight = when (notificationState.type) {
-        NotificationType.CALL_RESERVATION -> 88.dp
         NotificationType.ANNIVERSARY -> 109.dp
         NotificationType.MISSED_CALL -> 129.dp
     }
@@ -140,7 +145,7 @@ private fun NotificationCard(
                 shape = cardShape,
             ),
     ) {
-        // 기념일, 예약통화, 부재중 통화에 따라 분기
+        // 기념일, 부재중 통화에 따라 분기
         when (notificationState.type) {
             NotificationType.ANNIVERSARY -> {
                 AnniversaryNotificationContent(
@@ -151,21 +156,6 @@ private fun NotificationCard(
                         .padding(
                             start = 17.dp,
                             top = 23.dp,
-                            end = 17.dp,
-                        ),
-                )
-            }
-
-            NotificationType.CALL_RESERVATION -> {
-                CallNotificationContent(
-                    title = notificationState.type.title,
-                    content = notificationState.content,
-                    profileImageUrl = notificationState.profileImageUrl,
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(
-                            start = 17.dp,
-                            top = 21.dp,
                             end = 17.dp,
                         ),
                 )
@@ -201,10 +191,15 @@ private fun NotificationCard(
                     .height(32.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CallTheme.colors.mainVariant2,
+                    containerColor = if (isCallButtonPressed) {
+                        CallTheme.colors.subPressed2
+                    } else {
+                        CallTheme.colors.mainVariant2
+                    },
                     contentColor = CallTheme.colors.black,
                 ),
                 contentPadding = PaddingValues(0.dp),
+                interactionSource = callButtonInteractionSource,
             ) {
                 Icon(
                     painter = painterResource(
@@ -300,7 +295,7 @@ private fun AnniversaryNotificationContent(
 }
 
 /**
- * 통화 약속, 예약 통화 타입 시 사용하는 공통 컴포넌트
+ * 부재중 통화 알림에 사용하는 컴포넌트
  */
 @Composable
 private fun CallNotificationContent(
@@ -348,20 +343,6 @@ private fun NotificationCardPreview() {
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            NotificationCard(
-                notificationState = HomeNotification(
-                    notificationId = 1,
-                    type = NotificationType.CALL_RESERVATION,
-                    title = "통화 약속",
-                    content = "오늘 밤 9시 통화 15분 뒤에 시작됩니다.",
-                    isRead = false,
-                    createdAt = now.minusMinutes(1),
-                    characterName = "민준",
-                    profileImageUrl = null,
-                ).toUiModel(),
-                onCallClick = {},
-            )
-
             NotificationCard(
                 notificationState = HomeNotification(
                     notificationId = 2,

@@ -2,6 +2,8 @@ package kr.co.call.designsystem.component.bottomsheet
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,6 +24,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -107,6 +112,8 @@ internal fun ConfirmBottomSheetContent(
     sheetHeight: Dp? = 387.dp,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val closeInteractionSource = remember { MutableInteractionSource() }
+    val isClosePressed by closeInteractionSource.collectIsPressedAsState()
     // 고정 높이 모드: height() 후 인셋이면 콘텐츠 영역이 줄어 버튼이 잘릴 수 있음
     // 인셋/하단 패딩을 바깥에 두고, 본문은 heightIn(min)으로 하한만 맞춤 -> 전체 높이가 인셋만큼 늘어남
     // sheetHeight == null: 콘텐츠 wrap (프로필 피커 등)
@@ -154,12 +161,27 @@ internal fun ConfirmBottomSheetContent(
                     .align(Alignment.TopEnd)
                     .padding(top = 5.dp, end = 5.dp)
                     .size(48.dp),
+                interactionSource = closeInteractionSource,
             ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_close_circle),
-                    contentDescription = "닫기",
-                    modifier = Modifier.size(27.dp),
-                )
+                Box(
+                    modifier = Modifier
+                        .size(27.dp)
+                        .background(
+                            color = if (isClosePressed) {
+                                CallTheme.colors.gray900
+                            } else {
+                                CallTheme.colors.gray100
+                            },
+                            shape = CircleShape,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_common_wheel_close),
+                        contentDescription = "닫기",
+                        modifier = Modifier.size(10.dp),
+                    )
+                }
             }
         }
 
