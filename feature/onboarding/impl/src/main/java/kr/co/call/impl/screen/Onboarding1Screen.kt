@@ -27,7 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.selects.select
+import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
+import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
@@ -37,6 +40,7 @@ import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
+import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding1State
@@ -48,10 +52,9 @@ private enum class EditingNameField {
 }
 @Composable
 fun Onboarding1Screen (
-    onProfileClick:()->Unit,
     onNextClick: (Onboarding1State)->Unit,
     modifier: Modifier =Modifier,
-    profileImageURl: String?=null,
+    profileImageUrl: String?=null,
 ) {
     var lastName by rememberSaveable {
         mutableStateOf("")
@@ -75,6 +78,25 @@ fun Onboarding1Screen (
     var nameInput by rememberSaveable {
         mutableStateOf("")
     }
+    var showProfileImagePicker by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var selectedGender by rememberSaveable {
+        mutableStateOf(ProfileImageGender.MALE)
+    }
+
+    var selectedImageId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    var savedProfileImageUrl by rememberSaveable {
+        mutableStateOf(profileImageUrl)
+    }
+
+    val currentProfileImages =
+        TemporaryProfileImageData.imagesFor(selectedGender)
+
     val canMoveNext =
         lastName.isNotBlank() &&
             firstName.isNotBlank() &&
@@ -112,10 +134,15 @@ fun Onboarding1Screen (
                 Spacer(modifier = Modifier.height(18.dp))
                 ProfileChoice(
                     state= ProfileChoiceState(
-                    imageUrl = profileImageURl,
+                    imageUrl = savedProfileImageUrl,
                         size=99.dp,
                     ),
-                    onClick = onProfileClick,
+                    onClick ={
+                        if (selectedImageId==null){
+                            selectedImageId=currentProfileImages.firstOrNull()?.id
+                        }
+                        showProfileImagePicker=true
+                    },
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
@@ -249,5 +276,37 @@ fun Onboarding1Screen (
                 ),
         )
     }
+        if (showProfileImagePicker) {
+            ProfileImagePickerBottomSheet(
+                images = currentProfileImages,
+                selectedGender = selectedGender,
+                selectedImageId = selectedImageId,
+                onGenderChange = { newGender ->
+                    selectedGender = newGender
+
+                    selectedImageId = TemporaryProfileImageData
+                        .imagesFor(newGender)
+                        .firstOrNull()
+                        ?.id
+                },
+                onImageSelected = { image ->
+                    selectedImageId = image.id
+                },
+                onSaveClick = {
+                    savedProfileImageUrl = currentProfileImages
+                        .firstOrNull { image ->
+                            image.id == selectedImageId
+                        }
+                        ?.imageUrl
+
+                    showProfileImagePicker = false
+                },
+                onDismissRequest = {
+                    showProfileImagePicker = false
+                },
+                title = "원하는 사진을\n선택해주세요",
+                confirmText = "저장하기",
+            )
+        }
 }
 }

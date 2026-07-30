@@ -27,7 +27,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
+import kr.co.call.designsystem.component.profileimage.ProfileImageGender
+import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
@@ -39,6 +42,7 @@ import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
+import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding2State
@@ -52,7 +56,6 @@ private enum class Onboarding2EditingNameField {
 @Composable
 fun Onboarding2Screen(
     onBackClick: () -> Unit,
-    onProfileClick: () -> Unit,
     onNextClick: (Onboarding2State) -> Unit,
     modifier: Modifier = Modifier,
     profileImageUrl: String? = null,
@@ -67,6 +70,25 @@ fun Onboarding2Screen(
         mutableStateOf<Onboarding2EditingNameField?>(null)
     }
     var nameInput by rememberSaveable { mutableStateOf("") }
+    //바텀시트 표시 여부
+    var showProfileImagePicker by rememberSaveable {
+        mutableStateOf(false)
+    }
+    //성별 선택
+    var selectedGender by rememberSaveable {
+        mutableStateOf(ProfileImageGender.MALE)
+    }
+    //캐러셀에서 보고 있는 사진
+    var selectedImageId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+    //저장 버튼을 눌러 확정한 사진
+    var savedProfileImageUrl by rememberSaveable {
+        mutableStateOf(profileImageUrl)
+    }
+
+    val currentProfileImages =
+        TemporaryProfileImageData.imagesFor(selectedGender)
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -112,9 +134,14 @@ fun Onboarding2Screen(
 
                 ProfileChoice(
                     state= ProfileChoiceState(
-                    imageUrl = profileImageUrl,
+                    imageUrl = savedProfileImageUrl,
                     ),
-                    onClick = onProfileClick,
+                    onClick = {
+                        if (selectedImageId == null) {
+                            selectedImageId = currentProfileImages.firstOrNull()?.id
+                        }
+                        showProfileImagePicker=true
+                    },
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -247,5 +274,43 @@ fun Onboarding2Screen(
                     .padding(horizontal = 16.dp, vertical = 13.dp),
             )
         }
+        if (showProfileImagePicker) {
+            ProfileImagePickerBottomSheet(
+                images = currentProfileImages,
+                selectedGender = selectedGender,
+                selectedImageId = selectedImageId,
+
+                onGenderChange = { newGender ->
+                    selectedGender = newGender
+
+                    selectedImageId = TemporaryProfileImageData
+                        .imagesFor(newGender)
+                        .firstOrNull()
+                        ?.id
+                },
+
+                onImageSelected = { image ->
+                    selectedImageId = image.id
+                },
+
+                onSaveClick = {
+                    savedProfileImageUrl = currentProfileImages
+                        .firstOrNull { image ->
+                            image.id == selectedImageId
+                        }
+                        ?.imageUrl
+
+                    showProfileImagePicker = false
+                },
+
+                onDismissRequest = {
+                    showProfileImagePicker = false
+                },
+
+                title = "원하는 사진을\n선택해주세요",
+                confirmText = "저장하기",
+            )
+        }
     }
 }
+

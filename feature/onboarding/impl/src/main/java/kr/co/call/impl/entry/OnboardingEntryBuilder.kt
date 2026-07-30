@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import kr.co.call.impl.viewmodel.OnboardingViewModel
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
-    onProfileClick: () -> Unit,
     onOnboarding1Next: () -> Unit,
     onBackFromOnboarding2: () -> Unit,
     onOnboarding2Next: () -> Unit,
@@ -39,7 +38,6 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     entry<Onboarding1NavKey> {
         val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding1Screen(
-            onProfileClick = onProfileClick,
             onNextClick = {state ->
                 onboardingViewModel.updateUserProfile(
                     lastName = state.lastName,
@@ -57,7 +55,6 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val onboardingViewModel = sharedOnboardingViewModel()
         Onboarding2Screen(
             onBackClick = onBackFromOnboarding2,
-            onProfileClick = onProfileClick,
             onNextClick ={ state ->
                 onboardingViewModel.updateAiProfile(
                     age = state.age,

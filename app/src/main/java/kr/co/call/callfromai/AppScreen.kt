@@ -157,9 +157,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
                         }
                     )
                     onboardingEntry(
-                        onProfileClick = {
-                            // 사진 선택 기능은 나중에 구현
-                        },
                         onOnboarding1Next= {
                             appNavigator.navigate(Onboarding2NavKey)
                         },
