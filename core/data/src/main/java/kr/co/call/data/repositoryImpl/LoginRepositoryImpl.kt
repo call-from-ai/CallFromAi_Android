@@ -1,7 +1,7 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.data.util.toFailure
+import kr.co.call.data.util.toAppResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
 import kr.co.call.domain.repository.LoginRepository
@@ -51,8 +51,5 @@ class LoginRepositoryImpl @Inject constructor(
                 needsOnboarding = result.needsOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
-        }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(it.toFailure()) },
-        )
+        }.toAppResult()
 }

@@ -38,13 +38,7 @@ fun Throwable.toAppException(): AppException {
  * - 도메인 특수 예외: 유지 (예: [CharacterChangeUnavailableException])
  * - 그 외: [toAppException]
  *
- * 사용 예:
- * ```
- * runCatching { ... }.fold(
- *     onSuccess = { Result.success(it) },
- *     onFailure = { Result.failure(it.toFailure()) },
- * )
- * ```
+ * 보통 [toAppResult] / [safeApiResult] 경로에서 호출한다.
  */
 fun Throwable.toFailure(): Throwable =
     when (this) {
@@ -54,6 +48,22 @@ fun Throwable.toFailure(): Throwable =
         is CharacterChangeUnavailableException -> this
         else -> toAppException()
     }
+
+/**
+ * stdlib [runCatching] 결과의 실패를 [toFailure] 로 정규화한다.
+ *
+ * - 성공: 그대로
+ * - 실패: [AppException] 등으로 변환. 취소·Error 는 [toFailure] 가 rethrow
+ *
+ * ```
+ * runCatching { ... }.toAppResult()
+ * ```
+ */
+fun <T> Result<T>.toAppResult(): Result<T> =
+    fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { Result.failure(it.toFailure()) },
+    )
 
 /**
  * BE `code` / HTTP status -> [AppException] 카테고리
