@@ -39,9 +39,11 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
     navigateToFaq: () -> Unit,
     navigateToTerms: () -> Unit,
+    onNavigateToCharacterManagement: () -> Unit = {},
 ) {
     val state by viewModel.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -50,11 +52,11 @@ fun MyPageScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is MyPageSideEffect.NavigateToProfileDetail -> { /* TODO: 네비게이션 */ }
+            is MyPageSideEffect.NavigateToProfileDetail -> onNavigateToProfile()
             is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
-            is MyPageSideEffect.NavigateToCharacterManagement -> { /* TODO */ }
+            is MyPageSideEffect.NavigateToCharacterManagement -> onNavigateToCharacterManagement()
             is MyPageSideEffect.NavigateToFaq -> { navigateToFaq() }
             is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToTerms -> { navigateToTerms() }
@@ -89,7 +91,10 @@ fun MyPageScreen(
 
     // 준비중 화면 다이얼로그
     if (showComingSoon) {
-        ComingSoonScreen(onBackClick = { showComingSoon = false })
+        ComingSoonScreen(
+            modifier = Modifier,
+            onBackClick = { showComingSoon = false },
+        )
     }
 }
 

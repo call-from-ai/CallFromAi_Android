@@ -1,8 +1,24 @@
+import java.util.Properties
+
 plugins {
     id("callfromai.android.application")
     id("callfromai.android.compose")
     id("callfromai.android.hilt")
 }
+
+val localProperties = Properties().apply {
+    rootProject.file("local.properties").inputStream().use(::load)
+}
+
+val kakaoNativeAppKey =
+    localProperties.getProperty("KAKAO_NATIVE_APP_KEY")
+        ?:  throw GradleException(
+            """
+            local.properties에 KAKAO_NATIVE_APP_KEY가 없습니다.
+            local.properties에 다음을 추가해주세요.
+            KAKAO_NATIVE_APP_KEY= xxxx
+            """.trimIndent()
+        )
 
 android {
     namespace = "kr.co.call.callfromai"
@@ -13,6 +29,14 @@ android {
         applicationId = "kr.co.call.callfromai"
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField(
+            "String",
+            "KAKAO_NATIVE_APP_KEY",
+            "\"$kakaoNativeAppKey\"",
+        )
+
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"]=kakaoNativeAppKey
     }
 }
 
@@ -57,6 +81,9 @@ dependencies {
 
     // timber
     implementation(libs.timber)
+
+    //kakao login
+    implementation(libs.kakao.user)
 
     // test
     testImplementation(libs.junit)

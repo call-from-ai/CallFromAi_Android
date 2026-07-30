@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -17,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -27,17 +25,28 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import kr.co.call.api.CallSendingNavKey
+import kr.co.call.api.AgreementDetailNavKey
+import kr.co.call.api.AgreementNavKey
 import kr.co.call.api.CallRecordNavKey
+import kr.co.call.api.CallTimeManagementNavKey
+import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
+import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
+import kr.co.call.api.LandingNavKey
+import kr.co.call.api.LoginNavKey
 import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
+import kr.co.call.api.ProfileNavKey
+import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.TermNavKey
+import kr.co.call.api.OnboardingNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
+import kr.co.call.callfromai.util.toMainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.callEntry
@@ -45,7 +54,6 @@ import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
-import kr.co.call.callfromai.util.toMainTab
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -58,7 +66,7 @@ import kr.co.call.callfromai.util.toMainTab
 @Composable
 fun AppScreen(modifier: Modifier = Modifier) {
     // TODO: 로그인 구현 후 로그인 여부에 따른 분기처리 필요. 일단은 시작점을 홈 화면으로 설정
-    val backStack = rememberNavBackStack(HomeNavKey)
+    val backStack = rememberNavBackStack(LandingNavKey)
 
     val appNavigator = remember(backStack) { AppNavigator(backStack) }
     val currentKey = backStack.lastOrNull()
@@ -91,20 +99,19 @@ fun AppScreen(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxSize(),
         bottomBar = {
             if (showBottomBar) {
-            MainBottomBar(
-                currentTab = currentTab,
-                onTabSelected = appNavigator::navigateToTab,
-                modifier = Modifier
-                    .onSizeChanged { bottomBarHeightPx = it.height },
-            )
+                MainBottomBar(
+                    currentTab = currentTab,
+                    onTabSelected = appNavigator::navigateToTab,
+                    modifier = Modifier
+                        .onSizeChanged { bottomBarHeightPx = it.height },
+                )
             }
         },
         contentWindowInsets = WindowInsets.safeDrawing
             .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
             .exclude(WindowInsets.ime),
 
-    ) {
-        padding ->
+        ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
         ) {
@@ -116,7 +123,35 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     rememberViewModelStoreNavEntryDecorator(),
                 ),
                 entryProvider = entryProvider {
-                    loginEntry()
+                    loginEntry(
+                        navigateToLogin={
+                            appNavigator.navigate(LoginNavKey)
+                        },
+                        navigateToOnboarding = {
+                            appNavigator.navigate(OnboardingNavKey)
+                        },
+                        navigateToHome = {
+                            appNavigator.navigate(HomeNavKey)
+                        },
+                        navigateToAgreement={
+                            appNavigator.navigate(AgreementNavKey)
+                        },
+                        navigateToAgreementDetail={term ->
+                            appNavigator.navigate(
+                                AgreementDetailNavKey(
+                                    termId = term.termId,
+                                    title = term.title,
+                                    content = term.content,
+                                ),
+                            )
+                        },
+                        navigateAfterAgreement={
+                            appNavigator.navigate(OnboardingNavKey)
+                        },
+                        onBack={
+                            appNavigator.popBackStack()
+                        }
+                    )
                     onboardingEntry()
                     homeEntry(
                         navigateToCall = { characterId ->
@@ -152,6 +187,12 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     myPageEntry(
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
+                        navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },
+                        navigateToProfile = { appNavigator.navigate(ProfileNavKey) },
+                        navigateToEditProfile = { appNavigator.navigate(EditProfileNavKey) },
+                        navigateToSubscription = { appNavigator.navigate(SubscriptionNavKey) },
+                        navigateToDisturbTime = { appNavigator.navigate(DisturbTimeNavKey) },
+                        navigateToCallTimeManagement = { appNavigator.navigate(CallTimeManagementNavKey) },
                         onBack = { appNavigator.popBackStack() },
                     )
                 }
