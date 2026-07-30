@@ -31,7 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
-import kr.co.call.designsystem.modifier.noRippleClickable
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.mock.CallMockData
@@ -174,9 +173,10 @@ private fun CallHistoryCard(
                         width = 1.dp,
                         color = CallTheme.colors.mainVariant2,
                         shape = CircleShape,
-                    ),
-                interactionSource = recordButtonInteractionSource,
-                    .noRippleClickable(
+                    )
+                    .clickable(
+                        interactionSource = recordButtonInteractionSource,
+                        indication = null,
                         onClickLabel = "통화 기록 보기",
                         role = Role.Button,
                         onClick = onRecordClick,
