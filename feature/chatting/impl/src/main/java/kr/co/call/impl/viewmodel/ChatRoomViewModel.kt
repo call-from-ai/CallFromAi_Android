@@ -65,7 +65,7 @@ class ChatRoomViewModel @AssistedInject constructor(
             is ChatRoomIntent.ClickCall -> showCallDialog()
             ChatRoomIntent.ClickCamera -> emitGoToCamera()
             ChatRoomIntent.ClickGallery -> emitGoToGallery()
-            is ChatRoomIntent.DeleteMessage -> deleteMessage(intent.messageId)
+            is ChatRoomIntent.DeleteMessage -> deleteMessage(navKey.roomId, intent.messageId)
             is ChatRoomIntent.SendMessage -> sendMessage(intent)
             is ChatRoomIntent.LongPressMessage -> selectMessage(intent.messageId)
             is ChatRoomIntent.GoToCall -> emitNavigateToCall(intent.characterId)
@@ -182,8 +182,11 @@ class ChatRoomViewModel @AssistedInject constructor(
     }
 
     // 선택한 메시지를 삭제하고 삭제 상태 반영
-    private fun deleteMessage(messageId: Long) = intent {
-        chatRepository.deleteMessage(messageId).fold(
+    private fun deleteMessage(
+        chatroomId: Long,
+        messageId: Long
+    ) = intent {
+        chatRepository.deleteMessage(chatroomId, messageId).fold(
             onSuccess = {
                 reduce {
                     state.copy(

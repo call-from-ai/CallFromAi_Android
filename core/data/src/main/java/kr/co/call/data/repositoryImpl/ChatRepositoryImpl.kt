@@ -118,7 +118,10 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun deleteMessage(messageId: Long): Result<Unit> = runCatching {
+    override suspend fun deleteMessage(
+        chatroomId: Long,
+        messageId: Long
+    ): Result<Unit> = runCatching {
         delay(500.milliseconds)
 
         Unit

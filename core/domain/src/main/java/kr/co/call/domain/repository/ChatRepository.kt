@@ -26,6 +26,7 @@ interface ChatRepository {
     ): Result<Unit>
 
     suspend fun deleteMessage(
+        chatroomId: Long,
         messageId: Long
     ): Result<Unit>
 }
