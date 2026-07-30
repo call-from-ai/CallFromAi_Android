@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,11 +25,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.mock.CallMockData
@@ -156,8 +157,7 @@ private fun CallHistoryCard(
 
         // 부재중 통화가 아닐 경우 기록 버튼 표시
         if (!isMissed) {
-            IconButton(
-                onClick = onRecordClick,
+            Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .padding(end = 32.dp)
@@ -176,6 +176,12 @@ private fun CallHistoryCard(
                         shape = CircleShape,
                     ),
                 interactionSource = recordButtonInteractionSource,
+                    .noRippleClickable(
+                        onClickLabel = "통화 기록 보기",
+                        role = Role.Button,
+                        onClick = onRecordClick,
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     painter = painterResource(

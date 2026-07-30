@@ -7,7 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
@@ -26,11 +27,16 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
  * - 공통 재사용 가능
  * - URL이 없거나 로딩에 실패하면 기본 이미지 표시
  * - 통화 배지 표시 여부 설정 가능
+ * - 프로필 이미지 크기 설정 가능
  */
 @Composable
 fun ProfileImage(
     profileImageUrl: String?,
     modifier: Modifier = Modifier,
+    size: DpSize = DpSize(
+        width = 49.dp,
+        height = 51.dp,
+    ),
     showCallBadge: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
@@ -40,7 +46,7 @@ fun ProfileImage(
 
     Box(
         modifier = modifier
-            .size(width = 49.dp, height = 51.dp)
+            .size(width = size.width, height = size.height)
             .then(
                 if (onClick != null) Modifier.clickable(
                     interactionSource = remember { MutableInteractionSource() },
@@ -54,7 +60,7 @@ fun ProfileImage(
             contentDescription = "프로필 이미지",
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(25.dp)),
+                .clip(CircleShape),
             placeholder = defaultProfile,
             error = defaultProfile,
             fallback = defaultProfile,

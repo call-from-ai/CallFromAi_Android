@@ -34,6 +34,8 @@ private fun pretendard(
 
 @Immutable
 data class CallTypography(
+    val titleSuperBig: TextStyle = pretendard(40, 1f, FontWeight.SemiBold),
+
     // Title (line height 140%)
     val titleExtraLargeBold: TextStyle = pretendard(34,1.4f, FontWeight.Bold),
     val titleExtraLarge: TextStyle = pretendard(34,1.4f, FontWeight.Normal),
@@ -57,6 +59,7 @@ data class CallTypography(
     // Others (line height 150%)
     val caption: TextStyle         = pretendard(12, 1.5f, FontWeight.Normal),
     val captionBold: TextStyle     = pretendard(12, 1.5f, FontWeight.SemiBold),
+    val captionSmallBold: TextStyle = pretendard(8, 1.5f, FontWeight.SemiBold), // 신규
 )
 
 val LocalCallTypography = staticCompositionLocalOf { CallTypography() }

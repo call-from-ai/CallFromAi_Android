@@ -118,7 +118,11 @@ class HomeViewModel @Inject constructor(
             reduce {
                 state.copy(dialogState = null)
             }
-            postSideEffect(HomeSideEffect.NavigateToCall)
+            postSideEffect(
+                HomeSideEffect.NavigateToCall(
+                    characterId = confirmation.characterId,
+                ),
+            )
         } catch (cancellationException: CancellationException) {
             throw cancellationException
         } catch (throwable: Throwable) {

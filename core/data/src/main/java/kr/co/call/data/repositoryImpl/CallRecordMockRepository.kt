@@ -21,7 +21,7 @@ class CallRecordMockRepository @Inject constructor() : CallRecordRepository {
                 characterName = if (callId % 2L == 1L) "민준" else "동휘",
                 recordingUrl =
                     "https://storage.googleapis.com/exoplayer-test-media-0/play.mp3",
-                durationMillis = 0L,
+                durationMillis = 59_272L,
             ),
         )
     }

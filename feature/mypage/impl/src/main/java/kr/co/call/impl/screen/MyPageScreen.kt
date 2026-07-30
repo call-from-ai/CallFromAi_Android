@@ -39,6 +39,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    onNavigateToProfile: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
     navigateToFaq: () -> Unit,
     navigateToTerms: () -> Unit,
@@ -51,7 +52,7 @@ fun MyPageScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is MyPageSideEffect.NavigateToProfileDetail -> { /* TODO: 네비게이션 */ }
+            is MyPageSideEffect.NavigateToProfileDetail -> onNavigateToProfile()
             is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
             is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
             is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
@@ -90,7 +91,10 @@ fun MyPageScreen(
 
     // 준비중 화면 다이얼로그
     if (showComingSoon) {
-        ComingSoonScreen(onBackClick = { showComingSoon = false })
+        ComingSoonScreen(
+            modifier = Modifier,
+            onBackClick = { showComingSoon = false },
+        )
     }
 }
 
@@ -300,7 +304,7 @@ private fun MyPageScreenLogoutDialogPreview() {
                 negativeText = "취소",
                 onPositiveClick = {},
                 onNegativeClick = {},
-                onDismissRequest = {}
+                onDismissRequest = {},
             )
     }
 }

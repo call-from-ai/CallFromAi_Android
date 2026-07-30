@@ -5,4 +5,5 @@ data class CallRecordUiModel(
     val calledAtText: String = "",
     val characterName: String = "",
     val recordingUrl: String? = null,
+    val durationMillis: Long = 0L,
 )
