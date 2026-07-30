@@ -13,3 +13,8 @@ data class CallIncomingNavKey(
 data class CallSendingNavKey(
     val characterId: Long,
 ) : NavKey
+
+data class IncomingCallInfo(
+    val callId: Long,
+    val characterId: Long,
+)
