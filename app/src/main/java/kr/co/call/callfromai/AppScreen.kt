@@ -28,6 +28,7 @@ import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.AgreementDetailNavKey
 import kr.co.call.api.AgreementNavKey
 import kr.co.call.api.CallRecordNavKey
+import kr.co.call.api.CallSendingNavKey
 import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
