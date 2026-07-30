@@ -3,6 +3,7 @@ package kr.co.call.impl.component.record
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,18 +12,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 
@@ -38,8 +41,11 @@ fun CallRecordPlayer(
     onForwardClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val progress = if (state.durationMillis > 0L) {
-        state.currentPositionMillis.toFloat() / state.durationMillis
+    // state에서 실제 재생 위치를 가져옴
+    val durationMillis = state.durationMillis
+    // 진행 비율 재계산
+    val progress = if (durationMillis > 0L) {
+        state.currentPositionMillis.toFloat() / durationMillis
     } else {
         0f
     }.coerceIn(0f, 1f)
@@ -47,13 +53,14 @@ fun CallRecordPlayer(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .height(108.dp)
+            .height(144.dp)
             .padding(horizontal = 16.dp),
     ) {
         CallRecordProgressBar(
             progress = progress,
+            enabled = durationMillis > 0L,
             onProgressChange = { changedProgress ->
-                onSeek((state.durationMillis * changedProgress).toLong())
+                onSeek((durationMillis * changedProgress).toLong())
             },
         )
         Spacer(modifier = Modifier.height(3.dp))
@@ -103,22 +110,31 @@ fun CallRecordPlayer(
 @Composable
 private fun CallRecordProgressBar(
     progress: Float,
+    enabled: Boolean,
     onProgressChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val inactiveColor = CallTheme.colors.gray100
     val activeColor = CallTheme.colors.mainVariant1
+    val latestOnProgressChange = rememberUpdatedState(onProgressChange)
 
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(12.dp)
-            .pointerInput(onProgressChange) {
-                detectTapGestures { offset ->
-                    onProgressChange((offset.x / size.width).coerceIn(0f, 1f))
+            .height(48.dp)
+            .pointerInput(enabled) {
+                if (enabled) {
+                    detectTapGestures { offset ->
+                        if (size.width <= 0) return@detectTapGestures
+
+                        val changedProgress =
+                            (offset.x / size.width).coerceIn(0f, 1f)
+                        latestOnProgressChange.value(changedProgress)
+                    }
                 }
             },
     ) {
+        // 비율에 맞춰서 선의 끝 위치 그리기
         val centerY = size.height / 2f
         val progressX = size.width * progress
 
@@ -173,9 +189,15 @@ private fun PlayerSeekButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier.size(48.dp),
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .noRippleClickable(
+                onClickLabel = contentDescription,
+                role = Role.Button,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(drawableRes),
@@ -194,9 +216,17 @@ private fun PlayPauseButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IconButton(
-        onClick = onClick,
-        modifier = modifier.size(48.dp),
+    val contentDescription = if (isPlaying) "일시정지" else "재생"
+
+    Box(
+        modifier = modifier
+            .size(48.dp)
+            .noRippleClickable(
+                onClickLabel = contentDescription,
+                role = Role.Button,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(
@@ -206,7 +236,7 @@ private fun PlayPauseButton(
                     R.drawable.ic_home_call_play
                 },
             ),
-            contentDescription = if (isPlaying) "일시정지" else "재생",
+            contentDescription = contentDescription,
             modifier = Modifier.size(34.dp),
         )
     }

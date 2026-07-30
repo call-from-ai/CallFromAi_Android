@@ -49,6 +49,7 @@ import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
+import kr.co.call.impl.entry.callEntry
 import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
@@ -153,10 +154,22 @@ fun AppScreen(modifier: Modifier = Modifier) {
                     )
                     onboardingEntry()
                     homeEntry(
+                        navigateToCall = { characterId ->
+                            appNavigator.navigate(
+                                CallSendingNavKey(
+                                    characterId = characterId,
+                                ),
+                            )
+                        },
                         navigateToCallRecord = { callId ->
                             appNavigator.navigate(CallRecordNavKey(callId = callId))
                         },
                         onCallRecordBack = {
+                            appNavigator.popBackStack()
+                        },
+                    )
+                    callEntry(
+                        onCallFinished = {
                             appNavigator.popBackStack()
                         },
                     )

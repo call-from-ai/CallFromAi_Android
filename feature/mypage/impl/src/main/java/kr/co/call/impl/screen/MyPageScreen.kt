@@ -304,7 +304,7 @@ private fun MyPageScreenLogoutDialogPreview() {
                 negativeText = "취소",
                 onPositiveClick = {},
                 onNegativeClick = {},
-                onDismissRequest = {}
+                onDismissRequest = {},
             )
     }
 }

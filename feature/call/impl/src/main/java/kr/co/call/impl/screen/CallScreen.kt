@@ -1,0 +1,254 @@
+package kr.co.call.impl.screen
+
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.impl.component.CallControlPanel
+import kr.co.call.impl.component.CallDuration
+import kr.co.call.impl.component.CallGradientBackground
+import kr.co.call.impl.component.CallHeader
+import kr.co.call.impl.component.CallProfile
+import kr.co.call.impl.component.CallProfileStyle
+import kr.co.call.impl.viewmodel.CallIntent
+import kr.co.call.impl.viewmodel.CallSideEffect
+import kr.co.call.impl.viewmodel.CallViewModel
+import kr.co.call.impl.viewmodel.model.CallCharacterUiModel
+import kr.co.call.impl.viewmodel.model.CallDirection
+import kr.co.call.impl.viewmodel.state.CallPhase
+import kr.co.call.impl.viewmodel.state.CallState
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
+
+/**
+ * 통화 중 화면
+ */
+@Composable
+fun CallScreen(
+    onCallFinished: () -> Unit,
+    viewModel: CallViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val state by viewModel.collectAsState()
+    val context = LocalContext.current
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            viewModel.handleIntent(
+                CallIntent.MicrophonePermissionResult(isGranted),
+            )
+        },
+    )
+
+    LaunchedEffect(Unit) {
+        val isMicrophonePermissionGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO,
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (isMicrophonePermissionGranted) {
+            viewModel.handleIntent(
+                CallIntent.MicrophonePermissionResult(isGranted = true),
+            )
+        } else {
+            microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            CallSideEffect.FinishCall -> onCallFinished()
+        }
+    }
+
+    CallContent(
+        state = state,
+        onIntent = viewModel::handleIntent,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun CallContent(
+    state: CallState,
+    onIntent: (CallIntent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    when (state.phase) {
+        CallPhase.CONNECTING -> {
+            CallSessionContent(
+                state = state,
+                statusContent = {
+                    Text(
+                        text = "휴대전화 연결 중...",
+                        color = CallTheme.colors.gray900,
+                        style = CallTheme.typography.bodyMedium,
+                    )
+                },
+                onIntent = onIntent,
+                modifier = modifier,
+            )
+        }
+
+        CallPhase.READY -> {
+            CallSessionContent(
+                state = state,
+                statusContent = {
+                    CallDuration(durationSeconds = state.durationSeconds)
+                },
+                onIntent = onIntent,
+                modifier = modifier,
+            )
+        }
+
+        CallPhase.ENDING -> {
+            CallSessionContent(
+                state = state,
+                statusContent = {
+                    Text(
+                        text = "통화를 종료하는 중...",
+                        color = CallTheme.colors.gray900,
+                        style = CallTheme.typography.bodyMedium,
+                    )
+                },
+                onIntent = onIntent,
+                controlsEnabled = false,
+                modifier = modifier,
+            )
+        }
+
+        CallPhase.ENDED,
+        CallPhase.ERROR -> {
+            CallEndedScreen(
+                state = state,
+                modifier = modifier,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CallSessionContent(
+    state: CallState,
+    statusContent: @Composable () -> Unit,
+    onIntent: (CallIntent) -> Unit,
+    modifier: Modifier = Modifier,
+    controlsEnabled: Boolean = true,
+) {
+    CallGradientBackground(modifier = modifier) {
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isCompact = maxHeight < 700.dp
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(if (isCompact) 12.dp else 22.dp))
+                CallHeader(direction = state.direction)
+                Spacer(modifier = Modifier.height(13.dp))
+                statusContent()
+                Spacer(modifier = Modifier.height(if (isCompact) 8.dp else 16.dp))
+                Text(
+                    text = state.character.name,
+                    color = CallTheme.colors.gray900,
+                    style = CallTheme.typography.titleSuperBig,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(modifier = Modifier.height(if (isCompact) 16.dp else 38.dp))
+                CallProfile(
+                    profileImageUrl = state.character.profileImageUrl,
+                    style = CallProfileStyle.session(isCompact),
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                CallControlPanel(
+                    isMicrophoneEnabled = state.sessionState.isMicrophoneEnabled,
+                    isSpeakerEnabled = state.sessionState.isSpeakerEnabled,
+                    onMicrophoneClick = {
+                        onIntent(CallIntent.ToggleMicrophone)
+                    },
+                    onEndCallClick = {
+                        onIntent(CallIntent.EndCall)
+                    },
+                    onSpeakerClick = {
+                        onIntent(CallIntent.ToggleSpeaker)
+                    },
+                    enabled = controlsEnabled,
+                )
+                Spacer(modifier = Modifier.height(if (isCompact) 16.dp else 24.dp))
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, widthDp = 412, heightDp = 917)
+@Composable
+private fun CallSendingContentPreview() {
+    CallFromAiTheme {
+        CallContent(
+            state = CallState(
+                character = CallCharacterUiModel(name = "민준"),
+                direction = CallDirection.OUTGOING,
+                phase = CallPhase.CONNECTING,
+            ),
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 412, heightDp = 917)
+@Composable
+private fun InCallContentPreview() {
+    CallFromAiTheme {
+        CallContent(
+            state = CallState(
+                character = CallCharacterUiModel(name = "민준"),
+                direction = CallDirection.INCOMING,
+                phase = CallPhase.READY,
+                durationSeconds = 38,
+            ),
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 640)
+@Composable
+private fun CompactCallContentPreview() {
+    CallFromAiTheme {
+        CallContent(
+            state = CallState(
+                character = CallCharacterUiModel(name = "민준"),
+                direction = CallDirection.INCOMING,
+                phase = CallPhase.READY,
+                durationSeconds = 38,
+            ),
+            onIntent = {},
+        )
+    }
+}
