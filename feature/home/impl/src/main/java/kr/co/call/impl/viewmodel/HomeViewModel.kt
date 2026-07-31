@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.exception.AppException
-import kr.co.call.domain.usecase.home.HomeUseCase
+import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.state.HomeDialogState
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeUseCase: HomeUseCase,
+    private val homeRepository: HomeRepository,
 ) :
     ViewModel(),
     ContainerHost<HomeState, HomeSideEffect> {
@@ -147,10 +147,10 @@ class HomeViewModel @Inject constructor(
             ?: return@intent
 
         try {
-            homeUseCase.activateCharacter(
+            homeRepository.activateCharacter(
                 characterId = confirmation.characterId,
-            )
-            val characters = homeUseCase.getCharacters()
+            ).getOrThrow()
+            val characters = homeRepository.getCharacters().getOrThrow()
 
             reduce {
                 state.copy(
@@ -226,9 +226,9 @@ class HomeViewModel @Inject constructor(
         }
 
         try {
-            val summary = homeUseCase.getSummary()
-            val callHistories = homeUseCase.getCallHistories()
-            val characters = homeUseCase.getCharacters()
+            val summary = homeRepository.getSummary().getOrThrow()
+            val callHistories = homeRepository.getCallHistories().getOrThrow()
+            val characters = homeRepository.getCharacters().getOrThrow()
 
             reduce {
                 state.copy(
