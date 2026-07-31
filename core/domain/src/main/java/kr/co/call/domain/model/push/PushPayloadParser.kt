@@ -1,7 +1,10 @@
 package kr.co.call.domain.model.push
 
 /**
- * FCM RemoteMessage의 data를 [PushPayload]로 변환한다.
+ * FCM RemoteMessage 를 [PushPayload]로 변환한다.
+ *
+ * - CHAT/NOTICE: title/body 는 notification 인자, 식별 필드는 data
+ * - CALL: data 만 사용 (data-only 착신)
  *
  * Android SDK 의존 없이 [Map]만 받으므로 domain에 둔다.
  * 필수 필드 누락/type 미지/숫자 파싱 실패 시 null
@@ -9,9 +12,9 @@ package kr.co.call.domain.model.push
 object PushPayloadParser {
 
     /**
-     * @param data FCM data 맵 (값은 모두 문자열)
-     * @param notificationTitle OS notification title (CHAT/NOTICE, 없으면 null)
-     * @param notificationBody OS notification body (CHAT/NOTICE, 없으면 null)
+     * @param data FCM data 맵 (값은 모두 문자열) CHAT/NOTICE 의 title/body 는 포함하지 않는다
+     * @param notificationTitle OS notification title (CHAT/NOTICE 전용, CALL 은 null)
+     * @param notificationBody OS notification body (CHAT/NOTICE 전용, CALL 은 null)
      */
     fun parse(
         data: Map<String, String>,

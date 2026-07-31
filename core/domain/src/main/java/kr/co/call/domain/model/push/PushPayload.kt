@@ -1,11 +1,12 @@
 package kr.co.call.domain.model.push
 
 /**
- * FCM data 페이로드 수신 계약
+ * FCM 수신 계약
  *
- * - CHAT: 배너 + chatRoomId -> 채팅방 이동
- * - CALL: data-only 커스텀 착신 UI
- * - NOTICE: 일반 배너
+ * - CHAT: notification(title/body) + data(type, chatRoomId) 클릭 시 해당 채팅방 이동
+ * - CALL: data-only(type, callId, characterId, characterName, characterImageUrl, chatRoomId)
+ *   수락/거절/채팅 이동 커스텀 착신 UI
+ * - NOTICE: notification(title/body) + data(type)
  *
  * data 값은 FCM 규격상 모두 문자열이다. 파싱은 [PushPayloadParser]가 담당한다.
  */
@@ -13,7 +14,8 @@ sealed interface PushPayload {
 
     /**
      * 채팅 알림. 클릭 시 [chatRoomId] 방으로 이동한다.
-     * title/body는 OS notification 또는 data에서 올 수 있다.
+     * title/body는 RemoteMessage.notification 만 사용한다 (data에 title/body 없음)
+     * data에는 type, chatRoomId 만 온다.
      */
     data class Chat(
         val chatRoomId: Long,
@@ -22,7 +24,8 @@ sealed interface PushPayload {
     ) : PushPayload
 
     /**
-     * 전화 착신. 배너 없이 data-only로 오며 수락/거절/채팅 이동 UI를 그린다.
+     * 전화 착신. notification 없이 data-only 로 오며
+     * 수락/거절/채팅 이동 커스텀 UI를 그린다.
      */
     data class Call(
         val callId: Long,
@@ -34,6 +37,7 @@ sealed interface PushPayload {
 
     /**
      * 공지/일반 알림 배너
+     * title/body는 RemoteMessage.notification 만 사용한다 (data에는 type 만)
      */
     data class Notice(
         val title: String,
@@ -54,7 +58,7 @@ object PushDataKeys {
 }
 
 /**
- * data["type"] 값. BE [PushType] enum name과 동일
+ * data["type"] 값
  */
 enum class PushType {
     CHAT,
