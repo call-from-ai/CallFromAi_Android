@@ -21,7 +21,16 @@ object PushNotificationExtras {
  */
 object PushNotificationHelper {
 
-    private const val NOTICE_NOTIFICATION_ID = 1001
+    /** 공지 알림 고정 ID (chat/call 대역과 분리) */
+    private const val NOTICE_NOTIFICATION_ID = 1
+
+    /** 채팅: [CHAT_ID_BASE, CHAT_ID_BASE + ID_SPAN) */
+    private const val CHAT_ID_BASE = 1_000_000
+
+    /** 통화: [CALL_ID_BASE, CALL_ID_BASE + ID_SPAN) */
+    private const val CALL_ID_BASE = 2_000_000
+
+    private const val ID_SPAN = 1_000_000
 
     fun showChat(
         context: Context,
@@ -95,8 +104,8 @@ object PushNotificationHelper {
     }
 
     private fun chatNotificationId(chatRoomId: Long): Int =
-        (chatRoomId % Int.MAX_VALUE).toInt().let { if (it == 0) 1 else it }
+        CHAT_ID_BASE + chatRoomId.mod(ID_SPAN.toLong()).toInt()
 
     private fun callNotificationId(callId: Long): Int =
-        (2_000_000 + (callId % 100_000)).toInt()
+        CALL_ID_BASE + callId.mod(ID_SPAN.toLong()).toInt()
 }
