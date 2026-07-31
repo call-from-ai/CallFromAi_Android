@@ -8,10 +8,12 @@ package kr.co.call.domain.model.chatting
  * @property characterFirstName 캐릭터의 이름.
  * @property characterImageUrl 캐릭터 프로필 이미지의 URL 경로.
  * @property dDay 캐릭터와 대화를 시작한 지 경과된 일수 또는 특정 기준일로부터의 디데이.
+ * @property isMain 메인 캐릭터 여부.
  */
 data class ChatHeader(
     val characterId: Long,
     val characterFirstName: String = "",
     val characterImageUrl: String = "",
     val dDay: Int = 1,
+    val isMain: Boolean = false,
 )

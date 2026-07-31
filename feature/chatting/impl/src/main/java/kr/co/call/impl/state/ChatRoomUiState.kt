@@ -24,6 +24,7 @@ data class ChatRoomUiState(
     val status: LoadStatus = LoadStatus.Idle,
     val deletedIds: Set<Long> = emptySet(),
     val showCallDialog: Boolean = false,
+    val showNotMainDialog: Boolean = false,
     val expandedProfileUrl: String? = null,
     val selectedMessageId: Long? = null
 )

@@ -4,127 +4,109 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kr.co.call.data.mapper.ChatMapper.toDomain
+import kr.co.call.data.util.safeApiResult
+import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.domain.model.chatting.ChatHeader
 import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.domain.model.chatting.ChatSummary
 import kr.co.call.domain.model.chatting.ImageData
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.network.api.ChatApi
+import kr.co.call.network.dto.chatting.MuteChatRoomRequestDTO
+import kr.co.call.network.util.ErrorResponseParser
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 
-//TODO: 추후에 api 연동
+/**
+ * [ChatRepository]의 구현체.
+ *
+ * 채팅 관련 네트워크 요청을 [ChatApi]를 통해 처리하며,
+ * 응답 데이터를 도메인 모델로 변환하여 반환한다.
+ *
+ * @param chatApi 채팅 관련 Retrofit API 인터페이스
+ * @param errorResponseParser API 에러 응답을 파싱하는 유틸리티
+ */
 class ChatRepositoryImpl @Inject constructor(
-
+    private val chatApi: ChatApi,
+    private val errorResponseParser: ErrorResponseParser
 ) : ChatRepository {
 
-    private val chatSummaries = mutableListOf(
-        ChatSummary(
-            chatRoomId = 2,
-            name = "김민지",
-            isMainCharacter = true,
-            content = "오늘 저녁에 뭐해?",
-            whenSubmitted = "오후 3:21",
-            unReadMessageCount = "5",
-            isAlarmEnabled = true,
-        ),
-        ChatSummary(
-            chatRoomId = 3,
-            name = "이서연",
-            isMainCharacter = false,
-            content = "사진 보내줄게!",
-            whenSubmitted = "오후 1:10",
-            unReadMessageCount = "0",
-            isAlarmEnabled = false,
-        ),
-        ChatSummary(
-            chatRoomId = 4,
-            name = "박지우",
-            isMainCharacter = true,
-            content = "ㅋㅋㅋㅋ 진짜?",
-            whenSubmitted = "어제",
-            unReadMessageCount = "0",
-            isAlarmEnabled = true,
-        ),
-        ChatSummary(
-            chatRoomId = 5,
-            name = "최예린",
-            isMainCharacter = false,
-            content = "나중에 연락해",
-            whenSubmitted = "월요일",
-            unReadMessageCount = "1",
-            isAlarmEnabled = false,
-        ),
-    )
+    // 채팅방 목록을 서버에서 조회하여 도메인 모델 리스트로 변환해 반환
+    override suspend fun getChatList(): Result<List<ChatSummary>> =
+        safeApiResult(errorResponseParser) { chatApi.getChatRoomList() }
+            .map { it.toDomain() }
 
-    override suspend fun getChatList(): Result<List<ChatSummary>> = runCatching {
-        delay(1000.milliseconds)
-        chatSummaries
-    }
+    // 특정 채팅방을 삭제
+    override suspend fun deleteChatRoom(roomId: Long): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) { chatApi.deleteChatRoom(roomId) }
 
-    override suspend fun deleteChatRoom(roomId: Long): Result<Unit> = runCatching {
-        delay(500.milliseconds)
-    }
+    // 채팅방의 알람(뮤트) 설정을 변경. isMuted = true 이면 알람 끔, false 이면 알람 켬
+    override suspend fun updateAlarmSetting(
+        roomId: Long,
+        isMuted: Boolean
+    ): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) {
+            chatApi.muteChatRoom(
+                roomId,
+                MuteChatRoomRequestDTO(isMuted = isMuted)
+            )
+        }
 
-    override suspend fun updateAlarmSetting(roomId: Long): Result<Unit> = runCatching {
-        delay(500.milliseconds)
-    }
-
+    // 특정 채팅방의 메시지를 페이징 방식으로 로드
     override fun getChats(roomId: Long): Flow<PagingData<ChatItem>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
-                initialLoadSize = 20,
+                pageSize = 30,
+                initialLoadSize = 30,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                ChatPagingSource(roomId)
+                ChatPagingSource(chatApi, errorResponseParser, roomId)
             }
         ).flow.map { pagingData ->
             pagingData.map { msg -> msg as ChatItem }
         }
     }
 
-    private val chatHeaders = mutableMapOf(
-        2L to ChatHeader(characterId = 1, characterFirstName = "민지", dDay = 12),
-        3L to ChatHeader(characterId = 2, characterFirstName = "서연", dDay = 5),
-        4L to ChatHeader(characterId = 3, characterFirstName = "지우", dDay = 30),
-        5L to ChatHeader(characterId = 4, characterFirstName = "예린", dDay = 1),
-    )
-
-    override suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader> = runCatching {
-        delay(500.milliseconds)
-        chatHeaders[roomId] ?: error("ChatHeader not found for roomId=$roomId")
+    override suspend fun readChats(roomId: Long): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) {
+            chatApi.readChats(roomId)
     }
 
-    override suspend fun sendMessage(
-        roomId: Long,
-        message: String?,
-        image: ImageData?
-    ): Result<Unit> = runCatching {
-        delay(500.milliseconds)
+    // 채팅방 헤더 정보(상대방 프로필, 이름 등)를 조회하여 도메인 모델로 변환해 반환
+    override suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader> =
+        safeApiResult(errorResponseParser) { chatApi.getChatRoomHeader(roomId) }
+            .map { it.toDomain() }
 
-        val imagePart = image?.let {
-            MultipartBody.Part.createFormData(
-                name = "image",
-                filename = it.fileName,
-                body = it.bytes.toRequestBody(it.mimeType.toMediaType())
-            )
-        }
+        // 채팅방에 텍스트 또는 이미지 메시지를 전송. 서버가 항상 multipart/form-data를 요구함
+        override suspend fun sendMessage(
+            roomId: Long,
+            message: String?,
+            image: ImageData?
+        ): Result<ChatItem.Message> {
+            val contentPart = message?.toRequestBody("text/plain".toMediaType())
+            val imagePart = image?.let {
+                MultipartBody.Part.createFormData(
+                    name = "image",
+                    filename = it.fileName,
+                    body = it.bytes.toRequestBody(it.mimeType.toMediaType())
+                )
+            }
+            return safeApiResult(errorResponseParser) {
+                chatApi.sendMessage(roomId, contentPart, imagePart)
+            }.map { it.toDomain() }
     }
 
-    override suspend fun deleteMessage(messageId: Long): Result<Unit> = runCatching {
-        delay(500.milliseconds)
-
-        Unit
-    }
-
-
-
-
+    // 특정 채팅방의 메시지를 삭제
+    override suspend fun deleteMessage(
+        chatroomId: Long,
+        messageId: Long
+    ): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) { chatApi.deleteMessage(chatroomId, messageId) }
 }

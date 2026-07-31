@@ -12,9 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +33,6 @@ fun ChatBubblePopUp(
     onDismiss: () -> Unit,
     offset: IntOffset = IntOffset.Zero,
 ) {
-    var selectedItem by remember { mutableStateOf("copy") }
-
     Popup(
         alignment = Alignment.TopEnd,
         offset = offset,
@@ -56,26 +52,16 @@ fun ChatBubblePopUp(
         ) {
             PopUpItem(
                 text = "복사",
-                isSelected = selectedItem == "copy",
                 onClick = {
-                    if (selectedItem == "copy") {
-                        onCopy()
-                        onDismiss()
-                    } else {
-                        selectedItem = "copy"
-                    }
+                    onCopy()
+                    onDismiss()
                 },
             )
             PopUpItem(
                 text = "삭제",
-                isSelected = selectedItem == "delete",
                 onClick = {
-                    if (selectedItem == "delete") {
-                        onDelete()
-                        onDismiss()
-                    } else {
-                        selectedItem = "delete"
-                    }
+                    onDelete()
+                    onDismiss()
                 },
             )
         }
@@ -85,7 +71,6 @@ fun ChatBubblePopUp(
 @Composable
 private fun PopUpItem(
     text: String,
-    isSelected: Boolean = false,
     onClick: () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -103,10 +88,7 @@ private fun PopUpItem(
                 onClick = onClick,
             )
             .background(
-                when {
-                    isPressed || isSelected -> CallTheme.colors.mainVariant3
-                    else -> CallTheme.colors.white
-                }
+                if (isPressed) CallTheme.colors.mainVariant3 else CallTheme.colors.white
             )
             .padding(horizontal = 16.dp, vertical = 12.dp),
     )

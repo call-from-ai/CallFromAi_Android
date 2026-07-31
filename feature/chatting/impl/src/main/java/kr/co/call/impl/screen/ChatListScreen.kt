@@ -21,6 +21,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import kr.co.call.chatting.impl.R
 import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -47,6 +49,11 @@ fun ChatListScreen(
     // 상태 구독
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+
+    // 채팅방에서 돌아올 때 목록 조용히 갱신
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.handleIntent(ChatListIntent.OnResume)
+    }
 
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
@@ -127,7 +134,8 @@ fun ChatListScreenContent(
                 }
                 LoadStatus.Loading -> {
                     item {
-                        LoadingColumn()
+                        // UX상의 이유로 주석처리
+                        //LoadingColumn()
                     }
                 }
                 LoadStatus.Idle -> {
@@ -149,7 +157,8 @@ fun ChatListScreenContent(
                             onAlarmClick = {
                                 onIntent(
                                     ChatListIntent.UpdateAlarmSetting(
-                                        roomId = chatSummary.chatRoomId
+                                        roomId = chatSummary.chatRoomId,
+                                        isMuted = !chatSummary.isMuted
                                     )
                                 )
                             },
@@ -194,7 +203,7 @@ private fun ChatListScreenContentPreview() {
                         content = "오늘 저녁에 뭐해?",
                         whenSubmitted = "30분 전",
                         unReadMessageCount = "3",
-                        isAlarmEnabled = true,
+                        isMuted = false,
                     ),
                     ChatSummary(
                         chatRoomId = 2,
@@ -203,7 +212,7 @@ private fun ChatListScreenContentPreview() {
                         content = "내일 봐!",
                         whenSubmitted = "1시간 전",
                         unReadMessageCount = "0",
-                        isAlarmEnabled = false,
+                        isMuted = true,
                     )
                 ),
                 status = LoadStatus.Idle,

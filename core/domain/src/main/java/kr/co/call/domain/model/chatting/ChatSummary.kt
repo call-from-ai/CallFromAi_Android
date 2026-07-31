@@ -19,5 +19,5 @@ data class ChatSummary(
     val content: String = "",
     val whenSubmitted: String = "",
     val unReadMessageCount: String = "0", // 매니저의 경우에는 ui출력 x
-    val isAlarmEnabled: Boolean = false
+    val isMuted: Boolean = false
 )

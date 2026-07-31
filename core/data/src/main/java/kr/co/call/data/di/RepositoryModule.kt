@@ -30,7 +30,6 @@ import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.repository.PushTokenRepository
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {

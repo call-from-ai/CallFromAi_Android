@@ -52,7 +52,7 @@ fun ChatPinkBubble(
             style = CallTheme.typography.bodyMediumMedium.copy(
                 color = CallTheme.colors.white
             ),
-            textAlign = TextAlign.End
+            textAlign = TextAlign.Start
         )
     }
 }

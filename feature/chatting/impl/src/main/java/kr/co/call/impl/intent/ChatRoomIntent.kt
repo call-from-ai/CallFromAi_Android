@@ -68,4 +68,10 @@ sealed interface ChatRoomIntent {
 
     // 메시지 액션 팝업을 닫는 Intent
     data object DismissPopup : ChatRoomIntent
+
+    // 메인 캐릭터가 아닙니다 다이얼로그를 표시하는 Intent
+    data object ShowNotMainDialog : ChatRoomIntent
+
+    // 메인 캐릭터가 아닙니다 다이얼로그를 닫는 Intent
+    data object DismissNotMainDialog : ChatRoomIntent
 }

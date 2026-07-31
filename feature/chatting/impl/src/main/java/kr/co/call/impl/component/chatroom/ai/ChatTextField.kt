@@ -39,6 +39,7 @@ import kr.co.call.impl.model.TextFieldState
 @Composable
 fun ChatTextField(
     modifier: Modifier = Modifier,
+    text: String = "",
     state: TextFieldState = TextFieldState(),
     onValueChange: (String) -> Unit = {},
     onCameraClick: () -> Unit = {},
@@ -48,7 +49,7 @@ fun ChatTextField(
 ) {
     val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
     val hasImage = state.selectedImage != null
-    val canSend = state.text.isNotBlank()
+    val canSend = text.isNotBlank()
 
     // 이미지가 있으면 라운드 사각형, 없으면 기존 pill
     val containerShape = if (hasImage) RoundedCornerShape(24.dp) else RoundedCornerShape(50.dp)
@@ -114,7 +115,7 @@ fun ChatTextField(
             )
 
             BasicTextField(
-                value = state.text,
+                value = text,
                 onValueChange = onValueChange,
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
                 textStyle = CallTheme.typography.bodySmall.copy(
@@ -122,7 +123,7 @@ fun ChatTextField(
                 ),
                 decorationBox = { innerTextField ->
                     Box {
-                        if (state.text.isEmpty()) {
+                        if (text.isEmpty()) {
                             Text(
                                 text = "메시지를 입력하세요",
                                 style = CallTheme.typography.bodySmall,
