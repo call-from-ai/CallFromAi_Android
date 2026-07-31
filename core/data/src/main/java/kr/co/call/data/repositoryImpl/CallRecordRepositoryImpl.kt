@@ -35,7 +35,7 @@ class CallRecordRepositoryImpl @Inject constructor(
         safeApiResult(errorResponseParser) {
             homeApi.getTranscript(callId)
         }
-            .map { transcript -> transcript.toDomain() }
+            .mapCatching { transcript -> transcript.toDomain() }
             .onSuccess { transcripts ->
                 Timber.tag(TAG).d(
                     "통화 스크립트 조회 response: callId=%d, count=%d",

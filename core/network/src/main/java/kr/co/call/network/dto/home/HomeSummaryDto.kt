@@ -5,5 +5,5 @@ data class HomeSummaryDto(
     val relationshipDays: Int,
     val totalCallCount: Int,
     val callStreakDays: Int,
-    val characterId: Int,
+    val characterId: Long,
 )

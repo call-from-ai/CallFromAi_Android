@@ -18,9 +18,7 @@ internal fun CallDetailDto.toDomain(callId: Long): CallInfo =
         characterName = characterName
             ?.takeIf { name -> name.isNotBlank() }
             ?: DEFAULT_CHARACTER_NAME,
-        recordingUrl = audioUrl
-            ?.takeIf { url -> url.isNotBlank() }
-            ?: DEFAULT_RECORDING_URL,
+        recordingUrl = audioUrl,
         durationMillis = 0L,
     )
 
@@ -46,9 +44,6 @@ private fun String.toDomainSpeaker(): CallTranscript.Speaker =
         "AI" -> CallTranscript.Speaker.AI
         else -> error("지원하지 않는 화자입니다: $this")
     }
-
-private const val DEFAULT_RECORDING_URL =
-    "https://www.image2url.com/r2/default/audio/1785493840020-96ae33c3-41a8-4910-baf8-41ac5c674397.mp3"
 
 private const val DEFAULT_CALL_TITLE = "통화 기록"
 

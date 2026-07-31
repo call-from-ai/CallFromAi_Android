@@ -1,7 +1,7 @@
 package kr.co.call.network.dto.home
 
 data class CallTranscriptDto(
-    val callId: Int,
+    val callId: Long,
     val lines: List<CallScriptMessage>,
 )
 

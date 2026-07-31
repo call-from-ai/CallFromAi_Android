@@ -40,7 +40,7 @@ class HomeRepositoryImpl @Inject constructor(
         safeApiResult(errorResponseParser) {
             homeApi.getCallHistories()
         }
-        .map { page ->
+        .mapCatching { page ->
             page.content.map { callHistory ->
                 callHistory.toDomain()
             }
