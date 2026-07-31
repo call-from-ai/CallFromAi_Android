@@ -149,7 +149,8 @@ fun ChatListScreenContent(
                             onAlarmClick = {
                                 onIntent(
                                     ChatListIntent.UpdateAlarmSetting(
-                                        roomId = chatSummary.chatRoomId
+                                        roomId = chatSummary.chatRoomId,
+                                        isMuted = !chatSummary.isMuted
                                     )
                                 )
                             },

@@ -13,7 +13,7 @@ interface ChatRepository {
 
     suspend fun deleteChatRoom(roomId: Long): Result<Unit>
 
-    suspend fun updateAlarmSetting(roomId: Long): Result<Unit>
+    suspend fun updateAlarmSetting(roomId: Long, isMuted: Boolean): Result<Unit>
 
     fun getChats(roomId: Long): Flow<PagingData<ChatItem>>
 

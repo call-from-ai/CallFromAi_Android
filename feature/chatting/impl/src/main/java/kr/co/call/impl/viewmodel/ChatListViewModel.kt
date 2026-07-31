@@ -53,7 +53,7 @@ class ChatListViewModel @Inject constructor(
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
             ChatListIntent.ClickManagerChatRoom -> emitNavigateToManagerChatRoom()
             is ChatListIntent.DeleteChatRoom -> deleteChatRoom(intent.roomId)
-            is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId)
+            is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId, intent.isMuted)
             is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog(intent.roomId)
             ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
         }
@@ -84,14 +84,14 @@ class ChatListViewModel @Inject constructor(
         }
     }
 
-    private fun updateAlarmSetting(roomId: Long) = intent {
-        chatRepository.updateAlarmSetting(roomId).fold(
+    private fun updateAlarmSetting(roomId: Long, isMuted: Boolean) = intent {
+        chatRepository.updateAlarmSetting(roomId, isMuted).fold(
             onSuccess = {
                 reduce {
                     state.copy(
                         chatList = state.chatList.map { chat ->
                             if (chat.chatRoomId == roomId) {
-                                chat.copy(isMuted = !chat.isMuted)
+                                chat.copy(isMuted = isMuted)
                             } else {
                                 chat
                             }

@@ -35,12 +35,12 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun deleteChatRoom(roomId: Long): Result<Unit> =
         safeApiResultUnit(errorResponseParser) { chatApi.deleteChatRoom(roomId) }
 
-    // TODO: 인터페이스에 isMuted 파라미터 추가 필요 (현재 서버 API는 명시적 상태 전달 방식)
     override suspend fun updateAlarmSetting(
-        roomId: Long
+        roomId: Long,
+        isMuted: Boolean
     ): Result<Unit> =
         safeApiResultUnit(errorResponseParser) {
-            chatApi.muteChatRoom(roomId, MuteChatRoomRequestDTO(isMuted = true))
+            chatApi.muteChatRoom(roomId, MuteChatRoomRequestDTO(isMuted = isMuted))
         }
 
     override fun getChats(roomId: Long): Flow<PagingData<ChatItem>> {
