@@ -3,8 +3,8 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kr.co.call.domain.exception.CharacterChangeUnavailableException
-import kr.co.call.domain.repository.HomeRepository
+import kr.co.call.domain.exception.AppException
+import kr.co.call.domain.usecase.home.HomeUseCase
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.state.HomeDialogState
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeRepository: HomeRepository,
+    private val homeUseCase: HomeUseCase,
 ) :
     ViewModel(),
     ContainerHost<HomeState, HomeSideEffect> {
@@ -110,9 +110,9 @@ class HomeViewModel @Inject constructor(
             ?: return@intent
 
         try {
-            homeRepository.startCall(
+            homeUseCase.startCall(
                 characterId = confirmation.characterId,
-            ).getOrThrow()
+            )
 
             reduce {
                 state.copy(dialogState = null)
@@ -161,10 +161,10 @@ class HomeViewModel @Inject constructor(
             ?: return@intent
 
         try {
-            homeRepository.activateCharacter(
+            homeUseCase.activateCharacter(
                 characterId = confirmation.characterId,
-            ).getOrThrow()
-            val characters = homeRepository.getCharacters().getOrThrow()
+            )
+            val characters = homeUseCase.getCharacters()
 
             reduce {
                 state.copy(
@@ -179,10 +179,19 @@ class HomeViewModel @Inject constructor(
             )
         } catch (cancellationException: CancellationException) {
             throw cancellationException
-        } catch (exception: CharacterChangeUnavailableException) {
-            reduce {
-                state.copy(
-                    dialogState = HomeDialogState.CharacterChangeUnavailable,
+        } catch (exception: AppException.Business) {
+            if (exception.code == CHARACTER_CHANGE_UNAVAILABLE_CODE) {
+                reduce {
+                    state.copy(
+                        // 캐릭터 변경 후 3일 지나야 변경 가능함 표시
+                        dialogState = HomeDialogState.CharacterChangeUnavailable,
+                    )
+                }
+            } else {
+                postSideEffect(
+                    HomeSideEffect.ShowMessage(
+                        message = exception.message ?: "메인 연인을 변경하지 못했습니다.",
+                    ),
                 )
             }
         } catch (throwable: Throwable) {
@@ -231,9 +240,9 @@ class HomeViewModel @Inject constructor(
         }
 
         try {
-            val summary = homeRepository.getSummary().getOrThrow()
-            val callHistories = homeRepository.getCallHistories().getOrThrow()
-            val characters = homeRepository.getCharacters().getOrThrow()
+            val summary = homeUseCase.getSummary()
+            val callHistories = homeUseCase.getCallHistories()
+            val characters = homeUseCase.getCharacters()
 
             reduce {
                 state.copy(
@@ -254,5 +263,9 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private companion object {
+        const val CHARACTER_CHANGE_UNAVAILABLE_CODE = "CHAR008"
     }
 }
