@@ -6,11 +6,20 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import dagger.hilt.android.AndroidEntryPoint
+import kr.co.call.callfromai.notification.NotificationPermission
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            Timber.d("POST_NOTIFICATIONS granted=%s", granted)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -20,10 +29,22 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
+
+        requestNotificationPermissionIfNeeded()
+
         setContent {
             CallFromAiTheme {
                 AppScreen()
             }
         }
+    }
+
+    /**
+     * Android 13+ 에서 알림 권한이 없으면 1회 요청한다
+     * 거부해도 앱은 계속 사용 가능(배너만 제한)
+     */
+    private fun requestNotificationPermissionIfNeeded() {
+        if (!NotificationPermission.shouldRequest(this)) return
+        notificationPermissionLauncher.launch(NotificationPermission.permission)
     }
 }
