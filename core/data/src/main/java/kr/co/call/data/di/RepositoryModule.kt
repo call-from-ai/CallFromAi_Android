@@ -5,7 +5,6 @@ import dagger.Binds
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import kr.co.call.data.push.UnavailableFcmTokenProvider
 import kr.co.call.data.repositoryImpl.AgreementRepositoryImpl
 import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
 import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
@@ -18,7 +17,6 @@ import kr.co.call.data.repositoryImpl.HomeMockRepository
 import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.data.repositoryImpl.PushTokenRepositoryImpl
-import kr.co.call.domain.push.FcmTokenProvider
 import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.domain.repository.CallControlRepository
@@ -106,14 +104,4 @@ abstract class RepositoryModule {
     abstract fun bindPushTokenRepository(
         impl: PushTokenRepositoryImpl,
     ): PushTokenRepository
-
-    /**
-     * Firebase 연동 전: 토큰 없음(등록 스킵)
-     * Messaging SDK 추가 시 실제 Provider 구현으로 교체한다.
-     */
-    @Binds
-    @Singleton
-    abstract fun bindFcmTokenProvider(
-        impl: UnavailableFcmTokenProvider,
-    ): FcmTokenProvider
 }
