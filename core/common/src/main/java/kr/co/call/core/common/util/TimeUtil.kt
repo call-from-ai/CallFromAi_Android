@@ -1,10 +1,8 @@
 package kr.co.call.core.common.util
 
 import java.time.Duration
-import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -18,13 +16,7 @@ object TimeUtil {
 
     // LocalDateTime을 String으로 변환
     fun parseLocalDateTime(value: String): LocalDateTime =
-        runCatching {
-            Instant.parse(value)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime()
-        }.getOrElse {
-            LocalDateTime.parse(value)
-        }
+        LocalDateTime.parse(value)
 
     // LocalDate를 String으로 변환
     fun toCallHistoryDateText(dateTime: LocalDateTime): String =
