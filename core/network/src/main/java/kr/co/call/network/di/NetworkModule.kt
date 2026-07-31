@@ -7,10 +7,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.call.network.BuildConfig
+import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
+import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -150,6 +152,23 @@ object NetworkModule {
     fun provideTokenReissueApi(
         @Named("reissueRetrofit")
         retrofit: Retrofit,
-    ): TokenReissueApi =
-        retrofit.create(TokenReissueApi::class.java)
+    ): TokenReissueApi{
+        return retrofit.create(TokenReissueApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyPageApi(
+        retrofit: Retrofit,
+    ): MyPageApi{
+        return retrofit.create(MyPageApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAICharacterApi(
+        retrofit: Retrofit,
+    ): AICharacterApi{
+        return retrofit.create(AICharacterApi::class.java)
+    }
 }

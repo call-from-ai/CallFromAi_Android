@@ -4,6 +4,6 @@ import kr.co.call.domain.model.mypage.MyPageProfile
 
 interface MyPageRepository {
     suspend fun getMyProfile(): Result<MyPageProfile>
-    suspend fun logout()
-    suspend fun deleteAccount()
+    suspend fun logout(): Result<Unit>
+    suspend fun deleteAccount(): Result<Unit>
 }

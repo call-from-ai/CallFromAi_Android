@@ -43,6 +43,7 @@ import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
+import kr.co.call.impl.viewmodel.model.MemberJob
 import kr.co.call.impl.viewmodel.state.Onboarding1State
 import kr.co.call.impl.viewmodel.state.ProfileChoiceState
 
@@ -65,8 +66,8 @@ fun Onboarding1Screen (
     var birthday by remember {
         mutableStateOf<LocalDate?>(null)
     }
-    var job by rememberSaveable {
-        mutableStateOf("")
+    var selectedJob by rememberSaveable {
+        mutableStateOf<MemberJob?>(null)
     }
     var mbti by rememberSaveable {
         mutableStateOf("")
@@ -101,7 +102,7 @@ fun Onboarding1Screen (
         lastName.isNotBlank() &&
             firstName.isNotBlank() &&
             birthday != null &&
-            job.isNotBlank()
+            selectedJob!=null
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -179,10 +180,14 @@ fun Onboarding1Screen (
                 MemberChoice(
                     modifier = Modifier.fillMaxWidth(),
                     label = "직업",
-                    selectedOption = job,
+                    selectedOption = selectedJob?.label.orEmpty(),
                     placeholder = "직업을 선택해주세요",
                     options = listOf("대학생", "직장인", "기타",),
-                    onOptionSelected = { job = it },
+                    onOptionSelected = {selectedLabel ->
+                        selectedJob=MemberJob.entries.firstOrNull(){job->
+                            job.label == selectedLabel
+                        }
+                    },
                     required = true,
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -218,8 +223,10 @@ fun Onboarding1Screen (
                                     lastName=lastName,
                                     firstName=firstName,
                                     birthday=selectedBirthday,
-                                    job=job,
+                                    job=checkNotNull(selectedJob).name,
                                     mbti=mbti,
+                                    gender=selectedGender.name,
+                                    imageUrl=savedProfileImageUrl.orEmpty(),
                                 )
                             )
                         }

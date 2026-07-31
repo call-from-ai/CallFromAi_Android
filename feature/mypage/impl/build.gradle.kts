@@ -39,4 +39,7 @@ dependencies {
 
     // coil
     implementation(libs.coil.compose)
+
+    //kakao
+    implementation(libs.kakao.user)
 }

@@ -1,14 +1,13 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.data.util.toAppResult
+import kr.co.call.data.util.safeApiResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
 import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.dto.login.LoginRequestDto
 import kr.co.call.network.util.ErrorResponseParser
-import kr.co.call.network.util.safeApiCall
 
 /**
  * 카카오 로그인 서버 통신을 실제로 수행하는 Repository 구현체입니다.
@@ -27,20 +26,19 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun loginWithKakao(
         kakaoAccessToken: String,
     ): Result<LoginToken> =
-        runCatching {
-            val result = safeApiCall(errorResponseParser) {
-                loginApi.login(
-                    request = LoginRequestDto(
-                        kakaoAccessToken = kakaoAccessToken,
-                    ),
-                )
-            }
+        safeApiResult(errorResponseParser) {
+            loginApi.login(
+                request = LoginRequestDto(
+                    kakaoAccessToken = kakaoAccessToken,
+                ),
+            )
+        }.mapCatching { result ->
             require(
                 result.accessToken.isNotBlank() && result.refreshToken.isNotBlank(),
             ) {
                 "로그인 응답 토큰 값이 비어 있습니다"
             }
-            tokenDataStore.saveTokens(
+            tokenDataStore.setTokens(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
             )
@@ -51,5 +49,5 @@ class LoginRepositoryImpl @Inject constructor(
                 needsOnboarding = result.needsOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
-        }.toAppResult()
+        }
 }

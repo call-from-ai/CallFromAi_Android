@@ -8,4 +8,6 @@ data class Onboarding1State (
     val birthday: LocalDate=LocalDate.now(),
     val job: String="",
     val mbti: String="",
+    val gender: String="",
+    val imageUrl: String=""
 )

@@ -12,5 +12,8 @@ sealed interface MyPageSideEffect {
     data object ShowLogoutConfirmDialog : MyPageSideEffect
     data object ShowDeleteAccountConfirmDialog : MyPageSideEffect
     data object NavigateToLogin : MyPageSideEffect
-    data object NavigateToLanding : MyPageSideEffect
+
+    data class ShowMessage(
+        val message: String,
+    ): MyPageSideEffect
 }

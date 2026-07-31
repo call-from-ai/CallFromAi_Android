@@ -1,6 +1,6 @@
 package kr.co.call.impl.viewmodel
 
-import androidx.compose.runtime.Composable
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
@@ -14,6 +14,8 @@ data class OnboardingUiState(
     val userBirthday: LocalDate = LocalDate.of(2000, 1, 1),
     val userJob: String = "",
     val userMbti: String = "",
+    val userGender: String="",
+    val userImageUrl: String="",
 
     //이상형 정보
     val aiFirstName: String = "",
@@ -21,6 +23,8 @@ data class OnboardingUiState(
     val aiAge: String = "",
     val aiJob: String = "",
     val aiMbti: String = "",
+    val aiGender: String="",
+    val aiImageUrl: String="",
 
     //3단계
     val speechStyle: SpeechStyle? = null,
@@ -35,4 +39,5 @@ data class OnboardingUiState(
 
     val isCreatingAi: Boolean=false,
     val createAiError: String?=null,
+    val submitStatus: LoadStatus= LoadStatus.Idle,
 )
