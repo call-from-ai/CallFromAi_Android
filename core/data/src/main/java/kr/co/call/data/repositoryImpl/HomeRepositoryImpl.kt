@@ -6,8 +6,6 @@ import kr.co.call.data.mapper.toHomeCharacter
 import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallInfo
-import kr.co.call.domain.model.home.CallTranscript
 import kr.co.call.domain.model.home.HomeCharacter
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.domain.repository.HomeRepository
@@ -92,41 +90,6 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun startCall(
         characterId: Long,
     ): Result<Unit> = unsupportedApi()
-
-    override suspend fun getCallRecordInfo(
-        callId: Long,
-    ): Result<CallInfo> =
-        safeApiResult(errorResponseParser) {
-            homeApi.getCallDetail(callId)
-        }
-            .map { callDetail -> callDetail.toDomain(callId) }
-            .onSuccess { callInfo ->
-                Timber.tag(TAG).d(
-                    "통화 상세 조회 response: callId=%d, characterName=%s, title=%s, calledAt=%s, recordingUrl=%s",
-                    callInfo.callId,
-                    callInfo.characterName,
-                    callInfo.title,
-                    callInfo.calledAt,
-                    callInfo.recordingUrl,
-                )
-            }
-            .logFailure(operation = "getCallRecordInfo")
-
-    override suspend fun getCallTranscript(
-        callId: Long,
-    ): Result<List<CallTranscript>> =
-        safeApiResult(errorResponseParser) {
-            homeApi.getTranscript(callId)
-        }
-            .map { transcript -> transcript.toDomain() }
-            .onSuccess { transcripts ->
-                Timber.tag(TAG).d(
-                    "통화 스크립트 조회 response: callId=%d, count=%d",
-                    callId,
-                    transcripts.size,
-                )
-            }
-            .logFailure(operation = "getCallTranscript")
 
     // 미연결 시 임시 설정
     private fun <T> unsupportedApi(): Result<T> =

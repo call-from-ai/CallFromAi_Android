@@ -1,8 +1,6 @@
 package kr.co.call.domain.repository
 
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.domain.model.home.CallInfo
-import kr.co.call.domain.model.home.CallTranscript
 import kr.co.call.domain.model.home.HomeCharacter
 import kr.co.call.domain.model.home.HomeSummary
 
@@ -20,12 +18,4 @@ interface HomeRepository {
     suspend fun startCall(
         characterId: Long,
     ): Result<Unit>
-
-    suspend fun getCallRecordInfo(
-        callId: Long,
-    ): Result<CallInfo>
-
-    suspend fun getCallTranscript(
-        callId: Long,
-    ): Result<List<CallTranscript>>
 }
