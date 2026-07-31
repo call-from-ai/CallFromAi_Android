@@ -109,28 +109,14 @@ class HomeViewModel @Inject constructor(
         val confirmation = state.dialogState as? HomeDialogState.CallConfirmation
             ?: return@intent
 
-        try {
-            homeUseCase.startCall(
-                characterId = confirmation.characterId,
-            )
-
-            reduce {
-                state.copy(dialogState = null)
-            }
-            postSideEffect(
-                HomeSideEffect.NavigateToCall(
-                    characterId = confirmation.characterId,
-                ),
-            )
-        } catch (cancellationException: CancellationException) {
-            throw cancellationException
-        } catch (throwable: Throwable) {
-            postSideEffect(
-                HomeSideEffect.ShowMessage(
-                    message = throwable.message ?: "통화를 시작하지 못했습니다.",
-                ),
-            )
+        reduce {
+            state.copy(dialogState = null)
         }
+        postSideEffect(
+            HomeSideEffect.NavigateToCall(
+                characterId = confirmation.characterId,
+            ),
+        )
     }
 
     // 캐릭터 선택 팝업 표시
