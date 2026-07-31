@@ -229,6 +229,7 @@ fun AppScreen(
                         }
                     )
                     myPageEntry(
+                        navigateToLogin = {appNavigator.replaceAll(LoginNavKey)},
                         navigateToFaq = { appNavigator.navigate(FaqNavKey) },
                         navigateToTerms = { appNavigator.navigate(TermNavKey) },
                         navigateToCharacterManagement = { appNavigator.navigate(CharacterManagementNavKey) },

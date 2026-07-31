@@ -5,14 +5,17 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.util.LoadStatus
+import kr.co.call.impl.auth.KakaoLogoutManager
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MyPageViewModel @Inject constructor(
     private val myPageRepository: MyPageRepository,
+    private val kakaoLogoutManager: KakaoLogoutManager,
 ) : ViewModel(), ContainerHost<MyPageState, MyPageSideEffect> {
 
     override val container: Container<MyPageState, MyPageSideEffect> = container(
@@ -60,13 +63,57 @@ class MyPageViewModel @Inject constructor(
     }
 
     private fun logout() = intent {
+        if (state.authStatus== LoadStatus.Loading)return@intent
+        reduce{
+            state.copy(authStatus = LoadStatus.Loading)
+        }
         myPageRepository.logout()
-        postSideEffect(MyPageSideEffect.NavigateToLogin)
+            .onSuccess {
+                kakaoLogoutManager.logout()
+                    .onFailure{error->
+                        Timber.w(error, "카카오 SDK 로그아웃 실패")
+                    }
+                postSideEffect(MyPageSideEffect.NavigateToLogin)
+            }
+            .onFailure { error ->
+            if (error is CancellationException) throw error
+                reduce{
+                    state.copy(authStatus = LoadStatus.Idle)
+                }
+                postSideEffect(
+                    MyPageSideEffect.ShowMessage(
+                        message=error.message
+                            ?: "로그아웃에 실패했습니다.",
+                    ),
+                )
+            }
     }
 
     private fun deleteAccount() = intent {
+        if (state.authStatus== LoadStatus.Loading) return@intent
+
+        reduce{
+            state.copy(authStatus = LoadStatus.Loading)
+        }
         myPageRepository.deleteAccount()
-        postSideEffect(MyPageSideEffect.NavigateToLanding)
+            .onSuccess {
+                kakaoLogoutManager.logout()
+                    .onFailure {error->
+                        Timber.w(error, "탈퇴 후 카카오 로그아웃 실패")
+                    }
+                postSideEffect(MyPageSideEffect.NavigateToLogin)
+            }.onFailure { error ->
+            if (error is CancellationException) throw error
+            reduce {
+                state.copy(authStatus = LoadStatus.Idle)
+            }
+            postSideEffect(
+                MyPageSideEffect.ShowMessage(
+                    message=error.message
+                        ?:"회원 탈퇴에 실패했습니다.",
+                ),
+            )
+        }
     }
 
     private fun navigate(effect: MyPageSideEffect) = intent {

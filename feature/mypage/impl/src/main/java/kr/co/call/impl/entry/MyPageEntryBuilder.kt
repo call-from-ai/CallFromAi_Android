@@ -30,11 +30,13 @@ fun EntryProviderScope<NavKey>.myPageEntry(
     navigateToEditProfile: () -> Unit,
     navigateToSubscription: () -> Unit,
     navigateToDisturbTime: () -> Unit,
+    navigateToLogin:()->Unit,
     navigateToCallTimeManagement: () -> Unit,
     onBack: () -> Unit = {},
 ) {
     entry<MyPageNavKey> {
         MyPageScreen(
+            onNavigateToLogin = navigateToLogin,
             onNavigateToCharacterManagement = navigateToCharacterManagement,
             navigateToFaq = navigateToFaq,
             navigateToTerms = navigateToTerms,
