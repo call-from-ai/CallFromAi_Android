@@ -1,5 +1,7 @@
 package kr.co.call.network.dto.login
 
+import com.google.gson.annotations.SerializedName
+
 //개별 약관 항목
 data class TermDto(
     val termId: Long,
@@ -14,5 +16,6 @@ data class AgreeTermsRequestDto(
 
 data class TermAgreementDto(
     val termId:Long,
+    @SerializedName("agreed")
     val isAgreed: Boolean
 )
