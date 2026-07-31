@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
+import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppState
 import kr.co.call.data.push.PushTokenManager
@@ -31,6 +32,12 @@ class AppViewModel @Inject constructor(
 
     init {
         registerPushTokenIfLoggedIn()
+    }
+
+    fun handleIntent(intent: AppIntent) {
+        when (intent) {
+            else -> Unit
+        }
     }
 
     /**

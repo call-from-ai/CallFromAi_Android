@@ -68,9 +68,6 @@ enum class PushType {
     }
 }
 
-/**
- * BE FcmSender Android 알림 채널 id. 앱에서도 동일 id로 채널을 만들어야 한다.
- */
 object PushChannels {
     const val GENERAL = "general"
 }

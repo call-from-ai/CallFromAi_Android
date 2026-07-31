@@ -47,6 +47,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
             notificationBody = message.notification?.body,
         )
         when (payload) {
+            // Chat 알림
             is PushPayload.Chat -> {
                 Timber.d("FCM CHAT roomId=%s", payload.chatRoomId)
                 PushNotificationHelper.showChat(
@@ -56,6 +57,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
                     chatRoomId = payload.chatRoomId,
                 )
             }
+            // Notice 알림
             is PushPayload.Notice -> {
                 Timber.d("FCM NOTICE title=%s", payload.title)
                 PushNotificationHelper.showNotice(
@@ -64,6 +66,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
                     body = payload.body,
                 )
             }
+            // Call 알림
             is PushPayload.Call -> {
                 Timber.d(
                     "FCM CALL callId=%s characterId=%s name=%s",

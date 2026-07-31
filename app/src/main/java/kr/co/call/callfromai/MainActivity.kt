@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Android 13+ 에서 알림 권한이 없으면 1회 요청한다
+     * 알림 권한이 없으면 1회 요청한다
      * 거부해도 앱은 계속 사용 가능(배너만 제한)
      */
     private fun requestNotificationPermissionIfNeeded() {
