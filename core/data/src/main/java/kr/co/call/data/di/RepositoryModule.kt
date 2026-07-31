@@ -4,30 +4,33 @@ import dagger.Module
 import dagger.Binds
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+import kr.co.call.data.push.UnavailableFcmTokenProvider
 import kr.co.call.data.repositoryImpl.AgreementRepositoryImpl
 import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
+import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
+import kr.co.call.data.repositoryImpl.CallControlRepositoryImpl
 import kr.co.call.data.repositoryImpl.CallRecordMockRepository
-import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
+import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
+import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.HomeMockRepository
-import kr.co.call.domain.repository.AICharacterRepository
-import kr.co.call.domain.repository.CallRecordRepository
-import kr.co.call.domain.repository.ChatRepository
-import javax.inject.Singleton
-import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
-import kr.co.call.domain.repository.HomeRepository
-import kr.co.call.domain.repository.FaqRepository
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.data.repositoryImpl.PushTokenRepositoryImpl
+import kr.co.call.domain.push.FcmTokenProvider
+import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.AgreementRepository
+import kr.co.call.domain.repository.CallControlRepository
+import kr.co.call.domain.repository.CallRecordRepository
+import kr.co.call.domain.repository.CallSessionRepository
+import kr.co.call.domain.repository.CallStreamingRepository
+import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.repository.FaqRepository
+import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.repository.LoginRepository
 import kr.co.call.domain.repository.MyPageRepository
-import kr.co.call.data.repositoryImpl.CallControlRepositoryImpl
-import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
-import kr.co.call.domain.repository.CallControlRepository
-import kr.co.call.domain.repository.CallSessionRepository
-import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
-import kr.co.call.domain.repository.CallStreamingRepository
+import kr.co.call.domain.repository.PushTokenRepository
 
 
 @Module
@@ -97,4 +100,20 @@ abstract class RepositoryModule {
     abstract fun bindCallSessionRepository(
         impl: AndroidCallSessionRepository,
     ): CallSessionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindPushTokenRepository(
+        impl: PushTokenRepositoryImpl,
+    ): PushTokenRepository
+
+    /**
+     * Firebase 연동 전: 토큰 없음(등록 스킵)
+     * Messaging SDK 추가 시 실제 Provider 구현으로 교체한다.
+     */
+    @Binds
+    @Singleton
+    abstract fun bindFcmTokenProvider(
+        impl: UnavailableFcmTokenProvider,
+    ): FcmTokenProvider
 }
