@@ -2,8 +2,7 @@ package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
 import kr.co.call.data.util.runRepositoryCatching
-import kr.co.call.datastore.AccountStateDataStore
-import kr.co.call.domain.model.onboarding.OnboardingSubmission
+import kr.co.call.domain.model.onboarding.OnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.MyPageApi
@@ -16,12 +15,11 @@ import kr.co.call.network.util.safeApiCallUnit
 class OnboardingRepositoryImpl @Inject constructor(
     private val myPageApi: MyPageApi,
     private val aiCharacterApi: AICharacterApi,
-    private val accountStateDataStore: AccountStateDataStore,
     private val errorResponseParser: ErrorResponseParser,
 ) : OnboardingRepository {
 
     override suspend fun submitOnboarding(
-        submission: OnboardingSubmission,
+        submission: OnboardingInput,
     ): Result<Unit> =
         runRepositoryCatching {
             // 1. 사용자 정보 저장
@@ -64,6 +62,5 @@ class OnboardingRepositoryImpl @Inject constructor(
                     ),
                 )
             }
-            accountStateDataStore.clearForceOnboarding()
         }
 }

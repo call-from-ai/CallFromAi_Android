@@ -105,31 +105,13 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding5NavKey> {
-        val onboardingViewModel = sharedOnboardingViewModel()
-        Onboarding5Screen(
-            onBackClick = onBackFromOnboarding5,
-            onNextClick = { preferTime ->
-                onboardingViewModel.updatePreferTime(preferTime)
-                onOnboarding5Next()
-            },
-        )
-    }
-
-    entry<Onboarding6NavKey> {
-        val context=LocalContext.current
+        val context = LocalContext.current
         val onboardingViewModel = sharedOnboardingViewModel()
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         onboardingViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
-                is OnboardingSideEffect.OnboardingCompleted -> {
-                    if (sideEffect.callNow) {
-                        onOnboarding6CallNow()
-                    } else {
-                        onOnboarding6CallLater()
-                    }
-                }
-
+                OnboardingSideEffect.OnboardingSubmitted -> onOnboarding5Next()
                 is OnboardingSideEffect.ShowMessage -> {
                     Toast.makeText(
                         context,
@@ -139,11 +121,24 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
                 }
             }
         }
+        Onboarding5Screen(
+            onBackClick = onBackFromOnboarding5,
+            onNextClick = { preferTime ->
+                onboardingViewModel.submitOnboarding(preferTime)
+            },
+            isLoading = uiState.submitStatus == LoadStatus.Loading,
+        )
+    }
+
+    entry<Onboarding6NavKey> {
+        val onboardingViewModel = sharedOnboardingViewModel()
+        val uiState by onboardingViewModel.container.stateFlow
+            .collectAsStateWithLifecycle()
         Onboarding6Screen(
             firstName = uiState.aiFirstName,
-            isLoading = uiState.submitStatus== LoadStatus.Loading,
-            onCallNowClick ={onboardingViewModel.submitOnboarding(callNow=true)},
-            onCallLaterClick ={onboardingViewModel.submitOnboarding(callNow=false)},
+            isLoading = false,
+            onCallNowClick = onOnboarding6CallNow,
+            onCallLaterClick = onOnboarding6CallLater,
         )
     }
 }

@@ -67,26 +67,39 @@ class MyPageViewModel @Inject constructor(
         reduce{
             state.copy(authStatus = LoadStatus.Loading)
         }
-        myPageRepository.logout()
-            .onSuccess {
-                kakaoLogoutManager.logout()
-                    .onFailure{error->
-                        Timber.w(error, "카카오 SDK 로그아웃 실패")
-                    }
-                postSideEffect(MyPageSideEffect.NavigateToLogin)
+        val serverLogoutError = myPageRepository.logout().exceptionOrNull()
+        if (serverLogoutError != null) {
+            if (serverLogoutError is CancellationException) throw serverLogoutError
+
+            reduce {
+                state.copy(authStatus = LoadStatus.Idle)
             }
-            .onFailure { error ->
-            if (error is CancellationException) throw error
-                reduce{
-                    state.copy(authStatus = LoadStatus.Idle)
-                }
-                postSideEffect(
-                    MyPageSideEffect.ShowMessage(
-                        message=error.message
-                            ?: "로그아웃에 실패했습니다.",
-                    ),
-                )
+            postSideEffect(
+                MyPageSideEffect.ShowMessage(
+                    message = serverLogoutError.message
+                        ?: "로그아웃에 실패했습니다.",
+                ),
+            )
+            return@intent
+        }
+
+        val kakaoLogoutError = kakaoLogoutManager.logout().exceptionOrNull()
+        if (kakaoLogoutError != null) {
+            if (kakaoLogoutError is CancellationException) throw kakaoLogoutError
+
+            Timber.w(kakaoLogoutError, "카카오 SDK 로그아웃 실패")
+            reduce {
+                state.copy(authStatus = LoadStatus.Idle)
             }
+            postSideEffect(
+                MyPageSideEffect.ShowMessage(
+                    message = "카카오 로그아웃에 실패했습니다. 다시 시도해 주세요.",
+                ),
+            )
+            return@intent
+        }
+
+        postSideEffect(MyPageSideEffect.NavigateToLogin)
     }
 
     private fun deleteAccount() = intent {

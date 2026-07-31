@@ -1,7 +1,6 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.datastore.AccountStateDataStore
 import kr.co.call.data.util.toAppResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
@@ -18,7 +17,6 @@ import kr.co.call.network.util.safeApiCall
 class LoginRepositoryImpl @Inject constructor(
     private val loginApi: LoginApi,
     private val tokenDataStore: TokenDataStore,
-    private val accountStateDataStore: AccountStateDataStore,
     private val errorResponseParser: ErrorResponseParser,
 ) : LoginRepository {
 
@@ -42,17 +40,15 @@ class LoginRepositoryImpl @Inject constructor(
             ) {
                 "로그인 응답 토큰 값이 비어 있습니다"
             }
-            tokenDataStore.saveTokens(
+            tokenDataStore.setTokens(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
             )
 
-            val forceOnboarding=accountStateDataStore.shouldForceOnboarding()
-
             LoginToken(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
-                needsOnboarding = result.needsOnboarding || forceOnboarding,
+                needsOnboarding = result.needsOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
         }.toAppResult()

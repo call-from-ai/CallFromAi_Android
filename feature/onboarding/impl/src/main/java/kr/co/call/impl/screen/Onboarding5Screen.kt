@@ -29,6 +29,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 fun Onboarding5Screen(
     onBackClick: () -> Unit,
     onNextClick: (PreferTime) -> Unit,
+    isLoading: Boolean = false,
     initialPreferTime: PreferTime? = null,
     modifier: Modifier = Modifier,
 ){
@@ -86,7 +87,7 @@ fun Onboarding5Screen(
                     bottom = 18.dp,
                 ),
                 text = "다음",
-                enabled=selectedPreferTime != null,
+                enabled = selectedPreferTime != null && !isLoading,
                 onClick = { selectedPreferTime?.let(onNextClick) },
             )
         }

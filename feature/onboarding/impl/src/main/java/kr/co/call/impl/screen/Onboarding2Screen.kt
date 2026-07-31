@@ -2,6 +2,8 @@ package kr.co.call.impl.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -121,6 +123,7 @@ fun Onboarding2Screen(
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 27.dp),
             ) {
                 Spacer(modifier = Modifier.height(25.dp))
@@ -181,12 +184,18 @@ fun Onboarding2Screen(
                 MemberChoice(
                     modifier = Modifier.fillMaxWidth(),
                     label = "직업",
-                    selectedOption = selectedJob?.label.orEmpty(),
+                    selectedOption = when (selectedJob) {
+                        CharacterJob.UMEMPLOYED -> "기타"
+                        else -> selectedJob?.label.orEmpty()
+                    },
                     placeholder = "직업을 선택해주세요",
                     options = listOf("대학생", "직장인", "기타"),
                     onOptionSelected = {selectedLabel->
-                        selectedJob=CharacterJob.entries.firstOrNull{ job->
-                            job.label==selectedLabel
+                        selectedJob = when (selectedLabel) {
+                            "기타" -> CharacterJob.UMEMPLOYED
+                            else -> CharacterJob.entries.firstOrNull { job ->
+                                job.label == selectedLabel
+                            }
                         }
                     },
                     required = true,
@@ -202,6 +211,8 @@ fun Onboarding2Screen(
                     options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             Column(

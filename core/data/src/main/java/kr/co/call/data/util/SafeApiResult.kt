@@ -6,6 +6,17 @@ import kr.co.call.network.util.safeApiCall
 import kr.co.call.network.util.safeApiCallUnit
 
 /**
+ * Repository 작업에서 발생한 예외를 앱의 도메인 예외로 변환한다.
+ * 코루틴 취소와 치명적인 [Error]는 [toAppResult]에서 다시 전파된다.
+ */
+suspend fun <T> runRepositoryCatching(
+    block: suspend () -> T,
+): Result<T> =
+    runCatching {
+        block()
+    }.toAppResult()
+
+/**
  * [safeApiCall] + stdlib [runCatching] + [toAppResult] 조합.
  * Repository 에서 runCatching / fold 보일러플레이트 없이 바로 [Result] 를 받는다.
  *

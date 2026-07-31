@@ -1,21 +1,20 @@
 package kr.co.call.data.repositoryImpl
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kr.co.call.data.util.runRepositoryCatching
-import kr.co.call.datastore.AccountStateDataStore
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.util.ErrorResponseParser
 import kr.co.call.network.util.safeApiCallUnit
-import kr.co.call.network.util.safeEmptyApiCall
+import timber.log.Timber
 import javax.inject.Inject
 
 class MyPageRepositoryImpl @Inject constructor(
     private val myPageApi: MyPageApi,
     private val tokenDataStore: TokenDataStore,
-    private val accountStateDataStore: AccountStateDataStore,
     private val errorResponseParser: ErrorResponseParser
 ) : MyPageRepository {
 
@@ -34,7 +33,7 @@ class MyPageRepositoryImpl @Inject constructor(
 
     override suspend fun logout():Result<Unit> =
         runRepositoryCatching {
-            safeEmptyApiCall(errorResponseParser){
+            safeApiCallUnit(errorResponseParser){
                 myPageApi.logout()
             }
             //서버 로그아웃 성공 후 기기 토큰 삭제
@@ -46,9 +45,13 @@ class MyPageRepositoryImpl @Inject constructor(
             safeApiCallUnit(errorResponseParser){
                 myPageApi.deleteAccount()
             }
-            //서버 탈퇴 성공 후 기기의 토큰 삭제
-            tokenDataStore.clearTokens()
-            accountStateDataStore.markWithdrawn()
+            runCatching{
+                tokenDataStore.clearTokens()
+            }.onFailure { error->
+                if (error is CancellationException) throw error
+                Timber.w(error, "회원 탈퇴 후 토큰 삭제 실패")
+            }
+            Unit
         }
 
 }

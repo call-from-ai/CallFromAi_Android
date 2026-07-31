@@ -1,8 +1,7 @@
 package kr.co.call.network.interceptor
 
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kr.co.call.datastore.TokenDataStore
+import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -22,10 +21,9 @@ class AuthInterceptor @Inject constructor(
             return chain.proceed(originalRequest)
         }
         //저장된 access 토큰이 없으면 원래 요청 그대로 전송
-        val accessToken = tokenDataStore.getCachedAccessToken()
-            ?: runBlocking{
-                tokenDataStore.getAccessToken()
-            }
+        val accessToken = runBlocking {
+            tokenDataStore.getTokens().accessToken
+        }
         if (accessToken.isNullOrBlank()) {
             return chain.proceed(originalRequest)
         }

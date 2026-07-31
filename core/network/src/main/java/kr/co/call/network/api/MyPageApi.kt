@@ -2,7 +2,6 @@ package kr.co.call.network.api
 
 import kr.co.call.network.dto.ApiResponse
 import kr.co.call.network.dto.onboarding.UpdateMemberRequestDto
-import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.PATCH
@@ -10,7 +9,7 @@ import retrofit2.http.POST
 
 interface MyPageApi {
     @POST("auth/logout")
-    suspend fun logout(): Response<Unit>
+    suspend fun logout(): ApiResponse<Any>
 
     @DELETE("members/me")
     suspend fun deleteAccount(): ApiResponse<Any>

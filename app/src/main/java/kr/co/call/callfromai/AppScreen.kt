@@ -53,6 +53,7 @@ import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
+import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.designsystem.component.LocalBottomBarPadding
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.callEntry
@@ -60,6 +61,7 @@ import kr.co.call.impl.entry.homeEntry
 import kr.co.call.impl.entry.loginEntry
 import kr.co.call.impl.entry.myPageEntry
 import kr.co.call.impl.entry.onboardingEntry
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -79,6 +81,14 @@ fun AppScreen(
 
     val appNavigator = remember(backStack) { AppNavigator(backStack) }
     val currentKey = backStack.lastOrNull()
+
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            AppSideEffect.NavigateToLogin -> {
+                appNavigator.replaceAll(LoginNavKey)
+            }
+        }
+    }
 
     // TODO: 각자 구현하면서 피그마 보고 추가하기!!
     val showBottomBar = when (currentKey) {

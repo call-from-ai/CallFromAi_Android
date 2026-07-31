@@ -1,9 +1,7 @@
 package kr.co.call.impl.viewmodel
 
 sealed interface OnboardingSideEffect{
-    data class OnboardingCompleted(
-        val callNow:Boolean,
-    ): OnboardingSideEffect
+    data object OnboardingSubmitted : OnboardingSideEffect
 
     data class ShowMessage(
         val message: String,

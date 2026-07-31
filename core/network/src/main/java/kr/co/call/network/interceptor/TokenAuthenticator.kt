@@ -4,6 +4,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
+import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.dto.login.TokenReissueRequestDto
@@ -22,6 +23,7 @@ import timber.log.Timber
 class TokenAuthenticator @Inject constructor(
     private val tokenDataStore: TokenDataStore,
     private val tokenReissueApi: TokenReissueApi,
+    private val authSessionManager: AuthSessionManager,
 ) : Authenticator {
 
     /**
@@ -70,7 +72,7 @@ class TokenAuthenticator @Inject constructor(
         return synchronized(refreshLock) {
             runBlocking {
                 val storedTokens =
-                    tokenDataStore.getStoredTokens()
+                    tokenDataStore.getTokens()
 
                 val currentAccessToken =
                     storedTokens.accessToken
@@ -142,7 +144,7 @@ class TokenAuthenticator @Inject constructor(
                     newTokens != null
                 ) {
                     try {
-                        tokenDataStore.saveTokens(
+                        tokenDataStore.setTokens(
                             accessToken = newTokens.accessToken,
                             refreshToken = newTokens.refreshToken,
                         )
@@ -170,6 +172,7 @@ class TokenAuthenticator @Inject constructor(
                 if (reissueResponse.code() == 401) {
                     try {
                         tokenDataStore.clearTokens()
+                        authSessionManager.notifySessionExpired()
                     } catch (error: CancellationException) {
                         throw error
                     } catch (error: Throwable) {

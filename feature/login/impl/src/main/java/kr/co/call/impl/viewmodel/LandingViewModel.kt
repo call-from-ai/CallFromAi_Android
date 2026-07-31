@@ -32,7 +32,7 @@ class LandingViewModel @Inject constructor(
 
         val splashStartTime=System.currentTimeMillis()
 
-        val accessToken = tokenDataStore.getAccessToken()
+        val accessToken = tokenDataStore.getTokens().accessToken
         val elapsedTime = System.currentTimeMillis() - splashStartTime
         val remainingTime = SPLASH_DURATION_MILLIS - elapsedTime
         if (remainingTime>0L){

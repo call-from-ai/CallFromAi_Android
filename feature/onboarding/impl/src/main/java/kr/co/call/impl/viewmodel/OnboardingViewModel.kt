@@ -6,7 +6,7 @@ import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
-import kr.co.call.domain.model.onboarding.OnboardingSubmission
+import kr.co.call.domain.model.onboarding.OnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
@@ -116,20 +116,17 @@ class OnboardingViewModel @Inject constructor(
         }
     }
     fun submitOnboarding(
-        callNow: Boolean,
+        preferTime: PreferTime,
     ) = intent {
         if (state.submitStatus == LoadStatus.Loading) return@intent
 
         val age = state.aiAge.toIntOrNull()
         val speechStyle = state.speechStyle
         val relationship = state.relationship
-        val preferTime = state.preferTime
-
         if (
             age == null ||
             speechStyle == null ||
             relationship == null ||
-            preferTime == null ||
             state.traits.isEmpty()
         ) {
             postSideEffect(
@@ -141,10 +138,13 @@ class OnboardingViewModel @Inject constructor(
         }
 
         reduce {
-            state.copy(submitStatus = LoadStatus.Loading)
+            state.copy(
+                preferTime = preferTime,
+                submitStatus = LoadStatus.Loading,
+            )
         }
 
-        val submission = OnboardingSubmission(
+        val submission = OnboardingInput(
             member = MemberOnboardingInput(
                 lastName = state.userLastName,
                 firstName = state.userFirstName,
@@ -182,9 +182,7 @@ class OnboardingViewModel @Inject constructor(
                 }
 
                 postSideEffect(
-                    OnboardingSideEffect.OnboardingCompleted(
-                        callNow = callNow,
-                    ),
+                    OnboardingSideEffect.OnboardingSubmitted,
                 )
             }
             .onFailure { error ->
