@@ -62,6 +62,7 @@ object UiModelMapper {
         name = this.characterFirstName,
         imgUrl = this.characterImageUrl,
         dDay = "D+ ${this.dDay}",
+        isMain = this.isMain,
     )
 }
 

@@ -13,20 +13,17 @@ import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
-): ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
+    private val chatRepository: ChatRepository,
+) : ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
-    )
-
-    // 초기 로드
-    init {
+    ) {
         loadChatList()
     }
 
     // 초기 로딩
-    private fun loadChatList()  = intent {
+    private fun loadChatList() = intent {
         reduce {
             state.copy(
                 status = LoadStatus.Loading
@@ -43,9 +40,32 @@ class ChatListViewModel @Inject constructor(
                 }
             },
             onFailure = {
-
+                reduce {
+                    state.copy(
+                        // TODO: 현재는 임시 구현, 추후 변경 가능성 높음
+                        status = LoadStatus.Error("채팅 목록을 불러올 수 없습니다. 잠시 후 다시 시도해주세요")
+                    )
+                }
             }
         )
+    }
+
+    // onResume 시 로딩 없이 조용히 목록 갱신 — 변경된 항목만 교체
+    private fun refreshChatList() = intent {
+        chatRepository.getChatList()
+            .onSuccess { newList ->
+                // 기존 목록을 채팅방 ID 기준으로 매핑
+                val currentMap = state.chatList.associateBy { it.chatRoomId }
+
+                // 변경되지 않은 항목은 기존 객체를 유지하고, 변경된 항목만 새 데이터로 교체
+                val merged = newList.map { new -> currentMap[new.chatRoomId]?.takeIf { it == new } ?: new }
+
+                // 실제 변경이 있는 경우에만 상태를 갱신
+                if (merged != state.chatList) {
+                    reduce { state.copy(chatList = merged) }
+                }
+            }
+        // 실패는 무시 — 백그라운드 갱신이므로 사용자에게 노출하지 않음
     }
 
     fun handleIntent(intent: ChatListIntent) {
@@ -53,13 +73,23 @@ class ChatListViewModel @Inject constructor(
             is ChatListIntent.ClickChatRoom -> emitNavigateToChatRoom(intent.roomId)
             ChatListIntent.ClickManagerChatRoom -> emitNavigateToManagerChatRoom()
             is ChatListIntent.DeleteChatRoom -> deleteChatRoom(intent.roomId)
-            is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId)
+            is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId, intent.isMuted)
             is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog(intent.roomId)
             ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
+            ChatListIntent.OnResume -> refreshChatList()
         }
     }
 
     private fun emitNavigateToChatRoom(roomId: Long) = intent {
+        // 채팅방 진입 시 해당 방의 읽지 않은 메시지 수를 즉시 0으로 반영
+        reduce {
+            state.copy(
+                chatList = state.chatList.map { chat ->
+                    if (chat.chatRoomId == roomId) chat.copy(unReadMessageCount = "0")
+                    else chat
+                }
+            )
+        }
         postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId))
     }
 
@@ -84,14 +114,14 @@ class ChatListViewModel @Inject constructor(
         }
     }
 
-    private fun updateAlarmSetting(roomId: Long) = intent {
-        chatRepository.updateAlarmSetting(roomId).fold(
+    private fun updateAlarmSetting(roomId: Long, isMuted: Boolean) = intent {
+        chatRepository.updateAlarmSetting(roomId, isMuted).fold(
             onSuccess = {
                 reduce {
                     state.copy(
                         chatList = state.chatList.map { chat ->
                             if (chat.chatRoomId == roomId) {
-                                chat.copy(isAlarmEnabled = !chat.isAlarmEnabled)
+                                chat.copy(isMuted = isMuted)
                             } else {
                                 chat
                             }
