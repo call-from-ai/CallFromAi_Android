@@ -2,6 +2,7 @@ package kr.co.call.data.repositoryImpl
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import kr.co.call.data.util.runRepositoryCatching
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MyPageProfile
@@ -31,9 +32,8 @@ class MyPageRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout(): Result<Unit> =
-        safeApiResultUnit(errorResponseParser) {
+        runRepositoryCatching {
             myPageApi.logout()
-        }.onSuccess {
             tokenDataStore.clearTokens()
         }
 
