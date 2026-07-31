@@ -2,6 +2,8 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kr.co.call.domain.model.chatting.ChatEvent
+import kr.co.call.domain.repository.ChatEventRepository
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatListIntent
@@ -13,17 +15,19 @@ import org.orbitmvi.orbit.viewmodel.container
 import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
-    private val chatRepository: ChatRepository
-): ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
+    private val chatRepository: ChatRepository,
+    private val chatEventRepository: ChatEventRepository,
+) : ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
     ) {
         loadChatList()
+        observeChatEvents()
     }
 
     // 초기 로딩
-    private fun loadChatList()  = intent {
+    private fun loadChatList() = intent {
         reduce {
             state.copy(
                 status = LoadStatus.Loading
@@ -50,9 +54,24 @@ class ChatListViewModel @Inject constructor(
         )
     }
 
-    // 메세지 읽음 처리
-    private fun readChats(roomId: Long) = intent {
-
+    // ChatEventRepository 이벤트 수신 → 채팅 목록 낙관적 업데이트
+    private fun observeChatEvents() = intent {
+        chatEventRepository.events.collect { event ->
+            when (event) {
+                is ChatEvent.MessageSent -> reduce {
+                    state.copy(
+                        chatList = state.chatList.map { chat ->
+                            if (chat.chatRoomId == event.roomId) {
+                                chat.copy(
+                                    content = event.content,
+                                    whenSubmitted = event.whenSubmitted,
+                                )
+                            } else chat
+                        }
+                    )
+                }
+            }
+        }
     }
 
     fun handleIntent(intent: ChatListIntent) {
@@ -67,6 +86,15 @@ class ChatListViewModel @Inject constructor(
     }
 
     private fun emitNavigateToChatRoom(roomId: Long) = intent {
+        // 채팅방 진입 시 해당 방의 읽지 않은 메시지 수를 즉시 0으로 반영
+        reduce {
+            state.copy(
+                chatList = state.chatList.map { chat ->
+                    if (chat.chatRoomId == roomId) chat.copy(unReadMessageCount = "0")
+                    else chat
+                }
+            )
+        }
         postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId))
     }
 

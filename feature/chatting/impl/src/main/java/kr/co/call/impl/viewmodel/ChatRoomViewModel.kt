@@ -11,6 +11,8 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
+import kr.co.call.domain.model.chatting.ChatEvent
+import kr.co.call.domain.repository.ChatEventRepository
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
@@ -26,6 +28,7 @@ import org.orbitmvi.orbit.viewmodel.container
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
+    private val chatEventRepository: ChatEventRepository,
     @Assisted val navKey: ChatRoomNavKey,
 ): ViewModel(), ContainerHost<ChatRoomUiState, ChatRoomSideEffect> {
 
@@ -128,6 +131,13 @@ class ChatRoomViewModel @AssistedInject constructor(
                     }
                 )
             }
+
+            // 채팅 목록에 마지막 메시지 낙관적 반영
+            chatEventRepository.emitMessageSent(
+                roomId = navKey.roomId,
+                content = intent.message ?: "",
+                createdTime = serverMessage.createdTime,
+            )
         }.onFailure {
             // 전송 실패 시 낙관적으로 추가했던 임시 메시지 제거
             reduce {
@@ -254,14 +264,6 @@ class ChatRoomViewModel @AssistedInject constructor(
     // 갤러리 실행 이벤트 전달
     private fun emitGoToGallery() = intent {
         postSideEffect(ChatRoomSideEffect.GoToGallery)
-    }
-
-    // 채팅방 나갈 때 읽음 처리
-    // 백엔드의 요청사항.
-    override fun onCleared() {
-        super.onCleared()
-        readChats(navKey.roomId)
-
     }
 
 }

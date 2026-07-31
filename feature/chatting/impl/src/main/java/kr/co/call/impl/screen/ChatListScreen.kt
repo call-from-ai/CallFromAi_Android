@@ -127,7 +127,8 @@ fun ChatListScreenContent(
                 }
                 LoadStatus.Loading -> {
                     item {
-                        LoadingColumn()
+                        // UX상의 이유로 주석처리
+                        //LoadingColumn()
                     }
                 }
                 LoadStatus.Idle -> {
