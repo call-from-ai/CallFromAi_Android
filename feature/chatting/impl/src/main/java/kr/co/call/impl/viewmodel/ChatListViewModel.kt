@@ -18,10 +18,7 @@ class ChatListViewModel @Inject constructor(
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
-    )
-
-    // 초기 로드
-    init {
+    ) {
         loadChatList()
     }
 

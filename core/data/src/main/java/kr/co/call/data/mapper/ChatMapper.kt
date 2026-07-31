@@ -11,6 +11,7 @@ import kr.co.call.network.dto.chatting.ChatMessagesDTO
 import kr.co.call.network.dto.chatting.ChatRoomDTO
 import kr.co.call.network.dto.chatting.ChatRoomsDTO
 import kr.co.call.network.dto.chatting.ChatSseMessageDto
+import kr.co.call.core.common.util.TimeUtil
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -42,7 +43,7 @@ object ChatMapper {
         name = characterFirstName,
         isMainCharacter = isMain,
         content = lastMessage,
-        whenSubmitted = lastMessageAt,
+        whenSubmitted = TimeUtil.toTimeAgoText(lastMessageAt),
         unReadMessageCount = unreadCount.toString(),
         isMuted = isMuted,
     )
