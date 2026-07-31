@@ -25,10 +25,12 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.lifecycle.compose.LifecycleStartEffect
+import java.time.LocalDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.domain.model.home.CallInfo
 import kr.co.call.domain.model.home.CallTranscript
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.record.CallRecordLoadingContent
@@ -40,7 +42,6 @@ import kr.co.call.impl.component.record.CallTranscriptList
 import kr.co.call.impl.viewmodel.CallRecordIntent
 import kr.co.call.impl.viewmodel.CallRecordSideEffect
 import kr.co.call.impl.viewmodel.CallRecordViewModel
-import kr.co.call.impl.viewmodel.model.CallRecordUiModel
 import kr.co.call.impl.viewmodel.state.CallRecordState
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -57,8 +58,8 @@ fun CallRecordScreen(
 ) {
     val state by viewModel.collectAsState()
     val context = LocalContext.current
-    val recordingUrl = state.record.recordingUrl
-    val recordingDurationMillis = state.record.durationMillis
+    val recordingUrl = state.record?.recordingUrl
+    val recordingDurationMillis = state.record?.durationMillis ?: 0L
 
     // 같은 녹음 파일은 화면이 재생성되어도 마지막 재생 위치를 복원
     var savedPositionMillis by rememberSaveable(recordingUrl) {
@@ -319,9 +320,9 @@ fun CallRecordScreenContent(
             }
 
             LoadStatus.Idle -> {
-                CallRecordSummary(
-                    record = state.record,
-                )
+                state.record?.let { record ->
+                    CallRecordSummary(record = record)
+                }
 
                 CallTranscriptList(
                     transcripts = state.transcripts,
@@ -346,10 +347,13 @@ private fun CallRecordScreenPreview() {
     CallFromAiTheme {
         CallRecordScreenContent(
             state = CallRecordState(
-                record = CallRecordUiModel(
+                record = CallInfo(
+                    callId = 1L,
                     title = "출근 준비와 아침 일정 이야기",
-                    calledAtText = "6월 27일 오전 7시 31분",
+                    calledAt = LocalDateTime.of(2026, 6, 27, 7, 31),
                     characterName = "민준",
+                    recordingUrl = null,
+                    durationMillis = 81_000L,
                 ),
                 transcripts = listOf(
                     "여보세요",
@@ -373,6 +377,7 @@ private fun CallRecordScreenPreview() {
                         } else {
                             CallTranscript.Speaker.AI
                         },
+                        createdAt = LocalDateTime.now(),
                     )
                 },
                 loadStatus = LoadStatus.Idle,

@@ -3,10 +3,9 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kr.co.call.domain.exception.CharacterChangeUnavailableException
+import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.state.HomeDialogState
 import kr.co.call.impl.viewmodel.state.HomeState
@@ -75,13 +74,13 @@ class HomeViewModel @Inject constructor(
 
     // 메인 캐릭터 통화 확인 팝업 표시
     private fun showMainCharacterCallConfirmation() = intent {
-        val mainCharacter = state.characters.firstOrNull { character -> character.isSelected }
+        val mainCharacter = state.characters.firstOrNull { character -> character.isMain }
             ?: return@intent
 
         reduce {
             state.copy(
                 dialogState = HomeDialogState.CallConfirmation(
-                    characterId = mainCharacter.characterId,
+                    characterId = mainCharacter.id,
                     characterName = mainCharacter.name,
                 ),
             )
@@ -90,10 +89,10 @@ class HomeViewModel @Inject constructor(
 
     // 통화 대상에 맞는 팝업 표시
     private fun showCallDialog(characterName: String) = intent {
-        val mainCharacter = state.characters.firstOrNull { character -> character.isSelected }
+        val mainCharacter = state.characters.firstOrNull { character -> character.isMain }
         val dialogState = if (mainCharacter?.name == characterName) {
             HomeDialogState.CallConfirmation(
-                characterId = mainCharacter.characterId,
+                characterId = mainCharacter.id,
                 characterName = characterName,
             )
         } else {
@@ -110,28 +109,14 @@ class HomeViewModel @Inject constructor(
         val confirmation = state.dialogState as? HomeDialogState.CallConfirmation
             ?: return@intent
 
-        try {
-            homeRepository.startCall(
-                characterId = confirmation.characterId,
-            ).getOrThrow()
-
-            reduce {
-                state.copy(dialogState = null)
-            }
-            postSideEffect(
-                HomeSideEffect.NavigateToCall(
-                    characterId = confirmation.characterId,
-                ),
-            )
-        } catch (cancellationException: CancellationException) {
-            throw cancellationException
-        } catch (throwable: Throwable) {
-            postSideEffect(
-                HomeSideEffect.ShowMessage(
-                    message = throwable.message ?: "통화를 시작하지 못했습니다.",
-                ),
-            )
+        reduce {
+            state.copy(dialogState = null)
         }
+        postSideEffect(
+            HomeSideEffect.NavigateToCall(
+                characterId = confirmation.characterId,
+            ),
+        )
     }
 
     // 캐릭터 선택 팝업 표시
@@ -162,13 +147,14 @@ class HomeViewModel @Inject constructor(
             ?: return@intent
 
         try {
-            val characters = homeRepository.changeMainCharacter(
+            homeRepository.activateCharacter(
                 characterId = confirmation.characterId,
             ).getOrThrow()
+            val characters = homeRepository.getCharacters().getOrThrow()
 
             reduce {
                 state.copy(
-                    characters = characters.map { character -> character.toUiModel() },
+                    characters = characters,
                     dialogState = null,
                 )
             }
@@ -179,10 +165,19 @@ class HomeViewModel @Inject constructor(
             )
         } catch (cancellationException: CancellationException) {
             throw cancellationException
-        } catch (exception: CharacterChangeUnavailableException) {
-            reduce {
-                state.copy(
-                    dialogState = HomeDialogState.CharacterChangeUnavailable,
+        } catch (exception: AppException.Business) {
+            if (exception.code == CHARACTER_CHANGE_UNAVAILABLE_CODE) {
+                reduce {
+                    state.copy(
+                        // 캐릭터 변경 후 3일 지나야 변경 가능함 표시
+                        dialogState = HomeDialogState.CharacterChangeUnavailable,
+                    )
+                }
+            } else {
+                postSideEffect(
+                    HomeSideEffect.ShowMessage(
+                        message = exception.message ?: "메인 연인을 변경하지 못했습니다.",
+                    ),
                 )
             }
         } catch (throwable: Throwable) {
@@ -193,7 +188,6 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
-
 
 
     // 온보딩으로 이동
@@ -238,9 +232,9 @@ class HomeViewModel @Inject constructor(
 
             reduce {
                 state.copy(
-                    summary = summary.toUiModel(),
-                    callHistories = callHistories.map { history -> history.toUiModel() },
-                    characters = characters.map { character -> character.toUiModel() },
+                    summary = summary,
+                    callHistories = callHistories,
+                    characters = characters,
                     loadStatus = LoadStatus.Idle,
                 )
             }
@@ -255,5 +249,9 @@ class HomeViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    private companion object {
+        const val CHARACTER_CHANGE_UNAVAILABLE_CODE = "CHAR008"
     }
 }

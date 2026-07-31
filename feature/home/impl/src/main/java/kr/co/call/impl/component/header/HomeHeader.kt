@@ -42,9 +42,9 @@ import androidx.compose.ui.unit.sp
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.impl.component.RelationshipSummaryCard
 import kr.co.call.impl.component.UnreadIndicator
-import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 /**
  * 홈 화면 상단 헤더 컴포넌트
@@ -53,7 +53,7 @@ import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
  */
 @Composable
 fun HomeHeader(
-    summary: HomeSummaryUiModel,
+    summary: HomeSummary?,
     hasUnreadNotification: Boolean,
     onCharacterChangeClick: () -> Unit,
     onNotificationClick: () -> Unit,
@@ -80,7 +80,7 @@ fun HomeHeader(
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
-                    top = 12.dp,
+                    top = 24.dp,
                     end = 3.dp,
                 ),
             horizontalArrangement = Arrangement.spacedBy(3.dp),
@@ -156,7 +156,7 @@ fun HomeHeader(
                     withStyle(
                         style = SpanStyle(fontWeight = FontWeight.SemiBold),
                     ) {
-                        append(summary.firstName)
+                        append(summary?.firstName.orEmpty())
                     }
                     append("님, 반가워요! 👋🏻")
                 },
@@ -235,11 +235,11 @@ fun HomeHeader(
 private fun HomeHeaderPreview() {
     CallFromAiTheme {
         HomeHeader(
-            summary = HomeSummaryUiModel(
+            summary = HomeSummary(
                 firstName = "수현",
-                relationshipDaysText = "30일째",
-                totalCallCountText = "24회",
-                callStreakDaysText = "12일",
+                relationshipDays = 30,
+                totalCallCount = 24,
+                callStreakDays = 12,
             ),
             hasUnreadNotification = true,
             onCharacterChangeClick = {},

@@ -23,7 +23,9 @@ import kr.co.call.designsystem.R
 import kr.co.call.designsystem.modifier.noRippleClickable
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.impl.viewmodel.model.CallRecordUiModel
+import kr.co.call.core.common.util.TimeUtil
+import kr.co.call.domain.model.home.CallInfo
+import java.time.LocalDateTime
 
 /**
  * 통화 기록 화면의 뒤로가기와 제목을 표시하는 상단 영역
@@ -71,7 +73,7 @@ fun CallRecordTopBar(
  */
 @Composable
 fun CallRecordSummary(
-    record: CallRecordUiModel,
+    record: CallInfo,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -87,7 +89,7 @@ fun CallRecordSummary(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = record.calledAtText,
+            text = TimeUtil.toCallHistoryDateText(record.calledAt),
             color = CallTheme.colors.gray600,
             style = CallTheme.typography.bodySmall,
         )
@@ -119,10 +121,13 @@ private fun CallRecordTopBarPreview() {
 private fun CallRecordSummaryPreview() {
     CallFromAiTheme {
         CallRecordSummary(
-            record = CallRecordUiModel(
+            record = CallInfo(
+                callId = 1L,
                 title = "출근 준비와 아침 일정 이야기",
-                calledAtText = "6월 27일 오전 7시 31분",
+                calledAt = LocalDateTime.of(2026, 6, 27, 7, 31),
                 characterName = "민준",
+                recordingUrl = null,
+                durationMillis = 0L,
             ),
         )
     }
