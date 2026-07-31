@@ -1,8 +1,8 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.data.util.runRepositoryCatching
 import kr.co.call.datastore.AccountStateDataStore
+import kr.co.call.data.util.toAppResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
 import kr.co.call.domain.repository.LoginRepository
@@ -29,11 +29,11 @@ class LoginRepositoryImpl @Inject constructor(
     override suspend fun loginWithKakao(
         kakaoAccessToken: String,
     ): Result<LoginToken> =
-        runRepositoryCatching {
+        runCatching {
             val result = safeApiCall(errorResponseParser) {
                 loginApi.login(
                     request = LoginRequestDto(
-                        kakaoAccessToken=kakaoAccessToken,
+                        kakaoAccessToken = kakaoAccessToken,
                     ),
                 )
             }
@@ -55,5 +55,5 @@ class LoginRepositoryImpl @Inject constructor(
                 needsOnboarding = result.needsOnboarding || forceOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
-        }
+        }.toAppResult()
 }
