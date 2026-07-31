@@ -23,7 +23,7 @@ interface ChatRepository {
         roomId: Long,
         message: String?,
         image: ImageData?
-    ): Result<Unit>
+    ): Result<ChatItem.Message>
 
     suspend fun deleteMessage(
         chatroomId: Long,

@@ -15,9 +15,9 @@ import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.model.ChatItemUiModel
-import kr.co.call.impl.model.TextFieldState
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
 import kr.co.call.impl.state.ChatRoomUiState
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.util.buildOptimisticMessage
 import kr.co.call.impl.util.insertDateSeparators
 import org.orbitmvi.orbit.Container
@@ -81,11 +81,6 @@ class ChatRoomViewModel @AssistedInject constructor(
         }
     }
 
-    // 입력창 텍스트 변경 사항을 UI 상태에 반영
-    fun onTextChange(text: String) = intent {
-        reduce { state.copy(textFieldState = state.textFieldState.copy(text = text)) }
-    }
-
     // 메시지를 UI에 먼저 반영한 뒤 서버로 전송하는 메시지 처리
     private fun sendMessage(intent: ChatRoomIntent.SendMessage) = intent {
         // 서버 전송 전 UI에 메시지를 먼저 표시하는 낙관적 업데이트 처리
@@ -95,11 +90,11 @@ class ChatRoomViewModel @AssistedInject constructor(
             imageUri = intent.imageUri,
         )
 
-        // 입력창 초기화 및 임시 메시지 추가
+        // 임시 메시지 추가 및 선택 이미지 초기화 (텍스트는 로컬에서 관리)
         reduce {
             state.copy(
                 chatItems = listOf(optimisticMsg) + state.chatItems,
-                textFieldState = TextFieldState(),
+                textFieldState = state.textFieldState.copy(selectedImage = null),
             )
         }
 
@@ -108,9 +103,26 @@ class ChatRoomViewModel @AssistedInject constructor(
             roomId = navKey.roomId,
             message = intent.message,
             image = intent.image,
-        ).onFailure {
+        ).onSuccess { serverMessage ->
+            // 전송 성공 시 서버에서 받은 chatMessageId, senderType, messageType을 낙관적 메시지에 반영
+            reduce {
+                state.copy(
+                    chatItems = state.chatItems.map { item ->
+                        if (item is ChatItemUiModel.Message
+                            && item.clientId == optimisticMsg.clientId
+                            ) {
+                            item.copy(
+                                chatMessageId = serverMessage.chatMessageId,
+                                senderType = serverMessage.senderType,
+                                messageType = serverMessage.messageType,
+                                loadStatus = LoadStatus.Idle,
+                            )
+                        } else item
+                    }
+                )
+            }
+        }.onFailure {
             // 전송 실패 시 낙관적으로 추가했던 임시 메시지 제거
-            // TODO: 임시 구현. 요구사항에 따라 달라질 수 있음
             reduce {
                 state.copy(
                     chatItems = state.chatItems.filterNot {
@@ -118,6 +130,8 @@ class ChatRoomViewModel @AssistedInject constructor(
                     }
                 )
             }
+
+            postSideEffect(ChatRoomSideEffect.ShowToast("메세지를 전송할 수 없습니다. 잠시 후 다시 시도해주세요"))
         }
     }
 

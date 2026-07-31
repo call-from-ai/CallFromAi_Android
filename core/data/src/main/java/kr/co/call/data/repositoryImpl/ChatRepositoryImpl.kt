@@ -83,16 +83,21 @@ class ChatRepositoryImpl @Inject constructor(
         roomId: Long,
         message: String?,
         image: ImageData?
-    ): Result<Unit> {
-        val imagePart = image?.let {
-            MultipartBody.Part.createFormData(
+    ): Result<ChatItem.Message> {
+        // 이미지 포함 여부 기준 분기처리
+        return if (image != null) {
+            val imagePart = MultipartBody.Part.createFormData(
                 name = "image",
-                filename = it.fileName,
-                body = it.bytes.toRequestBody(it.mimeType.toMediaType())
+                filename = image.fileName,
+                body = image.bytes.toRequestBody(image.mimeType.toMediaType())
             )
-        }
-        return safeApiResultUnit(errorResponseParser) {
-            chatApi.sendMessage(roomId, message, imagePart)
+            safeApiResult(errorResponseParser) {
+                chatApi.sendImageMessage(roomId, message, imagePart)
+            }.map { it.toDomain() }
+        } else {
+            safeApiResult(errorResponseParser) {
+                chatApi.sendTextMessage(roomId, message ?: "")
+            }.map { it.toDomain() }
         }
     }
 

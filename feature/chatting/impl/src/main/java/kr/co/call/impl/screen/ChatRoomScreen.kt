@@ -1,6 +1,7 @@
 package kr.co.call.impl.screen
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -102,7 +103,9 @@ fun ChatRoomScreen(
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatRoomSideEffect.ShowToast -> {}
+            is ChatRoomSideEffect.ShowToast -> {
+                Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+            }
             is ChatRoomSideEffect.Call -> {}
 
             ChatRoomSideEffect.GoToCamera -> {
@@ -128,7 +131,6 @@ fun ChatRoomScreen(
         listState = listState,
         onBack = onBack,
         onIntent = viewModel::handleIntent,
-        onValueChange = viewModel::onTextChange,
     )
 }
 
@@ -140,13 +142,13 @@ fun ChatRoomScreenContent(
     listState: LazyListState = rememberLazyListState(),
     onBack: () -> Unit = {},
     onIntent: (ChatRoomIntent) -> Unit = {},
-    onValueChange: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
 
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
+    var inputText by remember { mutableStateOf("") }
 
     val imeBottom = WindowInsets.ime.getBottom(density)
 
@@ -268,18 +270,20 @@ fun ChatRoomScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
+                        text = inputText,
                         state = state.textFieldState,
-                        onValueChange = onValueChange,
+                        onValueChange = { inputText = it },
                         onCameraClick = { onIntent(ChatRoomIntent.ClickCamera) },
                         onGalleryClick = { onIntent(ChatRoomIntent.ClickGallery) },
                         onSendClick = {
                             onIntent(
                                 ChatRoomIntent.SendMessage(
-                                    message = state.textFieldState.text,
+                                    message = inputText.ifBlank { null },
                                     image = state.textFieldState.selectedImage?.let(context::toImageData),
                                     imageUri = state.textFieldState.selectedImage,
                                 )
                             )
+                            inputText = ""
                         },
                         onRemoveImage = { onIntent(ChatRoomIntent.CancelImage) },
                     )

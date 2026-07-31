@@ -67,12 +67,14 @@ fun PagingData<ChatItem>.insertDateSeparators(): PagingData<ChatItem> {
         val afterMsg = after as? ChatItem.Message
             ?: return@insertSeparators null
 
-        // 날짜가 바뀌는 경계에만 구분선 삽입 (older 쪽 날짜 기준)
+        // 날짜가 바뀌는 경계에만 구분선 삽입 (newer 쪽 날짜 기준)
+        // reverseLayout=true 환경에서 구분선은 해당 날짜 그룹의 시각적 상단에 위치해야 하므로
+        // before(newer) 날짜를 사용해야 after(older) 날짜와 중복되지 않는다.
         val beforeDate = beforeMsg.createdTime.toLocalDate()
         val afterDate = afterMsg.createdTime.toLocalDate()
 
         if (beforeDate != afterDate) {
-            ChatItem.DateSeparator(afterDate)
+            ChatItem.DateSeparator(beforeDate)
         } else {
             null
         }

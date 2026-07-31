@@ -61,13 +61,20 @@ interface ChatApi {
         @Path("chatRoomId") chatRoomId: Long
     ): ApiResponse<ChatHeaderDTO>
 
-    // 텍스트 또는 이미지 메시지를 전송
+    // 텍스트 메시지 전송
+    @POST("chat-rooms/{chatRoomId}/messages")
+    suspend fun sendTextMessage(
+        @Path("chatRoomId") chatRoomId: Long,
+        @Query("content") content: String,
+    ): ApiResponse<ChatMessageDTO>
+
+    // 이미지(또는 이미지+텍스트) 메시지 전송
     @Multipart
     @POST("chat-rooms/{chatRoomId}/messages")
-    suspend fun sendMessage(
+    suspend fun sendImageMessage(
         @Path("chatRoomId") chatRoomId: Long,
         @Query("content") content: String?,
-        @Part image: MultipartBody.Part?
+        @Part image: MultipartBody.Part,
     ): ApiResponse<ChatMessageDTO>
 
     @DELETE("chat-rooms/{chatRoomId}/messages/{messageId}")
