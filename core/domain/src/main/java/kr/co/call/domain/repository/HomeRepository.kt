@@ -15,7 +15,4 @@ interface HomeRepository {
         characterId: Long,
     ): Result<Unit>
 
-    suspend fun startCall(
-        characterId: Long,
-    ): Result<Unit>
 }

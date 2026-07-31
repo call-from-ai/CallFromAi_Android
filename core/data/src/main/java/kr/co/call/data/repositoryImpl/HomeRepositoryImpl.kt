@@ -14,6 +14,10 @@ import kr.co.call.network.api.HomeApi
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
 
+/**
+ * 홈 화면 관련 Repository 구현체입니다.
+ * - 마이페이지에서 공통 호출하는 캐릭터 관련 api도 주입해서 처리합니다.
+ */
 class HomeRepositoryImpl @Inject constructor(
     private val homeApi: HomeApi,
     private val characterApi: CharacterApi,
@@ -83,19 +87,6 @@ class HomeRepositoryImpl @Inject constructor(
                 )
             }
             .logFailure(operation = "activateCharacter")
-
-
-
-
-    override suspend fun startCall(
-        characterId: Long,
-    ): Result<Unit> = unsupportedApi()
-
-    // 미연결 시 임시 설정
-    private fun <T> unsupportedApi(): Result<T> =
-        Result.failure(
-            UnsupportedOperationException("서버 오류가 발생했습니다."),
-        )
 
     private fun <T> Result<T>.logFailure(operation: String): Result<T> =
         onFailure { throwable ->
