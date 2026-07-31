@@ -13,9 +13,11 @@ interface ChatRepository {
 
     suspend fun deleteChatRoom(roomId: Long): Result<Unit>
 
-    suspend fun updateAlarmSetting(roomId: Long): Result<Unit>
+    suspend fun updateAlarmSetting(roomId: Long, isMuted: Boolean): Result<Unit>
 
     fun getChats(roomId: Long): Flow<PagingData<ChatItem>>
+
+    suspend fun readChats(roomId: Long): Result<Unit>
 
     suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader>
 
@@ -23,9 +25,10 @@ interface ChatRepository {
         roomId: Long,
         message: String?,
         image: ImageData?
-    ): Result<Unit>
+    ): Result<ChatItem.Message>
 
     suspend fun deleteMessage(
+        chatroomId: Long,
         messageId: Long
     ): Result<Unit>
 }

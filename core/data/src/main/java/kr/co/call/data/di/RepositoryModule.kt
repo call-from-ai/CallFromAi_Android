@@ -31,7 +31,6 @@ import kr.co.call.domain.repository.CallSessionRepository
 import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
 import kr.co.call.domain.repository.CallStreamingRepository
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {

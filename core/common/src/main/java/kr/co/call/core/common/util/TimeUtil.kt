@@ -27,7 +27,7 @@ object TimeUtil {
             ),
         )
 
-    // LocalDateTime을 "n분 전" 형식의 문자열로 변환
+    // LocalDateTime을 "방금 전 / n분 전 / n시간 전 / n일 전" 형식의 문자열로 변환
     fun toTimeAgoText(
         dateTime: LocalDateTime,
         now: LocalDateTime = LocalDateTime.now(),
@@ -37,11 +37,18 @@ object TimeUtil {
             .coerceAtLeast(0)
 
         return when {
+            elapsedMinutes < 1 -> "방금 전"
             elapsedMinutes < 60 -> "${elapsedMinutes}분 전"
             elapsedMinutes < 60 * 24 -> "${elapsedMinutes / 60}시간 전"
             else -> "${elapsedMinutes / (60 * 24)}일 전"
         }
     }
+
+    // ISO 형식의 날짜 문자열(lastMessageAt 등)을 "방금 전 / n분 전 / n시간 전 / n일 전" 형식으로 변환
+    fun toTimeAgoText(
+        dateTimeString: String,
+        now: LocalDateTime = LocalDateTime.now(),
+    ): String = toTimeAgoText(LocalDateTime.parse(dateTimeString), now)
 
     // LocalDate를 "M월 d일 EEEE" 형식의 문자열로 변환
     fun toHomeDateText(date: LocalDate): String =

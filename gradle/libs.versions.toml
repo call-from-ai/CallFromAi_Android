@@ -21,6 +21,7 @@ hiltNavigationCompose = "1.2.0"
 # network
 retrofit = "2.11.0"
 okhttp = "4.12.0"
+okhttpEventsource = "4.1.1"
 kotlinxSerializationConverter = "1.0.0"
 gson = "2.11.0"
 
@@ -100,6 +101,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 retrofit-gson-converter = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse", version.ref = "okhttp" }
+launchdarkly-okhttp-eventsource = { module = "com.launchdarkly:okhttp-eventsource", version.ref = "okhttpEventsource" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 # nav3

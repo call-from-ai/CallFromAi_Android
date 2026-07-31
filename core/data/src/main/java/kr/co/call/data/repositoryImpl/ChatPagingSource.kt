@@ -2,58 +2,58 @@ package kr.co.call.data.repositoryImpl
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import kotlinx.coroutines.delay
+import kr.co.call.data.mapper.ChatMapper
+import kr.co.call.data.mapper.ChatMapper.toDomain
+import kr.co.call.data.util.safeApiResult
 import kr.co.call.domain.model.chatting.ChatItem
-import kr.co.call.domain.model.chatting.MessageType
-import kr.co.call.domain.model.chatting.SenderType
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
-import kotlin.time.Duration.Companion.milliseconds
+import kr.co.call.network.api.ChatApi
+import kr.co.call.network.util.ErrorResponseParser
 
+/**
+ * 특정 채팅방의 메시지를 커서 기반 페이징으로 로드하는 [PagingSource] 구현체.
+ *
+ * [ChatApi.getChats]를 호출하여 서버에서 메시지를 가져오며,
+ * 응답의 [nextCursor]와 [hasNext] 값을 기준으로 다음 페이지 여부를 판단한다.
+ * 메시지는 최신순(newest-first)으로 반환되며, reverseLayout = true 와 함께 사용한다.
+ *
+ * @param chatApi 채팅 관련 Retrofit API 인터페이스
+ * @param errorResponseParser API 에러 응답을 파싱하는 유틸리티
+ * @param roomId 메시지를 조회할 채팅방 ID
+ */
 class ChatPagingSource(
-    val roomId: Long,
+    private val chatApi: ChatApi,
+    private val errorResponseParser: ErrorResponseParser,
+    private val roomId: Long,
 ) : PagingSource<Long, ChatItem.Message>() {
 
-    // TODO: API 연동 시 교체
-    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, ChatItem.Message> {
-        return try {
-            delay(500.milliseconds)
-
-            val totalDummyCount = 100L
-            val pageSize = params.loadSize.toLong()
-
-            // cursor = before 파라미터 (이 ID 미만의 메시지 조회, null이면 최신부터)
-            val beforeId = params.key ?: totalDummyCount
-            val newestIdInPage = beforeId - 1
-            val oldestIdInPage = maxOf(0L, newestIdInPage - pageSize + 1)
-
-            // API 응답 시뮬레이션: oldest-first (오래된 순)
-            val apiResponse = (oldestIdInPage..newestIdInPage).map { i ->
-                ChatItem.Message(
-                    chatMessageId = i,
-                    senderType = if (i % 2L == 0L) SenderType.USER else SenderType.AI,
-                    content = "더미 메시지 $i",
-                    messageType = MessageType.TEXT,
-                    // 10개 단위로 하루씩 과거로
-                    createdTime = LocalDateTime.now().minus((totalDummyCount - 1 - i) / 10, ChronoUnit.DAYS),
-                )
-            }
-
-            // reverseLayout = true 와 함께 사용하기 위해 newest-first로 변환
-            val items = apiResponse.reversed()
-
-            // reverseLayout = true 에서 오래된 메시지는 APPEND(nextKey) 방향으로 로드
-            val nextKey = if (oldestIdInPage > 0L) oldestIdInPage else null
-
-            LoadResult.Page(
-                data = items,
-                prevKey = null,
-                nextKey = nextKey,
+    /**
+     * 페이지 단위로 메시지를 로드한다.
+     *
+     * [LoadParams.key]가 null이면 최신 메시지부터 조회하고,
+     * 값이 있으면 해당 커서 이전 메시지를 조회한다.
+     * 다음 페이지가 없으면 [LoadResult.Page.nextKey]를 null로 설정하여 페이징을 종료한다.
+     */
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, ChatItem.Message> =
+        safeApiResult(errorResponseParser) {
+            chatApi.getChats(
+                chatRoomId = roomId,
+                cursor = params.key,
+                size = params.loadSize,
             )
-        } catch (e: Exception) {
-            LoadResult.Error(e)
-        }
-    }
+        }.fold(
+            onSuccess = { dto ->
+                LoadResult.Page(
+                    data = dto.toDomain().reversed(),
+                    prevKey = null,
+                    nextKey = if (dto.hasNext) dto.nextCursor else null,
+                )
+            },
+            onFailure = { LoadResult.Error(it) }
+        )
 
+    /**
+     * 스크롤 위치 복원 시 사용할 갱신 키를 반환한다.
+     * 채팅은 항상 최신 메시지부터 다시 로드하므로 null을 반환한다.
+     */
     override fun getRefreshKey(state: PagingState<Long, ChatItem.Message>): Long? = null
 }
