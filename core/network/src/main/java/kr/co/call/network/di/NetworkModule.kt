@@ -8,6 +8,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.call.network.BuildConfig
 import kr.co.call.network.api.AgreementApi
+import kr.co.call.network.api.CharacterApi
+import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
@@ -119,22 +121,35 @@ object NetworkModule {
     @Singleton
     fun provideLoginApi(
         retrofit: Retrofit,
-    ): LoginApi {
-        return retrofit.create(LoginApi::class.java)
-    }
+    ): LoginApi =
+        retrofit.create(LoginApi::class.java)
 
     @Provides
     @Singleton
-    fun provideAgreementApi(retrofit: Retrofit): AgreementApi {
-        return retrofit.create(AgreementApi::class.java)
-    }
+    fun provideAgreementApi(
+        retrofit: Retrofit,
+    ): AgreementApi =
+        retrofit.create(AgreementApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideHomeApi(
+        retrofit: Retrofit,
+    ): HomeApi =
+        retrofit.create(HomeApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCharacterApi(
+        retrofit: Retrofit,
+    ): CharacterApi =
+        retrofit.create(CharacterApi::class.java)
 
     @Provides
     @Singleton
     fun provideTokenReissueApi(
         @Named("reissueRetrofit")
         retrofit: Retrofit,
-    ): TokenReissueApi{
-        return retrofit.create(TokenReissueApi::class.java)
-    }
+    ): TokenReissueApi =
+        retrofit.create(TokenReissueApi::class.java)
 }
