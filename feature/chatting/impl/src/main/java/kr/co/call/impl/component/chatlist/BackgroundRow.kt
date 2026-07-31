@@ -23,7 +23,7 @@ import kr.co.call.designsystem.theme.CallTheme
 @Composable
 fun BackgroundRow(
     modifier: Modifier = Modifier,
-    isAlarmEnabled: Boolean = true,
+    isMuted: Boolean = false,
     onAlarmClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {},
 ) {
@@ -39,7 +39,7 @@ fun BackgroundRow(
             contentAlignment = Alignment.Center
         ) {
 
-            val iconPainter = if (isAlarmEnabled)
+            val iconPainter = if (!isMuted)
                 painterResource(R.drawable.ic_chat_bell)
             else painterResource(R.drawable.ic_chat_bell_off)
 
@@ -72,6 +72,6 @@ fun BackgroundRow(
 @Composable
 private fun BackgroundRowPreview() {
     CallFromAiTheme {
-        BackgroundRow(isAlarmEnabled = true)
+        BackgroundRow(isMuted = false)
     }
 }

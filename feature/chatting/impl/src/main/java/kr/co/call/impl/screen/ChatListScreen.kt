@@ -194,7 +194,7 @@ private fun ChatListScreenContentPreview() {
                         content = "오늘 저녁에 뭐해?",
                         whenSubmitted = "30분 전",
                         unReadMessageCount = "3",
-                        isAlarmEnabled = true,
+                        isMuted = false,
                     ),
                     ChatSummary(
                         chatRoomId = 2,
@@ -203,7 +203,7 @@ private fun ChatListScreenContentPreview() {
                         content = "내일 봐!",
                         whenSubmitted = "1시간 전",
                         unReadMessageCount = "0",
-                        isAlarmEnabled = false,
+                        isMuted = true,
                     )
                 ),
                 status = LoadStatus.Idle,

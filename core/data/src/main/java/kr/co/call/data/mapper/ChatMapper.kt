@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
  *
  * - String 타입의 `senderType`, `messageType`은 각 enum의 [fromApiValue]를 통해 안전하게 변환됩니다.
  * - `createdAt` 문자열은 [DateTimeFormatter.ISO_LOCAL_DATE_TIME] 포맷으로 파싱됩니다.
- * - `isMuted`는 반전되어 `isAlarmEnabled`로 매핑됩니다.
+ * - `isMuted`는 동일 필드명으로 직접 매핑됩니다.
  */
 object ChatMapper {
 
@@ -44,7 +44,7 @@ object ChatMapper {
         content = lastMessage,
         whenSubmitted = lastMessageAt,
         unReadMessageCount = unreadCount.toString(),
-        isAlarmEnabled = !isMuted,
+        isMuted = isMuted,
     )
 
     // 채팅방 목록 DTO를 채팅 요약 Domain 모델 리스트로 변환

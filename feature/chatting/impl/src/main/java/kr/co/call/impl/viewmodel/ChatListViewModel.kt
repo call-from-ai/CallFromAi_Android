@@ -91,7 +91,7 @@ class ChatListViewModel @Inject constructor(
                     state.copy(
                         chatList = state.chatList.map { chat ->
                             if (chat.chatRoomId == roomId) {
-                                chat.copy(isAlarmEnabled = !chat.isAlarmEnabled)
+                                chat.copy(isMuted = !chat.isMuted)
                             } else {
                                 chat
                             }
