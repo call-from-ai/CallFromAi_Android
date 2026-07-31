@@ -2,6 +2,7 @@ package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
 import kr.co.call.data.util.runRepositoryCatching
+import kr.co.call.datastore.AccountStateDataStore
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
 import kr.co.call.domain.repository.LoginRepository
@@ -17,6 +18,7 @@ import kr.co.call.network.util.safeApiCall
 class LoginRepositoryImpl @Inject constructor(
     private val loginApi: LoginApi,
     private val tokenDataStore: TokenDataStore,
+    private val accountStateDataStore: AccountStateDataStore,
     private val errorResponseParser: ErrorResponseParser,
 ) : LoginRepository {
 
@@ -45,10 +47,12 @@ class LoginRepositoryImpl @Inject constructor(
                 refreshToken = result.refreshToken,
             )
 
+            val forceOnboarding=accountStateDataStore.shouldForceOnboarding()
+
             LoginToken(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
-                needsOnboarding = result.needsOnboarding,
+                needsOnboarding = result.needsOnboarding || forceOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
         }

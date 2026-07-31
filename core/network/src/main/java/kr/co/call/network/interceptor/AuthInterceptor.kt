@@ -23,7 +23,9 @@ class AuthInterceptor @Inject constructor(
         }
         //저장된 access 토큰이 없으면 원래 요청 그대로 전송
         val accessToken = tokenDataStore.getCachedAccessToken()
-            ?: runBlocking{tokenDataStore.getCachedAccessToken()}
+            ?: runBlocking{
+                tokenDataStore.getAccessToken()
+            }
         if (accessToken.isNullOrBlank()) {
             return chain.proceed(originalRequest)
         }

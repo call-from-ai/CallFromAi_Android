@@ -1,5 +1,6 @@
 package kr.co.call.impl.entry
 
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
@@ -20,7 +21,11 @@ import kr.co.call.impl.screen.Onboarding5Screen
 import kr.co.call.impl.screen.Onboarding6Screen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import kr.co.call.domain.util.LoadStatus
+import kr.co.call.impl.viewmodel.OnboardingSideEffect
 import kr.co.call.impl.viewmodel.OnboardingViewModel
+import org.orbitmvi.orbit.compose.collectSideEffect
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding1Next: () -> Unit,
@@ -45,6 +50,8 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
                     birthday = state.birthday,
                     job = state.job,
                     mbti = state.mbti,
+                    gender=state.gender,
+                    imageUrl=state.imageUrl,
                 )
                 onOnboarding1Next()
             },
@@ -62,6 +69,8 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
                     firstName = state.firstName,
                     job = state.job,
                     mbti = state.mbti,
+                    gender=state.gender,
+                    imageUrl = state.imageUrl,
                 )
 
                 onOnboarding2Next()
@@ -107,13 +116,34 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     }
 
     entry<Onboarding6NavKey> {
+        val context=LocalContext.current
         val onboardingViewModel = sharedOnboardingViewModel()
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
+        onboardingViewModel.collectSideEffect { sideEffect ->
+            when (sideEffect) {
+                is OnboardingSideEffect.OnboardingCompleted -> {
+                    if (sideEffect.callNow) {
+                        onOnboarding6CallNow()
+                    } else {
+                        onOnboarding6CallLater()
+                    }
+                }
+
+                is OnboardingSideEffect.ShowMessage -> {
+                    Toast.makeText(
+                        context,
+                        sideEffect.message,
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                }
+            }
+        }
         Onboarding6Screen(
             firstName = uiState.aiFirstName,
-            onCallNowClick = onOnboarding6CallNow,
-            onCallLaterClick = onOnboarding6CallLater,
+            isLoading = uiState.submitStatus== LoadStatus.Loading,
+            onCallNowClick ={onboardingViewModel.submitOnboarding(callNow=true)},
+            onCallLaterClick ={onboardingViewModel.submitOnboarding(callNow=false)},
         )
     }
 }

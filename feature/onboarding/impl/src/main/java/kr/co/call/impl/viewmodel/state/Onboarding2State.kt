@@ -6,4 +6,6 @@ data class Onboarding2State (
     val firstName: String="",
     val job: String="",
     val mbti: String="",
+    val gender: String="",
+    val imageUrl: String="",
     )

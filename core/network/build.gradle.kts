@@ -41,7 +41,7 @@ dependencies {
     implementation(project(":core:datastore"))
 
     // retrofit, okhttp
-    implementation(libs.retrofit)
+    api(libs.retrofit)
     implementation(libs.retrofit.gson.converter)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)

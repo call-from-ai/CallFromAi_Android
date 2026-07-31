@@ -10,6 +10,8 @@ import kr.co.call.data.repositoryImpl.CallRecordMockRepository
 import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
 import kr.co.call.data.repositoryImpl.HomeMockRepository
+import kr.co.call.data.repositoryImpl.OnboardingRepositoryImpl
+import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.repository.ChatRepository
@@ -97,4 +99,10 @@ abstract class RepositoryModule {
     abstract fun bindCallSessionRepository(
         impl: AndroidCallSessionRepository,
     ): CallSessionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindOnboardingRepository(
+        impl: OnboardingRepositoryImpl,
+    ): OnboardingRepository
 }
