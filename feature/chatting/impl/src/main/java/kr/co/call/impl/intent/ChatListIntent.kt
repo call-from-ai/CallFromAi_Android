@@ -12,4 +12,6 @@ sealed interface ChatListIntent {
     data class DeleteChatRoom(val roomId: Long) : ChatListIntent
 
     data object DismissDeleteDialog : ChatListIntent
+
+    data object OnResume : ChatListIntent
 }

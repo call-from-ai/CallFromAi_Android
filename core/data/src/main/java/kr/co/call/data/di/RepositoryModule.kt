@@ -28,9 +28,6 @@ import kr.co.call.domain.repository.CallControlRepository
 import kr.co.call.domain.repository.CallSessionRepository
 import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
 import kr.co.call.domain.repository.CallStreamingRepository
-import kr.co.call.data.repositoryImpl.ChatEventRepositoryImpl
-import kr.co.call.domain.repository.ChatEventRepository
-
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -99,10 +96,4 @@ abstract class RepositoryModule {
     abstract fun bindCallSessionRepository(
         impl: AndroidCallSessionRepository,
     ): CallSessionRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindChatEventRepository(
-        impl: ChatEventRepositoryImpl,
-    ): ChatEventRepository
 }

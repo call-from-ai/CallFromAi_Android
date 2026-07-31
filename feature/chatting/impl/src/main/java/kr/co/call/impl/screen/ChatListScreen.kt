@@ -21,6 +21,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import kr.co.call.chatting.impl.R
 import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -47,6 +49,11 @@ fun ChatListScreen(
     // 상태 구독
     val state = viewModel.collectAsState().value
     val context = LocalContext.current
+
+    // 채팅방에서 돌아올 때 목록 조용히 갱신
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.handleIntent(ChatListIntent.OnResume)
+    }
 
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->

@@ -2,8 +2,6 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kr.co.call.domain.model.chatting.ChatEvent
-import kr.co.call.domain.repository.ChatEventRepository
 import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatListIntent
@@ -16,14 +14,12 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
-    private val chatEventRepository: ChatEventRepository,
 ) : ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
     ) {
         loadChatList()
-        observeChatEvents()
     }
 
     // 초기 로딩
@@ -54,24 +50,22 @@ class ChatListViewModel @Inject constructor(
         )
     }
 
-    // ChatEventRepository 이벤트 수신 → 채팅 목록 낙관적 업데이트
-    private fun observeChatEvents() = intent {
-        chatEventRepository.events.collect { event ->
-            when (event) {
-                is ChatEvent.MessageSent -> reduce {
-                    state.copy(
-                        chatList = state.chatList.map { chat ->
-                            if (chat.chatRoomId == event.roomId) {
-                                chat.copy(
-                                    content = event.content,
-                                    whenSubmitted = event.whenSubmitted,
-                                )
-                            } else chat
-                        }
-                    )
+    // onResume 시 로딩 없이 조용히 목록 갱신 — 변경된 항목만 교체
+    private fun refreshChatList() = intent {
+        chatRepository.getChatList()
+            .onSuccess { newList ->
+                // 기존 목록을 채팅방 ID 기준으로 매핑
+                val currentMap = state.chatList.associateBy { it.chatRoomId }
+
+                // 변경되지 않은 항목은 기존 객체를 유지하고, 변경된 항목만 새 데이터로 교체
+                val merged = newList.map { new -> currentMap[new.chatRoomId]?.takeIf { it == new } ?: new }
+
+                // 실제 변경이 있는 경우에만 상태를 갱신
+                if (merged != state.chatList) {
+                    reduce { state.copy(chatList = merged) }
                 }
             }
-        }
+        // 실패는 무시 — 백그라운드 갱신이므로 사용자에게 노출하지 않음
     }
 
     fun handleIntent(intent: ChatListIntent) {
@@ -82,6 +76,7 @@ class ChatListViewModel @Inject constructor(
             is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId, intent.isMuted)
             is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog(intent.roomId)
             ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
+            ChatListIntent.OnResume -> refreshChatList()
         }
     }
 
