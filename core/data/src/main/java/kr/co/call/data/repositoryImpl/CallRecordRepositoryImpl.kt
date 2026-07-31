@@ -27,7 +27,6 @@ class CallRecordRepositoryImpl @Inject constructor(
                     callInfo.recordingUrl,
                 )
             }
-            .logFailure(operation = "getCallInfo")
 
     override suspend fun getCallScript(
         callId: Long,
@@ -43,12 +42,6 @@ class CallRecordRepositoryImpl @Inject constructor(
                     transcripts.size,
                 )
             }
-            .logFailure(operation = "getCallScript")
-
-    private fun <T> Result<T>.logFailure(operation: String): Result<T> =
-        onFailure { throwable ->
-            Timber.tag(TAG).e(throwable, "%s failed", operation)
-        }
 
     private companion object {
         const val TAG = "CallRecordRepository"

@@ -38,7 +38,6 @@ class HomeRepositoryImpl @Inject constructor(
                     characters.any { character -> character.isMain },
                 )
             }
-            .logFailure(operation = "getCharacters")
 
     override suspend fun getCallHistories(): Result<List<CallHistory>> =
         safeApiResult(errorResponseParser) {
@@ -57,7 +56,6 @@ class HomeRepositoryImpl @Inject constructor(
                     },
                 )
             }
-            .logFailure(operation = "getCallHistories")
 
     override suspend fun getSummary(): Result<HomeSummary> =
         safeApiResult(errorResponseParser) {
@@ -72,7 +70,6 @@ class HomeRepositoryImpl @Inject constructor(
                     summary.callStreakDays,
                 )
             }
-            .logFailure(operation = "getSummary")
 
     override suspend fun activateCharacter(
         characterId: Long,
@@ -86,12 +83,6 @@ class HomeRepositoryImpl @Inject constructor(
                     characterId,
                 )
             }
-            .logFailure(operation = "activateCharacter")
-
-    private fun <T> Result<T>.logFailure(operation: String): Result<T> =
-        onFailure { throwable ->
-            Timber.tag(TAG).e(throwable, "%s failed", operation)
-        }
 
     private companion object {
         const val TAG = "HomeRepository"
