@@ -22,9 +22,11 @@ import javax.inject.Inject
  */
 class ChatEventRepositoryImpl @Inject constructor() : ChatEventRepository {
 
+    // 버퍼 16: tryEmit 유실 방지 (구독자가 준비되기 전 이벤트 보존)
     private val _events = MutableSharedFlow<ChatEvent>(extraBufferCapacity = 16)
     override val events: SharedFlow<ChatEvent> = _events.asSharedFlow()
 
+    // 낙관적 업데이트용 emit — suspend 컨텍스트 불필요하므로 tryEmit 사용
     override fun emitMessageSent(roomId: Long, content: String, createdTime: LocalDateTime) {
         _events.tryEmit(
             ChatEvent.MessageSent(
