@@ -1,0 +1,102 @@
+package kr.co.call.callfromai.push
+
+import android.content.Context
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import kr.co.call.domain.model.push.PushChannels
+import timber.log.Timber
+
+/**
+ * 푸시 extras 키 계약
+ */
+object PushNotificationExtras {
+    const val PUSH_TYPE = "push_type"
+    const val CHAT_ROOM_ID = "chatRoomId"
+    const val CALL_ID = "callId"
+    const val CHARACTER_ID = "characterId"
+}
+
+/**
+ * CHAT / NOTICE / CALL 시스템 배너 (채널 [PushChannels.GENERAL])
+ */
+object PushNotificationHelper {
+
+    private const val NOTICE_NOTIFICATION_ID = 1001
+
+    fun showChat(
+        context: Context,
+        title: String,
+        body: String,
+        chatRoomId: Long,
+    ) {
+        notify(
+            context = context,
+            notificationId = chatNotificationId(chatRoomId),
+            title = title.ifBlank { "새 메시지" },
+            body = body,
+            priority = NotificationCompat.PRIORITY_HIGH,
+        )
+    }
+
+    fun showNotice(
+        context: Context,
+        title: String,
+        body: String,
+    ) {
+        notify(
+            context = context,
+            notificationId = NOTICE_NOTIFICATION_ID,
+            title = title.ifBlank { "알림" },
+            body = body,
+            priority = NotificationCompat.PRIORITY_HIGH,
+        )
+    }
+
+    fun showCall(
+        context: Context,
+        characterName: String,
+        callId: Long,
+    ) {
+        notify(
+            context = context,
+            notificationId = callNotificationId(callId),
+            title = characterName.ifBlank { "전화" },
+            body = "수신 전화가 왔습니다",
+            priority = NotificationCompat.PRIORITY_MAX,
+            category = NotificationCompat.CATEGORY_CALL,
+        )
+    }
+
+    private fun notify(
+        context: Context,
+        notificationId: Int,
+        title: String,
+        body: String,
+        priority: Int,
+        category: String? = null,
+    ) {
+        val builder = NotificationCompat.Builder(context, PushChannels.GENERAL)
+            .setSmallIcon(kr.co.call.designsystem.R.drawable.ic_chat_call)
+            .setContentTitle(title)
+            .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setAutoCancel(true)
+            .setPriority(priority)
+
+        if (category != null) {
+            builder.setCategory(category)
+        }
+
+        try {
+            NotificationManagerCompat.from(context).notify(notificationId, builder.build())
+        } catch (e: SecurityException) {
+            Timber.w(e, "알림 표시 실패 (권한 확인)")
+        }
+    }
+
+    private fun chatNotificationId(chatRoomId: Long): Int =
+        (chatRoomId % Int.MAX_VALUE).toInt().let { if (it == 0) 1 else it }
+
+    private fun callNotificationId(callId: Long): Int =
+        (2_000_000 + (callId % 100_000)).toInt()
+}

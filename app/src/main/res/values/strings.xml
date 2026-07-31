@@ -1,5 +1,3 @@
 <resources>
     <string name="app_name">CallFromAi</string>
-    <string name="notification_channel_general_name">일반 알림</string>
-    <string name="notification_channel_general_description">채팅/공지 등 일반 푸시 알림</string>
 </resources>

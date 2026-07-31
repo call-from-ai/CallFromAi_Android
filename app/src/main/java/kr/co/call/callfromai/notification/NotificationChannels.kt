@@ -4,7 +4,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import kr.co.call.callfromai.R
 import kr.co.call.domain.model.push.PushChannels
 
 /**
@@ -25,10 +24,10 @@ object NotificationChannels {
 
         val channel = NotificationChannel(
             PushChannels.GENERAL,
-            context.getString(R.string.notification_channel_general_name),
+            "앱 알림",
             NotificationManager.IMPORTANCE_HIGH,
         ).apply {
-            description = context.getString(R.string.notification_channel_general_description)
+            description = "채팅/공지/전화 푸시 알림"
             enableVibration(true)
             setShowBadge(true)
         }

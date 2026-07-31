@@ -13,6 +13,9 @@ import kr.co.call.domain.model.push.PushPayload
 import kr.co.call.domain.model.push.PushPayloadParser
 import timber.log.Timber
 
+/**
+ * FCM 수신 진입점 (type 분기)
+ */
 @AndroidEntryPoint
 class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -26,10 +29,6 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
 
-    /**
-     * FCM 등록 토큰이 갱신될 때 호출된다.
-     * JWT가 있을 때만 서버에 재등록한다
-     */
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
         applicationScope.launch {
@@ -48,10 +47,37 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
             notificationBody = message.notification?.body,
         )
         when (payload) {
-            is PushPayload.Chat -> { /* 배너 + PendingIntent */ }
-            is PushPayload.Call -> { /* 착신 UI */ }
-            is PushPayload.Notice -> { /* 배너 */ }
-            null -> Timber.w("Unknown push: %s", message.data)
+            is PushPayload.Chat -> {
+                Timber.d("FCM CHAT roomId=%s", payload.chatRoomId)
+                PushNotificationHelper.showChat(
+                    context = this,
+                    title = payload.title,
+                    body = payload.body,
+                    chatRoomId = payload.chatRoomId,
+                )
+            }
+            is PushPayload.Notice -> {
+                Timber.d("FCM NOTICE title=%s", payload.title)
+                PushNotificationHelper.showNotice(
+                    context = this,
+                    title = payload.title,
+                    body = payload.body,
+                )
+            }
+            is PushPayload.Call -> {
+                Timber.d(
+                    "FCM CALL callId=%s characterId=%s name=%s",
+                    payload.callId,
+                    payload.characterId,
+                    payload.characterName,
+                )
+                PushNotificationHelper.showCall(
+                    context = this,
+                    characterName = payload.characterName,
+                    callId = payload.callId,
+                )
+            }
+            null -> Timber.w("Unknown push data=%s", message.data)
         }
     }
 }

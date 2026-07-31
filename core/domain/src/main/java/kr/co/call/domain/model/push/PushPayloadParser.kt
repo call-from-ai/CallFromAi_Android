@@ -44,7 +44,6 @@ object PushPayloadParser {
         val characterId = data[PushDataKeys.CHARACTER_ID]?.toLongOrNull() ?: return null
         val chatRoomId = data[PushDataKeys.CHAT_ROOM_ID]?.toLongOrNull() ?: return null
         val characterName = data[PushDataKeys.CHARACTER_NAME] ?: return null
-        // URL은 비어 있을 수 있어 null만 거부하고 빈 문자열은 허용
         val characterImageUrl = data[PushDataKeys.CHARACTER_IMAGE_URL] ?: return null
 
         return PushPayload.Call(
