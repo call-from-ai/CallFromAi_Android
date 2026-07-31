@@ -38,6 +38,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         initialState = ChatRoomUiState()
     ) {
         loadHeader()
+        readChats(navKey.roomId)
     }
 
     // 채팅 메시지 목록을 PagingData로 불러오고, 날짜 구분선을 삽입한 뒤 UI 모델로 변환
@@ -57,6 +58,12 @@ class ChatRoomViewModel @AssistedInject constructor(
             .onSuccess { header ->
                 reduce { state.copy(topHeader = header.toUiItem()) }
             }
+    }
+
+    // 메세지 읽음 처리
+    // 실패처리는 하지 않음. 읽음 api에 실패처리를 하는 것이 오히려 부자연스러울 수 있다는 판단.
+    private fun readChats(roomId: Long) = intent {
+        chatRepository.readChats(roomId)
     }
 
     // UI에 노출할 함수
@@ -210,7 +217,7 @@ class ChatRoomViewModel @AssistedInject constructor(
                 }
             },
             onFailure = {
-                // TODO error
+                postSideEffect(ChatRoomSideEffect.ShowToast("메시지를 삭제할 수 없습니다. 잠시 후 다시 시도해주세요"))
             }
         )
     }

@@ -74,6 +74,11 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun readChats(roomId: Long): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) {
+            chatApi.readChats(roomId)
+    }
+
     // 채팅방 헤더 정보(상대방 프로필, 이름 등)를 조회하여 도메인 모델로 변환해 반환
     override suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader> =
         safeApiResult(errorResponseParser) { chatApi.getChatRoomHeader(roomId) }

@@ -17,6 +17,8 @@ interface ChatRepository {
 
     fun getChats(roomId: Long): Flow<PagingData<ChatItem>>
 
+    suspend fun readChats(roomId: Long): Result<Unit>
+
     suspend fun getChatRoomHeader(roomId: Long): Result<ChatHeader>
 
     suspend fun sendMessage(

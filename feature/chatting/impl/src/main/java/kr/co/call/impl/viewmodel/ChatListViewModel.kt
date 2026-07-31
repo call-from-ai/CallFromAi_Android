@@ -40,9 +40,19 @@ class ChatListViewModel @Inject constructor(
                 }
             },
             onFailure = {
-
+                reduce {
+                    state.copy(
+                        // TODO: 현재는 임시 구현, 추후 변경 가능성 높음
+                        status = LoadStatus.Error("채팅 목록을 불러올 수 없습니다. 잠시 후 다시 시도해주세요")
+                    )
+                }
             }
         )
+    }
+
+    // 메세지 읽음 처리
+    private fun readChats(roomId: Long) = intent {
+
     }
 
     fun handleIntent(intent: ChatListIntent) {
