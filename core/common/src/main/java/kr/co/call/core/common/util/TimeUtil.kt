@@ -16,13 +16,13 @@ import java.util.Locale
  */
 object TimeUtil {
 
-    // 서버 날짜 문자열을 LocalDateTime으로 변환
+    // LocalDateTime을 String으로 변환
     fun parseLocalDateTime(value: String): LocalDateTime =
-        if (value.endsWith("Z")) {
+        runCatching {
             Instant.parse(value)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime()
-        } else {
+        }.getOrElse {
             LocalDateTime.parse(value)
         }
 
