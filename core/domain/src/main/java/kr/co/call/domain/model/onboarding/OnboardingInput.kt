@@ -1,11 +1,5 @@
 package kr.co.call.domain.model.onboarding
 
-//온보딩 완료에 필요한 사용자 정보와 AI 캐릭터 정보를 하나로 묶어 Repository에 전달하는 Domain 모델
-data class OnboardingInput(
-    val member: MemberOnboardingInput,
-    val character: CharacterOnboardingInput,
-)
-
 //사용자 본인의 정보
 data class MemberOnboardingInput(
     val lastName: String,

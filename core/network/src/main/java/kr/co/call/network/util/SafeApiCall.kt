@@ -3,7 +3,6 @@ package kr.co.call.network.util
 import kr.co.call.network.dto.ApiResponse
 import kr.co.call.network.exception.ApiException
 import retrofit2.HttpException
-import retrofit2.Response
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -57,24 +56,6 @@ suspend fun safeApiCallUnit(
     } catch (e: ApiException) {
         throw e
     } catch (e: HttpException) {
-        throw e.toApiException(parser)
-    }
-}
-
-suspend fun safeEmptyApiCall(
-    parser: ErrorResponseParser,
-    call: suspend()-> Response<Unit>,
-){
-    try {
-        val response=call()
-        if (!response.isSuccessful){
-            throw HttpException(response)
-        }
-    }catch (e: CancellationException){
-        throw e
-    }catch (e: ApiException){
-        throw e
-    }catch(e: HttpException){
         throw e.toApiException(parser)
     }
 }

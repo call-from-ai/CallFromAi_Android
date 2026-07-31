@@ -7,6 +7,7 @@ import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.ContainerHost
 import javax.inject.Inject
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 
 /**
  * 카카오 로그인 이후 서버 로그인 요청과 UI 상태를 관리하는 ViewModel
@@ -42,6 +43,12 @@ class LoginViewModel @Inject constructor(
             reduce {
                 LoadStatus.Idle
             }
+
+            Timber.d(
+                "로그인 분기: needsTermsAgreement=%s, needsOnboarding=%s",
+                loginToken.needsTermsAgreement,
+                loginToken.needsOnboarding,
+            )
 
             val sideEffect=
                 when {
