@@ -2,6 +2,7 @@ package kr.co.call.data.push
 
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kr.co.call.datastore.FcmTokenDataStore
 import kr.co.call.domain.push.FcmTokenProvider
 import kr.co.call.domain.repository.PushTokenRepository
@@ -35,8 +36,14 @@ class PushTokenManager @Inject constructor(
         }
         pushTokenRepository.register(token)
             .onSuccess {
-                fcmTokenDataStore.saveToken(token)
-                Timber.d("FCM 토큰 서버 등록 성공")
+                try {
+                    fcmTokenDataStore.saveToken(token)
+                    Timber.d("FCM 토큰 서버 등록 성공")
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Timber.w(e, "FCM 토큰 로컬 저장 실패")
+                }
             }
             .onFailure { error ->
                 Timber.w(error, "FCM 토큰 서버 등록 실패")
@@ -57,6 +64,12 @@ class PushTokenManager @Inject constructor(
                 .onFailure { error -> Timber.w(error, "FCM 토큰 서버 삭제 실패") }
         }
 
-        fcmTokenDataStore.clearToken()
+        try {
+            fcmTokenDataStore.clearToken()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Timber.w(e, "FCM 토큰 로컬 삭제 실패")
+        }
     }
 }
