@@ -13,5 +13,5 @@ enum class CharacterJob(
 ){
     STUDENT("대학생"),
     EMPLOYED("직장인"),
-    UMEMPLOYED("무직")
+    UMEMPLOYED("기타")
 }
