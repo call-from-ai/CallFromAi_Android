@@ -59,6 +59,8 @@ data class CallTypography(
     // Others (line height 150%)
     val caption: TextStyle         = pretendard(12, 1.5f, FontWeight.Normal),
     val captionBold: TextStyle     = pretendard(12, 1.5f, FontWeight.SemiBold),
+    val captionSmall: TextStyle    = pretendard(8,1.5f, FontWeight.Normal),
+    val miniMedium: TextStyle      = pretendard(11,1.5f,FontWeight.Normal),
     val captionSmallBold: TextStyle = pretendard(8, 1.5f, FontWeight.SemiBold), // 신규
 )
 

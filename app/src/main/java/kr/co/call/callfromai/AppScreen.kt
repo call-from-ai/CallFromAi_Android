@@ -3,6 +3,7 @@ package kr.co.call.callfromai
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
@@ -20,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -43,8 +43,13 @@ import kr.co.call.api.ManagerChatRoomNayKey
 import kr.co.call.api.MyPageNavKey
 import kr.co.call.api.ProfileNavKey
 import kr.co.call.api.SubscriptionNavKey
+import kr.co.call.api.Onboarding1NavKey
+import kr.co.call.api.Onboarding2NavKey
+import kr.co.call.api.Onboarding3NavKey
+import kr.co.call.api.Onboarding4NavKey
+import kr.co.call.api.Onboarding5NavKey
+import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.api.TermNavKey
-import kr.co.call.api.OnboardingNavKey
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
@@ -95,7 +100,6 @@ fun AppScreen(modifier: Modifier = Modifier) {
     val bottomBarPadding = remember(bottomBarHeightPx) {
         with(density) { bottomBarHeightPx.toDp() }
     }
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         bottomBar = {
@@ -108,10 +112,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 )
             }
         },
-        contentWindowInsets = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
-            .exclude(WindowInsets.ime),
-
+        contentWindowInsets = WindowInsets.safeDrawing.only(
+            WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+        ).exclude(WindowInsets.ime),
         ) { padding ->
         CompositionLocalProvider(
             LocalBottomBarPadding provides if (showBottomBar) bottomBarPadding else 0.dp,
@@ -126,16 +129,16 @@ fun AppScreen(modifier: Modifier = Modifier) {
                 entryProvider = entryProvider {
                     loginEntry(
                         navigateToLogin={
-                            appNavigator.navigate(LoginNavKey)
+                            appNavigator.replaceAll(LoginNavKey)
                         },
                         navigateToOnboarding = {
-                            appNavigator.navigate(OnboardingNavKey)
+                            appNavigator.replaceAll(Onboarding1NavKey)
                         },
                         navigateToHome = {
-                            appNavigator.navigate(HomeNavKey)
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement={
-                            appNavigator.navigate(AgreementNavKey)
+                            appNavigator.replaceAll(AgreementNavKey)
                         },
                         navigateToAgreementDetail={term ->
                             appNavigator.navigate(
@@ -147,13 +150,48 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             )
                         },
                         navigateAfterAgreement={
-                            appNavigator.navigate(OnboardingNavKey)
+                            appNavigator.navigate(Onboarding1NavKey)
                         },
                         onBack={
                             appNavigator.popBackStack()
                         }
                     )
-                    onboardingEntry()
+                    onboardingEntry(
+                        onOnboarding1Next= {
+                            appNavigator.navigate(Onboarding2NavKey)
+                        },
+                        onBackFromOnboarding2 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding2Next = {
+                            appNavigator.navigate(Onboarding3NavKey)
+                        },
+                        onBackFromOnboarding3 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding3Next = {
+                            appNavigator.navigate(Onboarding4NavKey)
+                        },
+                        onBackFromOnboarding4 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding4Next = {
+                            appNavigator.navigate(Onboarding5NavKey)
+                        },
+                        onBackFromOnboarding5 = {
+                            appNavigator.popBackStack()
+                        },
+                        onOnboarding5Next = {
+                            appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onOnboarding6CallNow = {
+                            //나중에 전화화면으로 바꾸기
+                            appNavigator.replaceAll(HomeNavKey)
+                        },
+                        onOnboarding6CallLater = {
+                            appNavigator.replaceAll(HomeNavKey)
+                        },
+                    )
                     homeEntry(
                         navigateToCall = { characterId ->
                             appNavigator.navigate(
@@ -163,7 +201,9 @@ fun AppScreen(modifier: Modifier = Modifier) {
                             )
                         },
                         navigateToCallRecord = { callId ->
-                            appNavigator.navigate(CallRecordNavKey(callId = callId))
+                            appNavigator.navigate(
+                                CallRecordNavKey(callId = callId),
+                            )
                         },
                         onCallRecordBack = {
                             appNavigator.popBackStack()

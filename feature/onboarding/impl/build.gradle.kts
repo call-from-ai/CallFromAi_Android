@@ -39,4 +39,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    //coil 설정
+    implementation(libs.coil.compose)
 }
