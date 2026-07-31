@@ -34,6 +34,7 @@ object ChatMapper {
         characterFirstName = characterFirstName,
         characterImageUrl = characterImageUrl,
         dDay = dDay,
+        isMain = isMain,
     )
 
     // 채팅방 단건 DTO를 채팅 목록 요약 Domain 모델로 변환
