@@ -3,6 +3,7 @@ package kr.co.call.callfromai.push
 import com.google.firebase.messaging.FirebaseMessaging
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.tasks.await
 import kr.co.call.domain.push.FcmTokenProvider
 import timber.log.Timber
@@ -18,6 +19,8 @@ class FirebaseFcmTokenProvider @Inject constructor() : FcmTokenProvider {
         try {
             FirebaseMessaging.getInstance().token.await()
                 .takeIf { it.isNotBlank() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Timber.e(e, "FCM 토큰 발급 실패")
             null
