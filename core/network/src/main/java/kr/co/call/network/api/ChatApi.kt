@@ -7,6 +7,7 @@ import kr.co.call.network.dto.chatting.ChatMessagesDTO
 import kr.co.call.network.dto.chatting.ChatRoomsDTO
 import kr.co.call.network.dto.chatting.MuteChatRoomRequestDTO
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -61,20 +62,13 @@ interface ChatApi {
         @Path("chatRoomId") chatRoomId: Long
     ): ApiResponse<ChatHeaderDTO>
 
-    // 텍스트 메시지 전송
-    @POST("chat-rooms/{chatRoomId}/messages")
-    suspend fun sendTextMessage(
-        @Path("chatRoomId") chatRoomId: Long,
-        @Query("content") content: String,
-    ): ApiResponse<ChatMessageDTO>
-
-    // 이미지(또는 이미지+텍스트) 메시지 전송
+    // 텍스트 또는 이미지 메시지 전송 (서버가 항상 multipart/form-data 요구)
     @Multipart
     @POST("chat-rooms/{chatRoomId}/messages")
-    suspend fun sendImageMessage(
+    suspend fun sendMessage(
         @Path("chatRoomId") chatRoomId: Long,
-        @Query("content") content: String?,
-        @Part image: MultipartBody.Part,
+        @Part("content") content: RequestBody?,
+        @Part image: MultipartBody.Part?,
     ): ApiResponse<ChatMessageDTO>
 
     @DELETE("chat-rooms/{chatRoomId}/messages/{messageId}")

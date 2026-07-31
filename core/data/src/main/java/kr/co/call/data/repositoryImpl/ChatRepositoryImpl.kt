@@ -20,6 +20,7 @@ import kr.co.call.network.util.ErrorResponseParser
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -78,27 +79,23 @@ class ChatRepositoryImpl @Inject constructor(
         safeApiResult(errorResponseParser) { chatApi.getChatRoomHeader(roomId) }
             .map { it.toDomain() }
 
-    // 채팅방에 텍스트 또는 이미지 메시지를 전송. 이미지가 있을 경우 multipart 형태로 첨부
-    override suspend fun sendMessage(
-        roomId: Long,
-        message: String?,
-        image: ImageData?
-    ): Result<ChatItem.Message> {
-        // 이미지 포함 여부 기준 분기처리
-        return if (image != null) {
-            val imagePart = MultipartBody.Part.createFormData(
-                name = "image",
-                filename = image.fileName,
-                body = image.bytes.toRequestBody(image.mimeType.toMediaType())
-            )
-            safeApiResult(errorResponseParser) {
-                chatApi.sendImageMessage(roomId, message, imagePart)
+        // 채팅방에 텍스트 또는 이미지 메시지를 전송. 서버가 항상 multipart/form-data를 요구함
+        override suspend fun sendMessage(
+            roomId: Long,
+            message: String?,
+            image: ImageData?
+        ): Result<ChatItem.Message> {
+            val contentPart = message?.toRequestBody("text/plain".toMediaType())
+            val imagePart = image?.let {
+                MultipartBody.Part.createFormData(
+                    name = "image",
+                    filename = it.fileName,
+                    body = it.bytes.toRequestBody(it.mimeType.toMediaType())
+                )
+            }
+            return safeApiResult(errorResponseParser) {
+                chatApi.sendMessage(roomId, contentPart, imagePart)
             }.map { it.toDomain() }
-        } else {
-            safeApiResult(errorResponseParser) {
-                chatApi.sendTextMessage(roomId, message ?: "")
-            }.map { it.toDomain() }
-        }
     }
 
     // 특정 채팅방의 메시지를 삭제
