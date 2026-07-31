@@ -57,7 +57,7 @@ class ChatRepositoryImpl @Inject constructor(
             )
         }
 
-    // 특정 채팅방의 메시지를 페이징 방식으로 스트리밍
+    // 특정 채팅방의 메시지를 페이징 방식으로 로드
     override fun getChats(roomId: Long): Flow<PagingData<ChatItem>> {
         return Pager(
             config = PagingConfig(
@@ -66,7 +66,7 @@ class ChatRepositoryImpl @Inject constructor(
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {
-                ChatPagingSource(roomId)
+                ChatPagingSource(chatApi, errorResponseParser, roomId)
             }
         ).flow.map { pagingData ->
             pagingData.map { msg -> msg as ChatItem }
