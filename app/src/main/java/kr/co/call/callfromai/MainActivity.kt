@@ -43,11 +43,13 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * 알림 권한이 없으면 1회 요청한다
+     * 알림 권한이 없으면 자동으로 1회만 요청한다.
+     * 거부 후 재요청은 설정 등 명시적 사용자 동작에서 처리한다.
      * 거부해도 앱은 계속 사용 가능(배너만 제한)
      */
     private fun requestNotificationPermissionIfNeeded() {
-        if (!NotificationPermission.shouldRequest(this)) return
+        if (!NotificationPermission.shouldAutoRequest(this)) return
+        NotificationPermission.markRequested(this)
         notificationPermissionLauncher.launch(NotificationPermission.permission)
     }
 }

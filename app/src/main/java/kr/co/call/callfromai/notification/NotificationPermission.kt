@@ -14,12 +14,34 @@ object NotificationPermission {
 
     val permission: String = Manifest.permission.POST_NOTIFICATIONS
 
+    private const val PREFS_NAME = "notification_permission"
+    private const val KEY_HAS_REQUESTED = "has_requested_post_notifications"
+
     fun isGranted(context: Context): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return true
         return ContextCompat.checkSelfPermission(context, permission) ==
             PackageManager.PERMISSION_GRANTED
     }
 
-    fun shouldRequest(context: Context): Boolean =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isGranted(context)
+    /**
+     * onCreate 등에서 자동으로 한 번만 요청할지 여부.
+     * 이미 허용됐거나, 이전에 요청한 적 있으면 false.
+     * 거부 후 재요청은 설정 등 명시적 진입점에서 처리한다.
+     */
+    fun shouldAutoRequest(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return false
+        if (isGranted(context)) return false
+        return !hasRequested(context)
+    }
+
+    fun markRequested(context: Context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_HAS_REQUESTED, true)
+            .apply()
+    }
+
+    private fun hasRequested(context: Context): Boolean =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_HAS_REQUESTED, false)
 }
