@@ -11,11 +11,8 @@ interface HomeRepository {
 
     suspend fun getSummary(): Result<HomeSummary>
 
-    suspend fun changeMainCharacter(
-        characterId: Long,
-    ): Result<List<HomeCharacter>>
-
-    suspend fun startCall(
+    suspend fun activateCharacter(
         characterId: Long,
     ): Result<Unit>
+
 }

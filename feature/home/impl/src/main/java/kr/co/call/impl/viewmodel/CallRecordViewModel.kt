@@ -8,7 +8,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.viewmodel.state.CallRecordState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -59,7 +58,7 @@ class CallRecordViewModel @Inject constructor(
             // state에 저장
             reduce {
                 state.copy(
-                    record = callInfo.toUiModel(),
+                    record = callInfo,
                     transcripts = callScript,
                     loadStatus = LoadStatus.Idle,
                 )

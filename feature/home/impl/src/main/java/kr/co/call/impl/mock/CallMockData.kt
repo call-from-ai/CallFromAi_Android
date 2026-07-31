@@ -2,8 +2,6 @@ package kr.co.call.impl.mock
 
 import java.time.LocalDateTime
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.impl.mapper.toUiModel
-import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
 object CallMockData {
     val histories: List<CallHistory> = listOf(
@@ -33,6 +31,4 @@ object CallMockData {
         ),
     )
 
-    val uiModels: List<CallHistoryUiModel> =
-        histories.map { callHistory -> callHistory.toUiModel() }
 }

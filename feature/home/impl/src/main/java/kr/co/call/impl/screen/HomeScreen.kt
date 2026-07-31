@@ -17,13 +17,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
 import java.time.LocalDateTime
-import kotlinx.coroutines.flow.Flow
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.home.HomeNotification
+import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.impl.component.dialog.CallConnectDialog
 import kr.co.call.impl.component.dialog.CharacterChangeConfirmDialog
 import kr.co.call.impl.component.dialog.CharacterChangeDialog
@@ -33,7 +31,6 @@ import kr.co.call.impl.component.header.HomeHeader
 import kr.co.call.impl.component.history.CallHistoryList
 import kr.co.call.impl.component.history.HomeHistorySection
 import kr.co.call.impl.component.history.NotificationListHeader
-import kr.co.call.impl.component.history.NotificationPagingContent
 import kr.co.call.impl.component.history.notificationItems
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.HomeIntent
@@ -58,7 +55,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
-    val notifications = remember { createHomeMockData().notificationFlow() }
+    val notifications = remember { createHomeNotificationMockData() }
     val context = LocalContext.current
 
     viewModel.collectSideEffect { sideEffect ->
@@ -97,18 +94,16 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeState,
-    notifications: Flow<PagingData<HomeNotification>>,
+    notifications: List<HomeNotification>,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    NotificationPagingContent(notifications = notifications) { lazyNotifications ->
-        HomeContent(
-            state = state,
-            notifications = lazyNotifications,
-            onIntent = onIntent,
-            modifier = modifier,
-        )
-    }
+    HomeContent(
+        state = state,
+        notifications = notifications,
+        onIntent = onIntent,
+        modifier = modifier,
+    )
 
     HomeDialogs(
         state = state,
@@ -117,10 +112,9 @@ private fun HomeScreenContent(
 }
 
 @Composable
-private fun
-        HomeContent(
+private fun HomeContent(
     state: HomeState,
-    notifications: LazyPagingItems<HomeNotification>,
+    notifications: List<HomeNotification>,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -279,18 +273,24 @@ private fun HomeDialogs(
 @Preview(showBackground = true, widthDp = 412)
 @Composable
 private fun HomeScreenPreview() {
-    val mockData = remember {
-        createHomeMockData(
+    val notifications = remember {
+        createHomeNotificationMockData(
             now = LocalDateTime.of(2026, 7, 17, 15, 0),
         )
     }
     var state by remember {
         mutableStateOf(
             HomeState(
-                summary = mockData.summaryUiModel,
-                callHistories = mockData.callHistoryUiModels,
-                hasUnreadNotification = mockData.hasUnreadNotification,
-                selectedHistoryTab = HomeHistoryTab.CALL_HISTORY,
+                summary = HomeSummary(
+                    firstName = "수현",
+                    relationshipDays = 30,
+                    totalCallCount = 24,
+                    callStreakDays = 12,
+                ),
+                hasUnreadNotification = notifications.any { notification ->
+                    !notification.isRead
+                },
+                selectedHistoryTab = HomeHistoryTab.NOTIFICATION,
             ),
         )
     }
@@ -298,7 +298,7 @@ private fun HomeScreenPreview() {
     CallFromAiTheme {
         HomeScreenContent(
             state = state,
-            notifications = mockData.notificationFlow(),
+            notifications = notifications,
             onIntent = { intent ->
                 if (intent is HomeIntent.History.SelectTab) {
                     state = state.copy(selectedHistoryTab = intent.tab)

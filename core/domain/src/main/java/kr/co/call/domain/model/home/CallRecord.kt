@@ -14,6 +14,7 @@ data class CallInfo(
 data class CallTranscript(
     val content: String,
     val speaker: Speaker,
+    val createdAt: LocalDateTime,
 ) {
     enum class Speaker {
         USER,
