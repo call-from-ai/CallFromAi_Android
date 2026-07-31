@@ -8,10 +8,7 @@ import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.domain.model.home.NotificationType
-import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.mock.CallMockData
-import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
-import kr.co.call.impl.viewmodel.model.HomeSummaryUiModel
 
 /**
  * 홈화면에서 사용하는 Mock Data
@@ -22,12 +19,6 @@ data class HomeMockData(
     val hasUnreadNotification: Boolean,
     val notifications: List<HomeNotification>,
 ) {
-    val summaryUiModel: HomeSummaryUiModel
-        get() = summary.toUiModel()
-
-    val callHistoryUiModels: List<CallHistoryUiModel>
-        get() = callHistories.map { callHistory -> callHistory.toUiModel() }
-
     fun notificationFlow(): Flow<PagingData<HomeNotification>> =
         flowOf(PagingData.from(notifications))
 }

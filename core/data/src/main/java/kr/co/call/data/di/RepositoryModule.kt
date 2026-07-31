@@ -6,10 +6,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.call.data.repositoryImpl.AgreementRepositoryImpl
 import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
-import kr.co.call.data.repositoryImpl.CallRecordMockRepository
+import kr.co.call.data.repositoryImpl.CallRecordRepositoryImpl
 import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
-import kr.co.call.data.repositoryImpl.HomeMockRepository
 import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.repository.CallRecordRepository
 import kr.co.call.domain.repository.ChatRepository
@@ -43,13 +42,13 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHomeRepository(
-        homeMockRepository: HomeMockRepository,
+        homeRepositoryImpl: HomeRepositoryImpl,
     ): HomeRepository
 
     @Binds
     @Singleton
     abstract fun bindCallRecordRepository(
-        callRecordMockRepository: CallRecordMockRepository,
+        callRecordRepositoryImpl: CallRecordRepositoryImpl,
     ): CallRecordRepository
 
     @Binds

@@ -28,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -85,6 +87,15 @@ fun LazyListScope.notificationItems(
     notifications: LazyPagingItems<HomeNotification>,
     onCallClick: (characterName: String) -> Unit,
 ) {
+    if (
+        notifications.loadState.refresh is LoadState.NotLoading &&
+        notifications.itemCount == 0
+    ) {
+        item {
+            NotificationEmptyContent()
+        }
+    }
+
     items(
         count = notifications.itemCount,
         key = notifications.itemKey { notification -> notification.notificationId },
@@ -107,6 +118,21 @@ fun LazyListScope.notificationItems(
     item {
         Spacer(modifier = Modifier.height(12.dp))
     }
+}
+
+@Composable
+private fun NotificationEmptyContent(
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = "0건의 알림이 있습니다.",
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        color = CallTheme.colors.gray600,
+        style = CallTheme.typography.bodyMedium,
+        textAlign = TextAlign.Center,
+    )
 }
 
 /**

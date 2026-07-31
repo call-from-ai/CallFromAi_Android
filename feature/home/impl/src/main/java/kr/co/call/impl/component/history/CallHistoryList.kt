@@ -33,9 +33,10 @@ import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
+import kr.co.call.core.common.util.TimeUtil
+import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.impl.mock.CallMockData
 import kr.co.call.impl.viewmodel.model.CallHistoryIconType
-import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
 
 /**
  * 통화 기록 목록을 표시하는 컴포넌트
@@ -44,7 +45,7 @@ import kr.co.call.impl.viewmodel.model.CallHistoryUiModel
  */
 @Composable
 fun CallHistoryList(
-    histories: List<CallHistoryUiModel>,
+    histories: List<CallHistory>,
     modifier: Modifier = Modifier,
     onRecordClick: (Long) -> Unit = {},
 ) {
@@ -76,12 +77,13 @@ fun CallHistoryList(
  */
 @Composable
 private fun CallHistoryCard(
-    callHistory: CallHistoryUiModel,
+    callHistory: CallHistory,
     modifier: Modifier = Modifier,
     onRecordClick: () -> Unit = {},
 ) {
     // Missed type
-    val isMissed = callHistory.iconType == CallHistoryIconType.MISSED
+    val isMissed = callHistory.isMissed
+    val iconType = callHistory.toIconType()
     val cardInteractionSource = remember { MutableInteractionSource() }
     val isCardPressed by cardInteractionSource.collectIsPressedAsState()
     val recordButtonInteractionSource = remember { MutableInteractionSource() }
@@ -112,7 +114,7 @@ private fun CallHistoryCard(
             ),
     ) {
         CallHistoryIcon(
-            iconType = callHistory.iconType,
+            iconType = iconType,
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(
@@ -148,7 +150,7 @@ private fun CallHistoryCard(
             }
 
             Text(
-                text = callHistory.startedAtText,
+                text = TimeUtil.toCallHistoryDateText(callHistory.startedAt),
                 color = CallTheme.colors.gray600,
                 style = CallTheme.typography.caption,
             )
@@ -204,6 +206,13 @@ private fun CallHistoryCard(
     }
 }
 
+private fun CallHistory.toIconType(): CallHistoryIconType =
+    when {
+        isMissed -> CallHistoryIconType.MISSED
+        isOutgoing -> CallHistoryIconType.SENT
+        else -> CallHistoryIconType.RECEIVED
+    }
+
 // 아이콘 타입에 따라서 표시
 @Composable
 private fun CallHistoryIcon(
@@ -238,7 +247,7 @@ private fun CallHistoryIcon(
 private fun CallHistoryListPreview() {
     CallFromAiTheme {
         CallHistoryList(
-            histories = CallMockData.uiModels,
+            histories = CallMockData.histories,
         )
     }
 }

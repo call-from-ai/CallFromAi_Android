@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.home.CallTranscript
@@ -100,18 +101,22 @@ private fun CallTranscriptListPreview() {
                 CallTranscript(
                     content = "여보세요",
                     speaker = CallTranscript.Speaker.USER,
+                    createdAt = LocalDateTime.now(),
                 ),
                 CallTranscript(
                     content = "잘 일어났어? 목소리 아직 잠긴 것 같은데.",
                     speaker = CallTranscript.Speaker.AI,
+                    createdAt = LocalDateTime.now(),
                 ),
                 CallTranscript(
                     content = "응 방금 일어나 준비하고 있었어",
                     speaker = CallTranscript.Speaker.USER,
+                    createdAt = LocalDateTime.now(),
                 ),
                 CallTranscript(
                     content = "오늘 출근이지? 몸은 좀 괜찮아? 피곤해 보여.",
                     speaker = CallTranscript.Speaker.AI,
+                    createdAt = LocalDateTime.now(),
                 ),
             ),
         )
@@ -126,6 +131,7 @@ private fun UserCallTranscriptBubblePreview() {
             transcript = CallTranscript(
                 content = "응 방금 일어나 준비하고 있었어",
                 speaker = CallTranscript.Speaker.USER,
+                createdAt = LocalDateTime.now(),
             ),
             modifier = Modifier.padding(16.dp),
         )
@@ -140,6 +146,7 @@ private fun CharacterCallTranscriptBubblePreview() {
             transcript = CallTranscript(
                 content = "잘 일어났어? 목소리 아직 잠긴 것 같은데.",
                 speaker = CallTranscript.Speaker.AI,
+                createdAt = LocalDateTime.now(),
             ),
             modifier = Modifier.padding(16.dp),
         )

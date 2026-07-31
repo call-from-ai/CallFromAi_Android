@@ -287,8 +287,8 @@ private fun HomeScreenPreview() {
     var state by remember {
         mutableStateOf(
             HomeState(
-                summary = mockData.summaryUiModel,
-                callHistories = mockData.callHistoryUiModels,
+                summary = mockData.summary,
+                callHistories = mockData.callHistories,
                 hasUnreadNotification = mockData.hasUnreadNotification,
                 selectedHistoryTab = HomeHistoryTab.CALL_HISTORY,
             ),

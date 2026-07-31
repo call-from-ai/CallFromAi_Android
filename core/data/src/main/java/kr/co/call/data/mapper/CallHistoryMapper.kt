@@ -2,16 +2,16 @@ package kr.co.call.data.mapper
 
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.domain.model.home.CallHistory
-import kr.co.call.network.dto.CallHistoryDto
+import kr.co.call.network.dto.home.CallHistoryDto
 
 internal fun CallHistoryDto.toDomain(): CallHistory {
-    val parsedStartedAt = TimeUtil.parseLocalDateTime(startedAt)
+    val parsedCreatedAt = TimeUtil.parseLocalDateTime(createdAt)
 
     return CallHistory(
         callId = callId,
         characterName = characterName,
-        aiSummary = aiSummary,
-        startedAt = parsedStartedAt,
+        aiSummary = aiSummary.orEmpty(),
+        startedAt = parsedCreatedAt,
         isOutgoing = sender.toIsOutgoing(),
         isMissed = status.toIsMissed(),
     )

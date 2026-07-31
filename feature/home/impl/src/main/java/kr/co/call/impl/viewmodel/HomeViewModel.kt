@@ -6,7 +6,6 @@ import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.exception.CharacterChangeUnavailableException
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.util.LoadStatus
-import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.state.HomeDialogState
 import kr.co.call.impl.viewmodel.state.HomeState
@@ -75,13 +74,13 @@ class HomeViewModel @Inject constructor(
 
     // 메인 캐릭터 통화 확인 팝업 표시
     private fun showMainCharacterCallConfirmation() = intent {
-        val mainCharacter = state.characters.firstOrNull { character -> character.isSelected }
+        val mainCharacter = state.characters.firstOrNull { character -> character.isMain }
             ?: return@intent
 
         reduce {
             state.copy(
                 dialogState = HomeDialogState.CallConfirmation(
-                    characterId = mainCharacter.characterId,
+                    characterId = mainCharacter.id,
                     characterName = mainCharacter.name,
                 ),
             )
@@ -90,10 +89,10 @@ class HomeViewModel @Inject constructor(
 
     // 통화 대상에 맞는 팝업 표시
     private fun showCallDialog(characterName: String) = intent {
-        val mainCharacter = state.characters.firstOrNull { character -> character.isSelected }
+        val mainCharacter = state.characters.firstOrNull { character -> character.isMain }
         val dialogState = if (mainCharacter?.name == characterName) {
             HomeDialogState.CallConfirmation(
-                characterId = mainCharacter.characterId,
+                characterId = mainCharacter.id,
                 characterName = characterName,
             )
         } else {
@@ -162,13 +161,14 @@ class HomeViewModel @Inject constructor(
             ?: return@intent
 
         try {
-            val characters = homeRepository.changeMainCharacter(
+            homeRepository.activateCharacter(
                 characterId = confirmation.characterId,
             ).getOrThrow()
+            val characters = homeRepository.getCharacters().getOrThrow()
 
             reduce {
                 state.copy(
-                    characters = characters.map { character -> character.toUiModel() },
+                    characters = characters,
                     dialogState = null,
                 )
             }
@@ -193,7 +193,6 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
-
 
 
     // 온보딩으로 이동
@@ -238,9 +237,9 @@ class HomeViewModel @Inject constructor(
 
             reduce {
                 state.copy(
-                    summary = summary.toUiModel(),
-                    callHistories = callHistories.map { history -> history.toUiModel() },
-                    characters = characters.map { character -> character.toUiModel() },
+                    summary = summary,
+                    callHistories = callHistories,
+                    characters = characters,
                     loadStatus = LoadStatus.Idle,
                 )
             }

@@ -1,16 +1,18 @@
 package kr.co.call.data.mapper
 
+import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.domain.model.home.CallTranscript
-import kr.co.call.network.dto.CallTranscriptDto
-import kr.co.call.network.dto.CallTranscriptResultDto
+import kr.co.call.network.dto.home.CallScriptMessage
+import kr.co.call.network.dto.home.CallTranscriptDto
 
-internal fun CallTranscriptResultDto.toDomain(): List<CallTranscript> =
-    content.map { transcript -> transcript.toDomain() }
+internal fun CallTranscriptDto.toDomain(): List<CallTranscript> =
+    lines.map { line -> line.toDomain() }
 
-private fun CallTranscriptDto.toDomain(): CallTranscript =
+private fun CallScriptMessage.toDomain(): CallTranscript =
     CallTranscript(
         content = content,
         speaker = speaker.toDomainSpeaker(),
+        createdAt = TimeUtil.parseLocalDateTime(createdAt),
     )
 
 private fun String.toDomainSpeaker(): CallTranscript.Speaker =
