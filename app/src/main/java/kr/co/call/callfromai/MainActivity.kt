@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.activity.result.contract.ActivityResultContracts
 import dagger.hilt.android.AndroidEntryPoint
 import kr.co.call.callfromai.notification.NotificationPermission
@@ -14,6 +15,8 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val appViewModel: AppViewModel by viewModels()
+
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -34,7 +37,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CallFromAiTheme {
-                AppScreen()
+                AppScreen(appViewModel)
             }
         }
     }

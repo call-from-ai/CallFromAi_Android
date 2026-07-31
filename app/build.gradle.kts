@@ -4,6 +4,7 @@ plugins {
     id("callfromai.android.application")
     id("callfromai.android.compose")
     id("callfromai.android.hilt")
+    id("callfromai.android.orbit")
 }
 
 val localProperties = Properties().apply {

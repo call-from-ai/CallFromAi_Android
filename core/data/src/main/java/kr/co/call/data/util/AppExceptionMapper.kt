@@ -10,7 +10,7 @@ import kotlin.coroutines.cancellation.CancellationException
 /**
  * network / 기타 [Throwable] -> domain [AppException] 변환
  *
- * Repository 는 [toFailure] 또는 [runRepositoryCatching] 을 통해 이 매퍼를 사용한다.
+ * Repository 는 [toFailure] 로 실패를 정규화한다.
  * feature / ViewModel 은 [AppException] 만 보면 된다.
  */
 fun Throwable.toAppException(): AppException {
@@ -33,19 +33,37 @@ fun Throwable.toAppException(): AppException {
 /**
  * [Result.failure] 에 넣을 예외로 정규화한다.
  *
- * - [CancellationException]: 호출부에서 rethrow 해야 하므로 그대로 둔다
- *   ([runRepositoryCatching] 이 먼저 처리)
+ * - [CancellationException]: 코루틴 취소이므로 [Result] 에 넣지 않고 다시 던진다
  * - 이미 [AppException]: 유지
  * - 도메인 특수 예외: 유지 (예: [CharacterChangeUnavailableException])
  * - 그 외: [toAppException]
+ *
+ * 보통 [toAppResult] / [safeApiResult] 경로에서 호출한다.
  */
 fun Throwable.toFailure(): Throwable =
     when (this) {
-        is CancellationException -> this
+        is CancellationException -> throw this
+        is Error -> throw this
         is AppException -> this
         is CharacterChangeUnavailableException -> this
         else -> toAppException()
     }
+
+/**
+ * stdlib [runCatching] 결과의 실패를 [toFailure] 로 정규화한다.
+ *
+ * - 성공: 그대로
+ * - 실패: [AppException] 등으로 변환. 취소·Error 는 [toFailure] 가 rethrow
+ *
+ * ```
+ * runCatching { ... }.toAppResult()
+ * ```
+ */
+fun <T> Result<T>.toAppResult(): Result<T> =
+    fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { Result.failure(it.toFailure()) },
+    )
 
 /**
  * BE `code` / HTTP status -> [AppException] 카테고리

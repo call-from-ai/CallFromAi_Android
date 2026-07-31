@@ -1,7 +1,8 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
-import kr.co.call.data.util.runRepositoryCatching
+import kr.co.call.data.util.safeApiResult
+import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.domain.model.login.AgreementTerm
 import kr.co.call.domain.model.login.TermAgreement
 import kr.co.call.domain.repository.AgreementRepository
@@ -9,8 +10,6 @@ import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.dto.login.AgreeTermsRequestDto
 import kr.co.call.network.dto.login.TermAgreementDto
 import kr.co.call.network.util.ErrorResponseParser
-import kr.co.call.network.util.safeApiCall
-import kr.co.call.network.util.safeApiCallUnit
 
 /**
  * 서버의 약관 API를 호출하고 응답 DTO를 Domain Model로 변환합니다.
@@ -26,10 +25,10 @@ class AgreementRepositoryImpl @Inject constructor(
      * 화면에서 사용할 AgreementTerm 목록으로 변환합니다.
      */
     override suspend fun getTerms(): Result<List<AgreementTerm>> =
-        runRepositoryCatching {
-            safeApiCall(errorResponseParser) {
-                agreementApi.getTerms()
-            }.map { dto ->
+        safeApiResult(errorResponseParser) {
+            agreementApi.getTerms()
+        }.map { terms ->
+            terms.map { dto ->
                 AgreementTerm(
                     termId = dto.termId,
                     title = dto.title,
@@ -45,18 +44,16 @@ class AgreementRepositoryImpl @Inject constructor(
     override suspend fun agreeTerms(
         agreements: List<TermAgreement>,
     ): Result<Unit> =
-        runRepositoryCatching {
-            safeApiCallUnit(errorResponseParser) {
-                agreementApi.agreeTerms(
-                    request = AgreeTermsRequestDto(
-                        agreements = agreements.map { agreement ->
-                            TermAgreementDto(
-                                termId = agreement.termId,
-                                isAgreed = agreement.isAgreed,
-                            )
-                        },
-                    ),
-                )
-            }
+        safeApiResultUnit(errorResponseParser) {
+            agreementApi.agreeTerms(
+                request = AgreeTermsRequestDto(
+                    agreements = agreements.map { agreement ->
+                        TermAgreementDto(
+                            termId = agreement.termId,
+                            isAgreed = agreement.isAgreed,
+                        )
+                    },
+                ),
+            )
         }
 }

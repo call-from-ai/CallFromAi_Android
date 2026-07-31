@@ -4,4 +4,21 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 @Serializable
-data object OnboardingNavKey : NavKey
+data object Onboarding1NavKey : NavKey
+
+@Serializable
+data object Onboarding2NavKey: NavKey {
+}
+
+@Serializable
+data object Onboarding3NavKey: NavKey
+
+@Serializable
+data object Onboarding4NavKey: NavKey
+
+@Serializable
+data object Onboarding5NavKey: NavKey
+
+@Serializable
+data object Onboarding6NavKey: NavKey
+
