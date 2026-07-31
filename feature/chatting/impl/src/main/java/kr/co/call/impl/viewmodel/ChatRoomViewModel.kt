@@ -256,4 +256,12 @@ class ChatRoomViewModel @AssistedInject constructor(
         postSideEffect(ChatRoomSideEffect.GoToGallery)
     }
 
+    // 채팅방 나갈 때 읽음 처리
+    // 백엔드의 요청사항.
+    override fun onCleared() {
+        super.onCleared()
+        readChats(navKey.roomId)
+
+    }
+
 }
