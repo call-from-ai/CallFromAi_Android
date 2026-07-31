@@ -8,6 +8,7 @@ import kr.co.call.network.dto.chatting.ChatRoomsDTO
 import kr.co.call.network.dto.chatting.MuteChatRoomRequestDTO
 import okhttp3.MultipartBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
@@ -28,7 +29,10 @@ interface ChatApi {
     suspend fun getChatRoomList(): ApiResponse<ChatRoomsDTO>
 
     // 채팅방 숨김
-    suspend fun deleteChatRoom()
+    @DELETE("chat-rooms/{chatRoomId}")
+    suspend fun deleteChatRoom(
+        @Path("chatRoomId") chatRoomId: Long
+    ): ApiResponse<Unit>
 
     // 채팅방의 메시지 목록 조회
     @GET("chat-rooms/{chatRoomId}/messages")
@@ -66,5 +70,9 @@ interface ChatApi {
         @Part image: MultipartBody.Part?
     ): ApiResponse<ChatMessageDTO>
 
-    suspend fun deleteMessage()
+    @DELETE("chat-rooms/{chatRoomId}/messages/{messageId}")
+    suspend fun deleteMessage(
+        @Path("chatRoomId") chatRoomId: Long,
+        @Path("messageId") messageId: Long
+    ): ApiResponse<Unit>
 }
