@@ -2,7 +2,6 @@ package kr.co.call.data.repositoryImpl
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
-import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MyPageProfile
@@ -20,15 +19,15 @@ class MyPageRepositoryImpl @Inject constructor(
 
     override suspend fun getMyProfile(): Result<MyPageProfile> {
         delay(500)
-        return safeApiResult(){
+        return Result.success(
             MyPageProfile(
                 profileImageUrl = "",
                 nickname = "김수현",
                 tier = "Basic",
                 remainingTicketCount = 18,
                 appVersion = "1.0.0",
-            )
-        }
+            ),
+        )
     }
 
     override suspend fun logout(): Result<Unit> =

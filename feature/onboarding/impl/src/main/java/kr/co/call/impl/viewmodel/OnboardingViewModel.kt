@@ -6,7 +6,6 @@ import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
-import kr.co.call.domain.model.onboarding.OnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
@@ -144,38 +143,48 @@ class OnboardingViewModel @Inject constructor(
             )
         }
 
-        val submission = OnboardingInput(
-            member = MemberOnboardingInput(
-                lastName = state.userLastName,
-                firstName = state.userFirstName,
-                imageUrl = state.userImageUrl,
-                gender = state.userGender,
-                birth = state.userBirthday.toString(),
-                mbti = state.userMbti,
-                job = state.userJob,
-            ),
-            character = CharacterOnboardingInput(
-                lastName = state.aiLastName,
-                firstName = state.aiFirstName,
-                gender = state.aiGender,
-                age = age,
-                job = state.aiJob,
-                imageUrl = state.aiImageUrl,
-                spiceLevel = state.temperature,
-                preferTime = preferTime.name,
-                mbti = state.aiMbti,
-                speechStyle = speechStyle.name,
-                relationshipStage = relationship.name,
-                traits = state.traits.mapIndexed { index, trait ->
-                    CharacterTraitInput(
-                        trait = trait.keyword,
-                        priority = index + 1,
-                    )
-                },
-            ),
+        val memberSubmission = MemberOnboardingInput(
+            lastName = state.userLastName,
+            firstName = state.userFirstName,
+            imageUrl = state.userImageUrl,
+            gender = state.userGender,
+            birth = state.userBirthday.toString(),
+            mbti = state.userMbti,
+            job = state.userJob,
         )
 
-        onboardingRepository.submitOnboarding(submission)
+        val characterSubmission = CharacterOnboardingInput(
+            lastName = state.aiLastName,
+            firstName = state.aiFirstName,
+            gender = state.aiGender,
+            age = age,
+            job = state.aiJob,
+            imageUrl = state.aiImageUrl,
+            spiceLevel = state.temperature,
+            preferTime = preferTime.name,
+            mbti = state.aiMbti,
+            speechStyle = speechStyle.name,
+            relationshipStage = relationship.name,
+            traits = state.traits.mapIndexed { index, trait ->
+                CharacterTraitInput(
+                    trait = trait.keyword,
+                    priority = index + 1,
+                )
+            },
+        )
+
+        val submitResult: Result<Unit> =
+            onboardingRepository.submitMemberOnboarding(memberSubmission)
+                .fold(
+                    onSuccess = {
+                        onboardingRepository.submitCharacterOnboarding(characterSubmission)
+                    },
+                    onFailure = { error ->
+                        Result.failure(error)
+                    },
+                )
+
+        submitResult
             .onSuccess {
                 reduce {
                     state.copy(submitStatus = LoadStatus.Idle)
