@@ -61,8 +61,8 @@ class ChatRepositoryImpl @Inject constructor(
     override fun getChats(roomId: Long): Flow<PagingData<ChatItem>> {
         return Pager(
             config = PagingConfig(
-                pageSize = 20,
-                initialLoadSize = 20,
+                pageSize = 30,
+                initialLoadSize = 30,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = {

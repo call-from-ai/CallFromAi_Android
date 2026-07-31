@@ -43,7 +43,7 @@ class ChatPagingSource(
         }.fold(
             onSuccess = { dto ->
                 LoadResult.Page(
-                    data = dto.toDomain(),
+                    data = dto.toDomain().reversed(),
                     prevKey = null,
                     nextKey = if (dto.hasNext) dto.nextCursor else null,
                 )
