@@ -28,6 +28,18 @@ import kr.co.call.impl.component.KeywordChoice
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Trait
 
+private val traitRows=listOf(
+    listOf(Trait.HUMOROUS, Trait.PLAYFUL),
+    listOf(Trait.AFFECTIONATE, Trait.JEALOUS,Trait.TALKATIVE),
+    listOf(Trait.DAD_JOKE_LOVER, Trait.HOMEBODY),
+    listOf(Trait.TEASING, Trait.POSSESSIVE, Trait.TSUNDERE),
+    listOf(Trait.EXPRESSIVE, Trait.PET_NAME_LOVER),
+    listOf(Trait.EXCLUSIVE, Trait.QUIRKY, Trait.LAID_BACK),
+    listOf(Trait.OPENLY_JEALOUS, Trait.SHY),
+    listOf(Trait.SMOOTH_TALKER, Trait.FREQUENT_CHECKER),
+    listOf(Trait.GOOD_LISTENER, Trait.COMPLIMENTER),
+)
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Onboarding4Screen(
@@ -56,86 +68,74 @@ fun Onboarding4Screen(
             totalStep = 4,
             horizontalPadding = 27.dp,
         )
-        Spacer(modifier=Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(5.dp))
 
         Column(
-            modifier = Modifier
+            modifier=Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .background(SubGray2)
                 .navigationBarsPadding(),
         ) {
-            FlowRow(
-                modifier = Modifier.padding(
-                    start = 27.dp,
-                    end = 27.dp,
-                    top = 20.dp,
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 23.dp,
                 ),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-                verticalArrangement = Arrangement.spacedBy(22.dp),
-                maxItemsInEachRow = 3,
-            ) {
-                Trait.entries.forEach { trait ->
-                    val selectedOrder = selectedKeywords
-                        .indexOf(trait.keyword)
-                        .takeIf { it >= 0 }
-                        ?.plus(1)
+            verticalArrangement = Arrangement.spacedBy(22.dp),
+        ) {
+            traitRows.forEach { rowTraits ->
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(22.dp),
+                ) {
+                    rowTraits.forEach { trait ->
+                        val selectedOrder = selectedKeywords
+                            .indexOf(trait.keyword)
+                            .takeIf { it >= 0 }
+                            ?.plus(1)
 
-                    KeywordChoice(
-                        emoji = trait.emoji,
-                        text = trait.label,
-                        selectedOrder = selectedOrder,
-                        onClick = {
-                            selectedKeywords = when {
-                                trait.keyword in selectedKeywords ->
-                                    selectedKeywords - trait.keyword
+                        KeywordChoice(
+                            emoji = trait.emoji,
+                            text = trait.label,
+                            selectedOrder = selectedOrder,
+                            onClick = {
+                                selectedKeywords = when {
+                                    trait.keyword in selectedKeywords ->
+                                        selectedKeywords - trait.keyword
 
-                                selectedKeywords.size < 5 ->
-                                    selectedKeywords + trait.keyword
+                                    selectedKeywords.size < 5 ->
+                                        selectedKeywords + trait.keyword
 
-                                else -> selectedKeywords
-                            }
-                        },
-                    )
+                                    else -> selectedKeywords
+                                }
+                            },
+                        )
+                    }
                 }
             }
-            Spacer(modifier = Modifier.weight(1f))
-            SecondaryButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 27.dp,
-                        end = 27.dp,
-                        bottom = 18.dp,
-                    ),
-                text = "다음",
-                enabled=selectedTraits.isNotEmpty(),
-                onClick = { if(selectedTraits.isNotEmpty()) {
-                    onNextClick(selectedTraits)
-                }
-                          },
-            )
+        }
+                Spacer(modifier = Modifier.weight(1f))
+                SecondaryButton(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 27.dp,
+                            end = 27.dp,
+                            bottom = 18.dp,
+                        ),
+                    text = "다음",
+                    enabled = selectedTraits.isNotEmpty(),
+                    onClick = {
+                        if (selectedTraits.isNotEmpty()) {
+                            onNextClick(selectedTraits)
+                        }
+                    },
+                )
+            }
         }
     }
-}
-
-@Preview(
-    name = "Onboarding 4 - 선택됨",
-    showBackground = true,
-    widthDp = 393,
-    heightDp = 852,
-)
-@Composable
-private fun Onboarding4ScreenPreview() {
-    CallFromAiTheme {
-        Onboarding4Screen(
-            onBackClick = {},
-            onNextClick = {},
-            initialSelectedKeywords = listOf(
-                Trait.HUMOROUS.keyword,
-                Trait.PLAYFUL.keyword,
-                Trait.AFFECTIONATE.keyword,
-            ),
-        )
-    }
-}
