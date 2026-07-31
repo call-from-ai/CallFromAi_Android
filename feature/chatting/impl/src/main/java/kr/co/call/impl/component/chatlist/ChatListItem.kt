@@ -23,7 +23,7 @@ fun ChatListItem(
         backgroundContent = {
             BackgroundRow(
                 modifier = modifier,
-                isAlarmEnabled = chatSummary.isAlarmEnabled,
+                isMuted = chatSummary.isMuted,
                 onAlarmClick = onAlarmClick,
                 onDeleteClick = onDeleteClick
             )
@@ -48,7 +48,7 @@ private fun ChatListItemPreview() {
                 content = "오늘 저녁에 뭐해?",
                 whenSubmitted = "30분 전",
                 unReadMessageCount = "3",
-                isAlarmEnabled = true,
+                isMuted = false,
             )
         )
     }

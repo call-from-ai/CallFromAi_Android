@@ -5,11 +5,13 @@ sealed interface ChatListIntent {
 
     data object ClickManagerChatRoom : ChatListIntent
 
-    data class UpdateAlarmSetting(val roomId: Long) : ChatListIntent
+    data class UpdateAlarmSetting(val roomId: Long, val isMuted: Boolean) : ChatListIntent
 
     data class ClickDeleteChatRoom(val roomId: Long) : ChatListIntent
 
     data class DeleteChatRoom(val roomId: Long) : ChatListIntent
 
     data object DismissDeleteDialog : ChatListIntent
+
+    data object OnResume : ChatListIntent
 }

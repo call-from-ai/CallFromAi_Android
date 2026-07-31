@@ -1,6 +1,7 @@
 package kr.co.call.impl.screen
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +40,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flowOf
 import kr.co.call.chatting.impl.R
+import kr.co.call.designsystem.component.popup.OneButtonPopup
 import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -101,7 +103,9 @@ fun ChatRoomScreen(
     // 사이드이펙트 수신
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is ChatRoomSideEffect.ShowToast -> {}
+            is ChatRoomSideEffect.ShowToast -> {
+                Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+            }
             is ChatRoomSideEffect.Call -> {}
 
             ChatRoomSideEffect.GoToCamera -> {
@@ -127,7 +131,6 @@ fun ChatRoomScreen(
         listState = listState,
         onBack = onBack,
         onIntent = viewModel::handleIntent,
-        onValueChange = viewModel::onTextChange,
     )
 }
 
@@ -139,13 +142,13 @@ fun ChatRoomScreenContent(
     listState: LazyListState = rememberLazyListState(),
     onBack: () -> Unit = {},
     onIntent: (ChatRoomIntent) -> Unit = {},
-    onValueChange: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
 
     val density = LocalDensity.current
     var overlayHeight by remember { mutableStateOf(0.dp) }
+    var inputText by remember { mutableStateOf("") }
 
     val imeBottom = WindowInsets.ime.getBottom(density)
 
@@ -203,6 +206,7 @@ fun ChatRoomScreenContent(
                 onProfileClick = { onIntent(ChatRoomIntent.ClickProfile(state.topHeader.imgUrl)) },
             )
 
+            // 통화 팝업 창 출력
             if (state.showCallDialog) {
                 TwoButtonPopup(
                     label = stringResource(id = R.string.chat_room_call_label),
@@ -212,9 +216,22 @@ fun ChatRoomScreenContent(
                     ),
                     positiveText = "연결",
                     negativeText = "취소",
-                    onPositiveClick = { onIntent(ChatRoomIntent.ClickCall(state.topHeader.characterId)) },
+                    onPositiveClick = { onIntent(ChatRoomIntent.GoToCall(state.topHeader.characterId)) },
                     onNegativeClick = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
                     onDismissRequest = { onIntent(ChatRoomIntent.DismissDeleteDialog) },
+                )
+            }
+
+            // 메인 캐릭터가 아닙니다 팝업창 출력
+            if (state.showNotMainDialog) {
+                OneButtonPopup(
+                    label = stringResource(id = R.string.chat_room_call_label),
+                    title = stringResource(id = R.string.chat_room_not_main_title),
+                    buttonText = "확인",
+                    onButtonClick = {
+                        onIntent(ChatRoomIntent.DismissNotMainDialog)
+                    },
+                    onDismissRequest = { onIntent(ChatRoomIntent.DismissNotMainDialog) },
                 )
             }
 
@@ -253,18 +270,20 @@ fun ChatRoomScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp),
+                        text = inputText,
                         state = state.textFieldState,
-                        onValueChange = onValueChange,
+                        onValueChange = { inputText = it },
                         onCameraClick = { onIntent(ChatRoomIntent.ClickCamera) },
                         onGalleryClick = { onIntent(ChatRoomIntent.ClickGallery) },
                         onSendClick = {
                             onIntent(
                                 ChatRoomIntent.SendMessage(
-                                    message = state.textFieldState.text,
+                                    message = inputText.ifBlank { null },
                                     image = state.textFieldState.selectedImage?.let(context::toImageData),
                                     imageUri = state.textFieldState.selectedImage,
                                 )
                             )
+                            inputText = ""
                         },
                         onRemoveImage = { onIntent(ChatRoomIntent.CancelImage) },
                     )

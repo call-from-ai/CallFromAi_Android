@@ -44,6 +44,7 @@ data class TopHeader(
     val name: String = "",
     val imgUrl: String = "",
     val dDay: String = "",
+    val isMain: Boolean = false
 ): ChatItemUiModel
 
 /**

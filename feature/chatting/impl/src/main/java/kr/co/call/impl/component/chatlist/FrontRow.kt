@@ -139,7 +139,7 @@ private fun FrontRowPreview() {
                 content = "오늘 저녁에 뭐해?",
                 whenSubmitted = "30분 전",
                 unReadMessageCount = "3",
-                isAlarmEnabled = true,
+                isMuted = false,
             )
         )
     }
