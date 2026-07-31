@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import kr.co.call.network.BuildConfig
 import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.api.LoginApi
+import kr.co.call.network.api.PushTokenApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -155,5 +156,11 @@ object NetworkModule {
         retrofit: Retrofit,
     ): TokenReissueApi{
         return retrofit.create(TokenReissueApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePushTokenApi(retrofit: Retrofit): PushTokenApi {
+        return retrofit.create(PushTokenApi::class.java)
     }
 }
