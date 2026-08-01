@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -88,10 +89,9 @@ fun Onboarding4Screen(
             verticalArrangement = Arrangement.spacedBy(22.dp),
         ) {
             traitRows.forEach { rowTraits ->
-                FlowRow(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(15.dp),
-                    verticalArrangement = Arrangement.spacedBy(22.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
                     rowTraits.forEach { trait ->
                         val selectedOrder = selectedKeywords
@@ -139,3 +139,25 @@ fun Onboarding4Screen(
             }
         }
     }
+
+@Preview(
+    name = "Onboarding4 키워드 선택",
+    showBackground = true,
+    showSystemUi = true,
+    widthDp = 375,
+    heightDp = 812,
+)
+@Composable
+private fun Onboarding4ScreenSelectedPreview() {
+    CallFromAiTheme {
+        Onboarding4Screen(
+            onBackClick = {},
+            onNextClick = {},
+            initialSelectedKeywords = listOf(
+                Trait.HUMOROUS.keyword,
+                Trait.PLAYFUL.keyword,
+                Trait.AFFECTIONATE.keyword,
+            ),
+        )
+    }
+}

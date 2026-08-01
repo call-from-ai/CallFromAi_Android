@@ -1,9 +1,20 @@
 package kr.co.call.impl.entry
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -11,6 +22,7 @@ import kr.co.call.api.AgreementDetailNavKey
 import kr.co.call.api.AgreementNavKey
 import kr.co.call.api.LandingNavKey
 import kr.co.call.api.LoginNavKey
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.domain.model.login.AgreementTerm
 import kr.co.call.impl.auth.KakaoLoginManager
 import kr.co.call.impl.screen.AgreementDetailScreen
@@ -118,6 +130,21 @@ fun EntryProviderScope<NavKey>.loginEntry(
         val agreementViewModel=hiltViewModel<AgreementViewModel>()
         val uiState=agreementViewModel.collectAsState().value
 
+        var showNotificationPermissionPopup by rememberSaveable {
+            mutableStateOf(
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                    ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    ) != PackageManager.PERMISSION_GRANTED,
+            )
+        }
+        val notificationPermissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) {
+            showNotificationPermissionPopup = false
+        }
+
         agreementViewModel.collectSideEffect { sideEffect ->
             when (sideEffect){
                 AgreementSideEffect.NavigateToNext->{
@@ -151,6 +178,31 @@ fun EntryProviderScope<NavKey>.loginEntry(
                 agreementViewModel.toggleAllAgreements(isChecked=isChecked)
             },
         )
+
+        if (showNotificationPermissionPopup) {
+            TwoButtonPopup(
+                label = "",
+                title = "‘전화왔어’에서 알림을\n보내고자 합니다.",
+                description = AnnotatedString(
+                    "경고, 사운드 및 아이콘 배지가 알림에\n" +
+                        "포함될 수 있습니다.\n" +
+                        "설정에서 이를 구성할 수 있습니다.",
+                ),
+                positiveText = "허용",
+                negativeText = "허용 안 함",
+                onPositiveClick = {
+                    notificationPermissionLauncher.launch(
+                        Manifest.permission.POST_NOTIFICATIONS,
+                    )
+                },
+                onNegativeClick = {
+                    showNotificationPermissionPopup = false
+                },
+                onDismissRequest = {
+                    showNotificationPermissionPopup = false
+                },
+            )
+        }
     }
 
     entry<AgreementDetailNavKey> { key ->
