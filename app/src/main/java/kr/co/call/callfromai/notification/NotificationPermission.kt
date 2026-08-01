@@ -25,7 +25,7 @@ object NotificationPermission {
 
     /**
      * onCreate 등에서 자동으로 한 번만 요청할지 여부.
-     * 이미 허용됐거나, 이전에 요청한 적 있으면 false.
+     * 이미 허용됐거나, 시스템 다이얼로그 결과까지 받은 적 있으면 false.
      * 거부 후 재요청은 설정 등 명시적 진입점에서 처리한다.
      */
     fun shouldAutoRequest(context: Context): Boolean {
@@ -34,6 +34,9 @@ object NotificationPermission {
         return !hasRequested(context)
     }
 
+    /**
+     * 권한 다이얼로그 결과 콜백에서 호출한다 (허용/거부 모두)
+     */
     fun markRequested(context: Context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
