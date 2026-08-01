@@ -219,6 +219,7 @@ class ChatRoomViewModel @AssistedInject constructor(
                         selectedMessageId = null
                     )
                 }
+                postSideEffect(ChatRoomSideEffect.ShowToast("메세지가 삭제되었습니다."))
             },
             onFailure = {
                 postSideEffect(ChatRoomSideEffect.ShowToast("메시지를 삭제할 수 없습니다. 잠시 후 다시 시도해주세요"))
