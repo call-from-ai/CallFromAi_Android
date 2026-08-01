@@ -2,6 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
@@ -23,9 +24,9 @@ class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepository,
 ) : ViewModel(),
     ContainerHost<OnboardingUiState, OnboardingSideEffect> {
-        override val container=
-            container<OnboardingUiState, OnboardingSideEffect>(
-            initialState= OnboardingUiState(),
+    override val container =
+        container<OnboardingUiState, OnboardingSideEffect>(
+            initialState = OnboardingUiState(),
         )
 
     fun updateUserProfile(
@@ -36,19 +37,19 @@ class OnboardingViewModel @Inject constructor(
         mbti: String,
         gender: String,
         imageUrl: String,
-    ) =intent{
-        reduce{
-                state.copy(
-                    userLastName = lastName,
-                    userFirstName = firstName,
-                    userBirthday = birthday,
-                    userJob = job,
-                    userMbti = mbti,
-                    userGender = gender,
-                    userImageUrl = imageUrl,
-                )
-            }
+    ) = intent {
+        reduce {
+            state.copy(
+                userLastName = lastName,
+                userFirstName = firstName,
+                userBirthday = birthday,
+                userJob = job,
+                userMbti = mbti,
+                userGender = gender,
+                userImageUrl = imageUrl,
+            )
         }
+    }
 
     fun updateAiProfile(
         age: String,
@@ -56,9 +57,9 @@ class OnboardingViewModel @Inject constructor(
         firstName: String,
         job: String,
         mbti: String,
-        gender:String,
+        gender: String,
         imageUrl: String,
-    )=intent {
+    ) = intent {
         reduce {
             state.copy(
                 aiFirstName = firstName,
@@ -77,7 +78,7 @@ class OnboardingViewModel @Inject constructor(
         speechStyle: SpeechStyle,
         relationship: Relationship,
         temperature: Int,
-    ) =intent {
+    ) = intent {
         reduce {
             state.copy(
                 speechStyle = speechStyle,
@@ -88,23 +89,26 @@ class OnboardingViewModel @Inject constructor(
     }
 
 
-    fun updateTraits(traits: List<Trait>
-    )=intent{
+    fun updateTraits(
+        traits: List<Trait>
+    ) = intent {
         reduce {
             state.copy(traits = traits)
         }
     }
 
     //
-    fun updatePreferTime(preferTime: PreferTime
-    )=intent {
+    fun updatePreferTime(
+        preferTime: PreferTime
+    ) = intent {
         reduce {
             state.copy(preferTime = preferTime)
         }
     }
 
     //
-    fun onCreateAiSuccess(name: String
+    fun onCreateAiSuccess(
+        name: String
     ) = intent {
         reduce {
             state.copy(
@@ -114,6 +118,7 @@ class OnboardingViewModel @Inject constructor(
             )
         }
     }
+
     fun submitOnboarding(
         preferTime: PreferTime,
     ) = intent {
@@ -210,4 +215,55 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
     }
+
+    fun loadPresetImages(
+        gender: ProfileImageGender,
+    ) = intent {
+        val cachedImages = when (gender) {
+            ProfileImageGender.MALE -> state.presetImageState.maleImages
+            ProfileImageGender.FEMALE -> state.presetImageState.femaleImages
+        }
+
+        if (state.presetImageState.loadStatus == LoadStatus.Loading) return@intent
+        reduce {
+            state.copy(
+                presetImageState = state.presetImageState.copy(
+                    loadStatus = LoadStatus.Loading,
+                    ),
+            )
+        }
+        onboardingRepository
+            .getPresetImages(gender.name)
+            .onSuccess { images ->
+                reduce {
+                    when (gender) {
+                        ProfileImageGender.MALE -> state.copy(
+                            presetImageState =
+                                state.presetImageState.copy(
+                                    maleImages = images,
+                                    loadStatus = LoadStatus.Idle,
+                                ),
+                        )
+
+                        ProfileImageGender.FEMALE -> state.copy(
+                            presetImageState =
+                                state.presetImageState.copy(
+                                    femaleImages = images,
+                                    loadStatus = LoadStatus.Idle,
+                                ),
+                        )
+                    }
+                }
+            }
+            .onFailure { error ->
+                reduce {
+                    state.copy(
+                        presetImageState = state.presetImageState.copy(
+                            loadStatus=LoadStatus.Idle,
+                            ),
+                    )
+                }
+            }
+    }
 }
+

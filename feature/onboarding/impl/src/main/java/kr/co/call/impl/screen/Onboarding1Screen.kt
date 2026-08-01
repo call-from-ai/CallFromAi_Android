@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
@@ -27,10 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.selects.select
 import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
+import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
@@ -40,7 +41,6 @@ import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
-import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.model.MemberJob
@@ -54,6 +54,9 @@ private enum class EditingNameField {
 @Composable
 fun Onboarding1Screen (
     onNextClick: (Onboarding1State)->Unit,
+    malePresetImages: List<ProfileImageOption>,
+    femalePresetImages: List<ProfileImageOption>,
+    onGenderChanged: (ProfileImageGender) -> Unit,
     modifier: Modifier =Modifier,
     profileImageUrl: String?=null,
 ) {
@@ -86,17 +89,31 @@ fun Onboarding1Screen (
     var selectedGender by rememberSaveable {
         mutableStateOf(ProfileImageGender.MALE)
     }
+    LaunchedEffect(Unit) {
+        onGenderChanged(ProfileImageGender.MALE)
+    }
+    val currentProfileImages = when (selectedGender) {
+        ProfileImageGender.MALE -> malePresetImages
+        ProfileImageGender.FEMALE -> femalePresetImages
+    }
 
-    var selectedImageId by rememberSaveable {
+    var selectedMaleImageId by rememberSaveable {
         mutableStateOf<String?>(null)
+    }
+
+    var selectedFemaleImageId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val currentSelectedImageId = when (selectedGender) {
+        ProfileImageGender.MALE -> selectedMaleImageId
+        ProfileImageGender.FEMALE -> selectedFemaleImageId
     }
 
     var savedProfileImageUrl by rememberSaveable {
         mutableStateOf(profileImageUrl)
     }
 
-    val currentProfileImages =
-        TemporaryProfileImageData.imagesFor(selectedGender)
 
     val canMoveNext =
         lastName.isNotBlank() &&
@@ -138,11 +155,21 @@ fun Onboarding1Screen (
                     imageUrl = savedProfileImageUrl,
                         size=99.dp,
                     ),
-                    onClick ={
-                        if (selectedImageId==null){
-                            selectedImageId=currentProfileImages.firstOrNull()?.id
+                    onClick = {
+                        when (selectedGender) {
+                            ProfileImageGender.MALE -> {
+                                if (selectedMaleImageId == null) {
+                                    selectedMaleImageId = currentProfileImages.firstOrNull()?.id
+                                }
+                            }
+
+                            ProfileImageGender.FEMALE -> {
+                                if (selectedFemaleImageId == null) {
+                                    selectedFemaleImageId = currentProfileImages.firstOrNull()?.id
+                                }
+                            }
                         }
-                        showProfileImagePicker=true
+                        showProfileImagePicker = true
                     },
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -287,22 +314,21 @@ fun Onboarding1Screen (
             ProfileImagePickerBottomSheet(
                 images = currentProfileImages,
                 selectedGender = selectedGender,
-                selectedImageId = selectedImageId,
+                selectedImageId = currentSelectedImageId,
                 onGenderChange = { newGender ->
                     selectedGender = newGender
-
-                    selectedImageId = TemporaryProfileImageData
-                        .imagesFor(newGender)
-                        .firstOrNull()
-                        ?.id
+                    onGenderChanged(newGender)
                 },
                 onImageSelected = { image ->
-                    selectedImageId = image.id
+                    when (selectedGender) {
+                        ProfileImageGender.MALE -> selectedMaleImageId = image.id
+                        ProfileImageGender.FEMALE -> selectedFemaleImageId = image.id
+                    }
                 },
                 onSaveClick = {
                     savedProfileImageUrl = currentProfileImages
                         .firstOrNull { image ->
-                            image.id == selectedImageId
+                            image.id == currentSelectedImageId
                         }
                         ?.imageUrl
 

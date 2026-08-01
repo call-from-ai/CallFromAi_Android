@@ -90,7 +90,7 @@ fun Onboarding4Screen(
             traitRows.forEach { rowTraits ->
                 FlowRow(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(15.dp),
                     verticalArrangement = Arrangement.spacedBy(22.dp),
                 ) {
                     rowTraits.forEach { trait ->

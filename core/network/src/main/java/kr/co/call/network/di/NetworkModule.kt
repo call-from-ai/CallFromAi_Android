@@ -13,6 +13,7 @@ import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.MyPageApi
+import kr.co.call.network.api.PresetImageApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -171,4 +172,12 @@ object NetworkModule {
     ): AICharacterApi{
         return retrofit.create(AICharacterApi::class.java)
     }
+
+    //프로필 사진 이미지 받아옴
+    @Provides
+    @Singleton
+    fun providePresetImageApi(
+        retrofit: Retrofit,
+    ): PresetImageApi =
+        retrofit.create(PresetImageApi::class.java)
 }

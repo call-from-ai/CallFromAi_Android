@@ -4,6 +4,7 @@ import kr.co.call.network.dto.ApiResponse
 import kr.co.call.network.util.ErrorResponseParser
 import kr.co.call.network.util.safeApiCall
 import kr.co.call.network.util.safeApiCallUnit
+import kr.co.call.network.util.safeEmptyBodyApiCall
 
 /**
  * [safeApiCall] + stdlib [runCatching] + [toAppResult] 조합.
@@ -30,4 +31,13 @@ suspend fun safeApiResultUnit(
 ): Result<Unit> =
     runCatching {
         safeApiCallUnit(parser, call)
+    }.toAppResult()
+
+//
+suspend fun safeEmptyBodyApiResult(
+    parser: ErrorResponseParser,
+    call: suspend () -> Unit,
+): Result<Unit> =
+    runCatching {
+        safeEmptyBodyApiCall(parser, call)
     }.toAppResult()
