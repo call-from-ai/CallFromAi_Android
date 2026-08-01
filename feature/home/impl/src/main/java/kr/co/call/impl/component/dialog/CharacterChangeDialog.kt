@@ -37,7 +37,7 @@ import coil.compose.AsyncImage
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.impl.viewmodel.model.CharacterOptionUiModel
+import kr.co.call.domain.model.home.HomeCharacter
 
 /**
  * 메인 연인 교체하기 다이얼로그
@@ -46,7 +46,7 @@ import kr.co.call.impl.viewmodel.model.CharacterOptionUiModel
  */
 @Composable
 fun CharacterChangeDialog(
-    characters: List<CharacterOptionUiModel>,
+    characters: List<HomeCharacter>,
     onCharacterClick: (characterId: Long, nickname: String) -> Unit,
     onAddCharacterClick: () -> Unit,
     onDismissRequest: () -> Unit,
@@ -90,7 +90,7 @@ fun CharacterChangeDialog(
                     CharacterOption(
                         character = character,
                         onClick = {
-                            onCharacterClick(character.characterId, character.name)
+                            onCharacterClick(character.id, character.name)
                         },
                     )
                 }
@@ -147,7 +147,7 @@ fun CharacterChangeDialog(
 
 @Composable
 private fun CharacterOption(
-    character: CharacterOptionUiModel,
+    character: HomeCharacter,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -195,7 +195,7 @@ private fun CharacterOption(
         )
         Spacer(modifier = Modifier.width(11.dp))
         Text(
-            text = "D+ ${character.day}",
+            text = "D+ ${character.relationshipDays}",
             modifier = Modifier
                 .background(
                     color = CallTheme.colors.mainVariant1,
@@ -214,9 +214,27 @@ private fun CharacterChangeDialogPreview() {
     CallFromAiTheme {
         CharacterChangeDialog(
             characters = listOf(
-                CharacterOptionUiModel(characterId = 1L, name = "민준", day = 35),
-                CharacterOptionUiModel(characterId = 2L, name = "동휘", day = 11),
-                CharacterOptionUiModel(characterId = 3L, name = "유나", day = 5),
+                HomeCharacter(
+                    id = 1L,
+                    name = "민준",
+                    relationshipDays = 35,
+                    imageUrl = null,
+                    isMain = true,
+                ),
+                HomeCharacter(
+                    id = 2L,
+                    name = "동휘",
+                    relationshipDays = 11,
+                    imageUrl = null,
+                    isMain = false,
+                ),
+                HomeCharacter(
+                    id = 3L,
+                    name = "유나",
+                    relationshipDays = 5,
+                    imageUrl = null,
+                    isMain = false,
+                ),
             ),
             onCharacterClick = { _, _ -> },
             onAddCharacterClick = {},

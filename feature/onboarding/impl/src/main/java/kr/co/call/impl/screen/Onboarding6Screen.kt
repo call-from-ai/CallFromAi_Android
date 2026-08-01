@@ -52,6 +52,7 @@ import kr.co.call.onboarding.impl.R
 @Composable
 fun Onboarding6Screen(
     firstName: String,
+    isLoading: Boolean,
     onCallNowClick:()->Unit,
     onCallLaterClick:()->Unit,
     modifier: Modifier =Modifier,
@@ -94,7 +95,9 @@ fun Onboarding6Screen(
                     isCallNowPressed = it
                 },
             text="지금 전화할래",
-            onClick= { isCallDialogVisible=true },
+            onClick= { if (!isLoading){
+                     isCallDialogVisible=true}
+                     },
             containerColor=CallTheme.colors.mainVariant3,
             contentColor=if(isCallNowPressed){
                 Black
@@ -109,7 +112,11 @@ fun Onboarding6Screen(
                     isCallLaterPressed = it
                 },
             text="조금 이따할래",
-            onClick=onCallLaterClick,
+            onClick={
+                if (!isLoading){
+                    onCallLaterClick()
+                }
+            },
             containerColor= Gray200,
             contentColor=if(isCallLaterPressed){
                 Gray800 }else{ Gray600},
@@ -163,13 +170,21 @@ fun Onboarding6Screen(
             positiveText = "연결",
             negativeText = "취소",
             onPositiveClick = {
-                isCallDialogVisible=false
-                onCallNowClick()
+                if (!isLoading) {
+                    isCallDialogVisible = false
+                    onCallNowClick()
+                }
             },
             onNegativeClick = {
-                isCallDialogVisible=false
+                if (!isLoading) {
+                    isCallDialogVisible = false
+                }
             },
-            onDismissRequest = {},
+            onDismissRequest = {
+                if (!isLoading){
+                    isCallDialogVisible=false
+                }
+            },
         )
     }
 }
@@ -204,6 +219,7 @@ private fun Onboarding6ScreenPreview() {
     CallFromAiTheme {
         Onboarding6Screen(
             firstName = "민준",
+            isLoading = false,
             onCallNowClick = {},
             onCallLaterClick = {},
         )

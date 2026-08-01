@@ -27,5 +27,5 @@ package kr.co.call.callfromai.sideeffect
  * ```
  */
 sealed interface AppSideEffect {
-
+    data object NavigateToLogin : AppSideEffect
 }

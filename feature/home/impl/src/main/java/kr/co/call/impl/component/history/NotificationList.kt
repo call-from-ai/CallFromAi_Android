@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -28,15 +29,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.PagingData
-import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import java.time.LocalDateTime
-import kotlinx.coroutines.flow.Flow
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -46,18 +43,6 @@ import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.component.UnreadIndicator
 import kr.co.call.impl.mapper.toUiModel
 import kr.co.call.impl.viewmodel.model.HomeNotificationUiModel
-
-/**
- * 알림 Paging 데이터를 Compose 목록 아이템으로 변환
- */
-@Composable
-fun NotificationPagingContent(
-    notifications: Flow<PagingData<HomeNotification>>,
-    content: @Composable (LazyPagingItems<HomeNotification>) -> Unit,
-) {
-    val lazyNotificationItems = notifications.collectAsLazyPagingItems()
-    content(lazyNotificationItems)
-}
 
 /**
  * 알림 리스트 안내 문구
@@ -79,34 +64,53 @@ fun NotificationListHeader(
 }
 
 /**
- * 홈 LazyColumn에 Paging 알림 아이템 추가
+ * 홈 LazyColumn에 알림 아이템 추가
  */
 fun LazyListScope.notificationItems(
-    notifications: LazyPagingItems<HomeNotification>,
+    notifications: List<HomeNotification>,
     onCallClick: (characterName: String) -> Unit,
 ) {
-    items(
-        count = notifications.itemCount,
-        key = notifications.itemKey { notification -> notification.notificationId },
-    ) { index ->
-        notifications[index]?.let { notification ->
-            NotificationCard(
-                notificationState = notification.toUiModel(),
-                onCallClick = {
-                    notification.characterName?.let(onCallClick)
-                },
-                modifier = Modifier.padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 12.dp,
-                ),
-            )
+    if (notifications.isEmpty()) {
+        item {
+            NotificationEmptyContent()
         }
+    }
+
+    items(
+        items = notifications,
+        key = { notification -> notification.notificationId },
+    ) { notification ->
+        NotificationCard(
+            notificationState = notification.toUiModel(),
+            onCallClick = {
+                notification.characterName?.let(onCallClick)
+            },
+            modifier = Modifier.padding(
+                start = 16.dp,
+                end = 16.dp,
+                bottom = 12.dp,
+            ),
+        )
     }
 
     item {
         Spacer(modifier = Modifier.height(12.dp))
     }
+}
+
+@Composable
+private fun NotificationEmptyContent(
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = "0건의 알림이 있습니다.",
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 48.dp),
+        color = CallTheme.colors.gray600,
+        style = CallTheme.typography.bodyMedium,
+        textAlign = TextAlign.Center,
+    )
 }
 
 /**

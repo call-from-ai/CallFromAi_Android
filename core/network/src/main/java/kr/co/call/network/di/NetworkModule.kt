@@ -7,9 +7,13 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kr.co.call.network.BuildConfig
+import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.AgreementApi
+import kr.co.call.network.api.CharacterApi
+import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.PushTokenApi
+import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -46,24 +50,6 @@ object NetworkModule {
         return GsonConverterFactory.create(gson)
     }
     /*
-     * 일반 API 통신 내용을 확인하기 위한 로깅 인터셉터이다.
-     * 인증 정보가 로그에 노출되지 않도록 민감한 헤더를 마스킹한다.
-     */
-    private fun createLoggingInterceptor(): HttpLoggingInterceptor {
-        return HttpLoggingInterceptor().apply {
-            redactHeader("Authorization")
-            redactHeader("Cookie")
-            redactHeader("Set-Cookie")
-
-            level = if (BuildConfig.DEBUG) {
-                HttpLoggingInterceptor.Level.BODY
-            } else {
-                HttpLoggingInterceptor.Level.NONE
-            }
-        }
-    }
-
-    /*
      * 토큰 재발급 요청에는 Access Token과 Refresh Token이
      * Request Body에 들어가므로 BODY 내용을 출력하지 않는다.
      */
@@ -91,7 +77,6 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
-            .addInterceptor(createLoggingInterceptor())
             .build()
     }
 
@@ -139,15 +124,29 @@ object NetworkModule {
     @Singleton
     fun provideLoginApi(
         retrofit: Retrofit,
-    ): LoginApi {
-        return retrofit.create(LoginApi::class.java)
-    }
+    ): LoginApi =
+        retrofit.create(LoginApi::class.java)
 
     @Provides
     @Singleton
-    fun provideAgreementApi(retrofit: Retrofit): AgreementApi {
-        return retrofit.create(AgreementApi::class.java)
-    }
+    fun provideAgreementApi(
+        retrofit: Retrofit,
+    ): AgreementApi =
+        retrofit.create(AgreementApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideHomeApi(
+        retrofit: Retrofit,
+    ): HomeApi =
+        retrofit.create(HomeApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCharacterApi(
+        retrofit: Retrofit,
+    ): CharacterApi =
+        retrofit.create(CharacterApi::class.java)
 
     @Provides
     @Singleton
@@ -156,6 +155,22 @@ object NetworkModule {
         retrofit: Retrofit,
     ): TokenReissueApi{
         return retrofit.create(TokenReissueApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyPageApi(
+        retrofit: Retrofit,
+    ): MyPageApi{
+        return retrofit.create(MyPageApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAICharacterApi(
+        retrofit: Retrofit,
+    ): AICharacterApi{
+        return retrofit.create(AICharacterApi::class.java)
     }
 
     @Provides

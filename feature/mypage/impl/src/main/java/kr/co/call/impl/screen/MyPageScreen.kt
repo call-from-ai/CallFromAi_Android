@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +41,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 @Composable
 fun MyPageScreen(
     modifier: Modifier = Modifier,
+    onNavigateToLogin: ()->Unit,
     onNavigateToProfile: () -> Unit = {},
     viewModel: MyPageViewModel = hiltViewModel(),
     navigateToFaq: () -> Unit,
@@ -49,21 +52,57 @@ fun MyPageScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     var showDeleteAccountDialog by remember { mutableStateOf(false) }
     var showComingSoon by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             is MyPageSideEffect.NavigateToProfileDetail -> onNavigateToProfile()
-            is MyPageSideEffect.NavigateToChargeTicket -> {  showComingSoon = true }
-            is MyPageSideEffect.NavigateToPurchaseTicket -> { showComingSoon = true }
-            is MyPageSideEffect.NavigateToTicketHistory -> { showComingSoon = true  }
+            is MyPageSideEffect.NavigateToChargeTicket -> {
+                showComingSoon = true
+            }
+
+            is MyPageSideEffect.NavigateToPurchaseTicket -> {
+                showComingSoon = true
+            }
+
+            is MyPageSideEffect.NavigateToTicketHistory -> {
+                showComingSoon = true
+            }
+
             is MyPageSideEffect.NavigateToCharacterManagement -> onNavigateToCharacterManagement()
-            is MyPageSideEffect.NavigateToFaq -> { navigateToFaq() }
-            is MyPageSideEffect.NavigateToInquiry -> {  showComingSoon = true }
-            is MyPageSideEffect.NavigateToTerms -> { navigateToTerms() }
-            is MyPageSideEffect.ShowLogoutConfirmDialog -> { showLogoutDialog = true }
-            is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> { showDeleteAccountDialog=true }
-            is MyPageSideEffect.NavigateToLogin -> { showLogoutDialog = false /*TODO: 로그인 화면으로 */}
-            is MyPageSideEffect.NavigateToLanding -> { showDeleteAccountDialog = false /*TODO: 랜딩 화면으로*/}
+            is MyPageSideEffect.NavigateToFaq -> {
+                navigateToFaq()
+            }
+
+            is MyPageSideEffect.NavigateToInquiry -> {
+                showComingSoon = true
+            }
+
+            is MyPageSideEffect.NavigateToTerms -> {
+                navigateToTerms()
+            }
+
+            is MyPageSideEffect.ShowLogoutConfirmDialog -> {
+                showLogoutDialog = true
+            }
+
+            is MyPageSideEffect.ShowDeleteAccountConfirmDialog -> {
+                showDeleteAccountDialog = true
+            }
+
+            is MyPageSideEffect.NavigateToLogin -> {
+                showLogoutDialog = false
+                showDeleteAccountDialog = false
+                onNavigateToLogin()
+            }
+
+            is MyPageSideEffect.ShowMessage -> {
+                Toast.makeText(
+                    context,
+                    sideEffect.message,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
         }
     }
 
@@ -76,16 +115,27 @@ fun MyPageScreen(
     // 로그아웃 다이얼로그
     if (showLogoutDialog) {
         MyPageLogoutDialog(
-            onConfirm = { viewModel.handleIntent(MyPageIntent.ConfirmLogout) },
-            onDismiss = { showLogoutDialog = false },
+            onConfirm = {
+            if (state.authStatus != LoadStatus.Loading) {
+                viewModel.handleIntent(MyPageIntent.ConfirmLogout)
+            }
+            },
+            onDismiss = {if (state.authStatus != LoadStatus.Loading){
+            showLogoutDialog=false
+            }
+            },
         )
     }
 
     // 계정 삭제 다이얼로그
     if (showDeleteAccountDialog) {
         MyPageDeleteAccountDialog(
-            onConfirm = { viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount) },
-            onDismiss = { showDeleteAccountDialog = false },
+            onConfirm ={ if (state.authStatus != LoadStatus.Loading){ viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount)} },
+            onDismiss = {
+                if(state.authStatus != LoadStatus.Loading){
+                    showDeleteAccountDialog = false
+                }
+                        },
         )
     }
 

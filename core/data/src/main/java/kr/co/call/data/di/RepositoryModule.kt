@@ -11,9 +11,18 @@ import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
 import kr.co.call.data.repositoryImpl.CallControlRepositoryImpl
 import kr.co.call.data.repositoryImpl.CallRecordMockRepository
 import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
+import kr.co.call.data.repositoryImpl.CallRecordRepositoryImpl
+import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.ChatRepositoryImpl
 import kr.co.call.data.repositoryImpl.FaqRepositoryImpl
 import kr.co.call.data.repositoryImpl.HomeMockRepository
+import kr.co.call.data.repositoryImpl.OnboardingRepositoryImpl
+import kr.co.call.domain.repository.OnboardingRepository
+import kr.co.call.domain.repository.AICharacterRepository
+import kr.co.call.domain.repository.CallRecordRepository
+import kr.co.call.domain.repository.ChatRepository
+import javax.inject.Singleton
+import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.data.repositoryImpl.PushTokenRepositoryImpl
@@ -43,13 +52,13 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHomeRepository(
-        homeMockRepository: HomeMockRepository,
+        homeRepositoryImpl: HomeRepositoryImpl,
     ): HomeRepository
 
     @Binds
     @Singleton
     abstract fun bindCallRecordRepository(
-        callRecordMockRepository: CallRecordMockRepository,
+        callRecordRepositoryImpl: CallRecordRepositoryImpl,
     ): CallRecordRepository
 
     @Binds
@@ -97,6 +106,12 @@ abstract class RepositoryModule {
     abstract fun bindCallSessionRepository(
         impl: AndroidCallSessionRepository,
     ): CallSessionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindOnboardingRepository(
+        impl: OnboardingRepositoryImpl,
+    ): OnboardingRepository
 
     @Binds
     @Singleton

@@ -3,7 +3,6 @@ package kr.co.call.data.util
 import java.io.IOException
 import java.net.SocketTimeoutException
 import kr.co.call.domain.exception.AppException
-import kr.co.call.domain.exception.CharacterChangeUnavailableException
 import kr.co.call.network.exception.ApiException
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -35,7 +34,6 @@ fun Throwable.toAppException(): AppException {
  *
  * - [CancellationException]: 코루틴 취소이므로 [Result] 에 넣지 않고 다시 던진다
  * - 이미 [AppException]: 유지
- * - 도메인 특수 예외: 유지 (예: [CharacterChangeUnavailableException])
  * - 그 외: [toAppException]
  *
  * 보통 [toAppResult] / [safeApiResult] 경로에서 호출한다.
@@ -45,7 +43,6 @@ fun Throwable.toFailure(): Throwable =
         is CancellationException -> throw this
         is Error -> throw this
         is AppException -> this
-        is CharacterChangeUnavailableException -> this
         else -> toAppException()
     }
 

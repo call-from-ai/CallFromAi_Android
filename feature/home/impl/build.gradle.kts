@@ -30,8 +30,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.paging.compose)
-
     // coil
     implementation(libs.coil.compose)
 

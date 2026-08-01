@@ -2,6 +2,8 @@ package kr.co.call.impl.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +46,7 @@ import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.model.CharacterJob
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding2State
 import kr.co.call.impl.viewmodel.state.ProfileChoiceState
@@ -63,7 +66,7 @@ fun Onboarding2Screen(
     var age by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var firstName by rememberSaveable { mutableStateOf("") }
-    var job by rememberSaveable { mutableStateOf("") }
+    var selectedJob by rememberSaveable { mutableStateOf< CharacterJob?>(null) }
     var mbti by rememberSaveable { mutableStateOf("") }
 
     var editingNameField by rememberSaveable {
@@ -96,7 +99,7 @@ fun Onboarding2Screen(
     val canMoveNext = age.isNotBlank() &&
             lastName.isNotBlank() &&
             firstName.isNotBlank() &&
-            job.isNotBlank()
+            selectedJob != null
 
     Box(
         modifier = modifier
@@ -120,6 +123,7 @@ fun Onboarding2Screen(
             Column(
                 modifier = Modifier
                     .weight(1f)
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 27.dp),
             ) {
                 Spacer(modifier = Modifier.height(25.dp))
@@ -180,10 +184,20 @@ fun Onboarding2Screen(
                 MemberChoice(
                     modifier = Modifier.fillMaxWidth(),
                     label = "직업",
-                    selectedOption = job,
+                    selectedOption = when (selectedJob) {
+                        CharacterJob.UMEMPLOYED -> "기타"
+                        else -> selectedJob?.label.orEmpty()
+                    },
                     placeholder = "직업을 선택해주세요",
                     options = listOf("대학생", "직장인", "기타"),
-                    onOptionSelected = { job = it },
+                    onOptionSelected = {selectedLabel->
+                        selectedJob = when (selectedLabel) {
+                            "기타" -> CharacterJob.UMEMPLOYED
+                            else -> CharacterJob.entries.firstOrNull { job ->
+                                job.label == selectedLabel
+                            }
+                        }
+                    },
                     required = true,
                 )
 
@@ -197,6 +211,8 @@ fun Onboarding2Screen(
                     options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
                 )
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             Column(
@@ -225,8 +241,10 @@ fun Onboarding2Screen(
                                 age=age,
                                 lastName=lastName,
                                 firstName=firstName,
-                                job=job,
+                                job=checkNotNull(selectedJob).name,
                                 mbti=mbti,
+                                gender=selectedGender.name,
+                                imageUrl=savedProfileImageUrl.orEmpty(),
                             )
                         )
                     },

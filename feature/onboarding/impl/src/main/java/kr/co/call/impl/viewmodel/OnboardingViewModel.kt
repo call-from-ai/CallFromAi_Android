@@ -2,6 +2,12 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kr.co.call.domain.exception.toUserMessage
+import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
+import kr.co.call.domain.model.onboarding.CharacterTraitInput
+import kr.co.call.domain.model.onboarding.MemberOnboardingInput
+import kr.co.call.domain.repository.OnboardingRepository
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
@@ -10,11 +16,15 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor() : ViewModel(),
-    ContainerHost<OnboardingUiState, Nothing> {
-        override val container=container<OnboardingUiState, Nothing>(
+class OnboardingViewModel @Inject constructor(
+    private val onboardingRepository: OnboardingRepository,
+) : ViewModel(),
+    ContainerHost<OnboardingUiState, OnboardingSideEffect> {
+        override val container=
+            container<OnboardingUiState, OnboardingSideEffect>(
             initialState= OnboardingUiState(),
         )
 
@@ -24,6 +34,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
         birthday: LocalDate,
         job: String,
         mbti: String,
+        gender: String,
+        imageUrl: String,
     ) =intent{
         reduce{
                 state.copy(
@@ -32,6 +44,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
                     userBirthday = birthday,
                     userJob = job,
                     userMbti = mbti,
+                    userGender = gender,
+                    userImageUrl = imageUrl,
                 )
             }
         }
@@ -42,6 +56,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
         firstName: String,
         job: String,
         mbti: String,
+        gender:String,
+        imageUrl: String,
     )=intent {
         reduce {
             state.copy(
@@ -50,6 +66,8 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
                 aiAge = age,
                 aiJob = job,
                 aiMbti = mbti,
+                aiGender = gender,
+                aiImageUrl = imageUrl,
             )
         }
     }
@@ -95,5 +113,101 @@ class OnboardingViewModel @Inject constructor() : ViewModel(),
                 createAiError = null,
             )
         }
+    }
+    fun submitOnboarding(
+        preferTime: PreferTime,
+    ) = intent {
+        if (state.submitStatus == LoadStatus.Loading) return@intent
+
+        val age = state.aiAge.toIntOrNull()
+        val speechStyle = state.speechStyle
+        val relationship = state.relationship
+        if (
+            age == null ||
+            speechStyle == null ||
+            relationship == null ||
+            state.traits.isEmpty()
+        ) {
+            postSideEffect(
+                OnboardingSideEffect.ShowMessage(
+                    message = "온보딩 정보를 확인해주세요.",
+                ),
+            )
+            return@intent
+        }
+
+        reduce {
+            state.copy(
+                preferTime = preferTime,
+                submitStatus = LoadStatus.Loading,
+            )
+        }
+
+        val memberSubmission = MemberOnboardingInput(
+            lastName = state.userLastName,
+            firstName = state.userFirstName,
+            imageUrl = state.userImageUrl,
+            gender = state.userGender,
+            birth = state.userBirthday.toString(),
+            mbti = state.userMbti,
+            job = state.userJob,
+        )
+
+        val characterSubmission = CharacterOnboardingInput(
+            lastName = state.aiLastName,
+            firstName = state.aiFirstName,
+            gender = state.aiGender,
+            age = age,
+            job = state.aiJob,
+            imageUrl = state.aiImageUrl,
+            spiceLevel = state.temperature,
+            preferTime = preferTime.name,
+            mbti = state.aiMbti,
+            speechStyle = speechStyle.name,
+            relationshipStage = relationship.name,
+            traits = state.traits.mapIndexed { index, trait ->
+                CharacterTraitInput(
+                    trait = trait.keyword,
+                    priority = index + 1,
+                )
+            },
+        )
+
+        val submitResult: Result<Unit> =
+            onboardingRepository.submitMemberOnboarding(memberSubmission)
+                .fold(
+                    onSuccess = {
+                        onboardingRepository.submitCharacterOnboarding(characterSubmission)
+                    },
+                    onFailure = { error ->
+                        Result.failure(error)
+                    },
+                )
+
+        submitResult
+            .onSuccess {
+                reduce {
+                    state.copy(submitStatus = LoadStatus.Idle)
+                }
+
+                postSideEffect(
+                    OnboardingSideEffect.OnboardingSubmitted,
+                )
+            }
+            .onFailure { error ->
+                if (error is CancellationException) throw error
+
+                reduce {
+                    state.copy(submitStatus = LoadStatus.Idle)
+                }
+
+                postSideEffect(
+                    OnboardingSideEffect.ShowMessage(
+                        message = error.toUserMessage(
+                            default = "온보딩 저장에 실패했습니다.",
+                        ),
+                    ),
+                )
+            }
     }
 }
