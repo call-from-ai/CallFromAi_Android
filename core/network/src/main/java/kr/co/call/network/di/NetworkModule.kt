@@ -24,12 +24,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
 
-/**
- * Network 공통 의존성.
- *
- * [kr.co.call.network.util.ErrorResponseParser] 는 생성자 @Inject 로 제공된다.
- * (같은 Gson 인스턴스를 쓰도록 [provideGson] 을 공유)
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -86,7 +80,7 @@ object NetworkModule {
     fun provideRetrofit(
         gsonConverterFactory: GsonConverterFactory,
         okHttpClient: OkHttpClient,
-    ): Retrofit{
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
@@ -98,7 +92,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("reissueOkHttpClient")
-    fun provideReissueOkHttpClient(): OkHttpClient{
+    fun provideReissueOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(createReissueLoggingInterceptor())
             .build()
@@ -153,7 +147,7 @@ object NetworkModule {
     fun provideTokenReissueApi(
         @Named("reissueRetrofit")
         retrofit: Retrofit,
-    ): TokenReissueApi{
+    ): TokenReissueApi {
         return retrofit.create(TokenReissueApi::class.java)
     }
 
@@ -161,7 +155,7 @@ object NetworkModule {
     @Singleton
     fun provideMyPageApi(
         retrofit: Retrofit,
-    ): MyPageApi{
+    ): MyPageApi {
         return retrofit.create(MyPageApi::class.java)
     }
 
@@ -169,7 +163,7 @@ object NetworkModule {
     @Singleton
     fun provideAICharacterApi(
         retrofit: Retrofit,
-    ): AICharacterApi{
+    ): AICharacterApi {
         return retrofit.create(AICharacterApi::class.java)
     }
 
