@@ -85,7 +85,7 @@ object PushNotificationHelper {
         category: String? = null,
     ) {
         val builder = NotificationCompat.Builder(context, PushChannels.GENERAL)
-            .setSmallIcon(kr.co.call.designsystem.R.drawable.ic_chat_call)
+            .setSmallIcon(kr.co.call.designsystem.R.drawable.ic_home_alarm)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))

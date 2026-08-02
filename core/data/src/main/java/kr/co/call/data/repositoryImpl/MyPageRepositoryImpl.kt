@@ -6,13 +6,12 @@ import kotlinx.coroutines.delay
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.data.util.safeApiResultUnit
-import kr.co.call.datastore.TokenDataStore
+import kr.co.call.data.util.toAppResult
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
-import javax.inject.Inject
 
 class MyPageRepositoryImpl @Inject constructor(
     private val myPageApi: MyPageApi,
@@ -43,7 +42,7 @@ class MyPageRepositoryImpl @Inject constructor(
         }.mapCatching {
             pushTokenManager.unregisterCurrentDevice()
             tokenDataStore.clearTokens()
-        }
+        }.toAppResult()
 
 
     /**
