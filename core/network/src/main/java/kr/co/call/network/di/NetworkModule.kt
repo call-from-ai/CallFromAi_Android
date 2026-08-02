@@ -12,6 +12,7 @@ import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
+import kr.co.call.network.api.PushTokenApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
@@ -170,5 +171,11 @@ object NetworkModule {
         retrofit: Retrofit,
     ): AICharacterApi{
         return retrofit.create(AICharacterApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePushTokenApi(retrofit: Retrofit): PushTokenApi {
+        return retrofit.create(PushTokenApi::class.java)
     }
 }

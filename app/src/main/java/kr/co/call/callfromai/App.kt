@@ -3,11 +3,11 @@ package kr.co.call.callfromai
 import android.app.Application
 import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp
+import kr.co.call.callfromai.notification.NotificationChannels
 import timber.log.Timber
-import kr.co.call.callfromai.BuildConfig
 
 @HiltAndroidApp
-class App: Application() {
+class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
@@ -16,9 +16,11 @@ class App: Application() {
             Timber.plant(Timber.DebugTree())
         }
 
+        NotificationChannels.ensureAll(this)
+
         KakaoSdk.init(
-            context=this,
-            appKey=BuildConfig.KAKAO_NATIVE_APP_KEY
+            context = this,
+            appKey = BuildConfig.KAKAO_NATIVE_APP_KEY,
         )
     }
 }

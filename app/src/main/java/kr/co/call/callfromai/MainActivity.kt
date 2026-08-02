@@ -7,15 +7,31 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.activity.result.contract.ActivityResultContracts
 import dagger.hilt.android.AndroidEntryPoint
+import kr.co.call.callfromai.notification.NotificationPermission
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val appViewModel: AppViewModel by viewModels()
 
+    /** 다이얼로그 표시 중 Activity 재생성 시 중복 launch 방지 */
+    private var notificationPermissionLaunchInFlight = false
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            NotificationPermission.markRequested(this)
+            notificationPermissionLaunchInFlight = false
+            Timber.d("POST_NOTIFICATIONS granted=%s", granted)
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        notificationPermissionLaunchInFlight =
+            savedInstanceState?.getBoolean(STATE_NOTIFICATION_PERMISSION_IN_FLIGHT) == true
+
         enableEdgeToEdge()
         // 시스템의 창 resize를 끄고, 키보드 대응은 Compose imePadding()에 맡긴다
         window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
@@ -23,10 +39,39 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
+
+        requestNotificationPermissionIfNeeded()
+
         setContent {
             CallFromAiTheme {
                 AppScreen(appViewModel)
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+            super.onSaveInstanceState(outState)
+            outState.putBoolean(
+                STATE_NOTIFICATION_PERMISSION_IN_FLIGHT,
+                notificationPermissionLaunchInFlight,
+            )
+        }
+
+    /**
+     * 알림 권한이 없으면 자동으로 1회만 요청한다.
+     * 요청 이력은 시스템 다이얼로그 결과 콜백에서 저장한다.
+     * 거부 후 재요청은 설정 등 명시적 사용자 동작에서 처리한다.
+     * 거부해도 앱은 계속 사용 가능(배너만 제한)
+     */
+    private fun requestNotificationPermissionIfNeeded() {
+        if (!NotificationPermission.shouldAutoRequest(this)) return
+        if (notificationPermissionLaunchInFlight) return
+        notificationPermissionLaunchInFlight = true
+        notificationPermissionLauncher.launch(NotificationPermission.permission)
+    }
+
+    private companion object {
+        const val STATE_NOTIFICATION_PERMISSION_IN_FLIGHT =
+            "notification_permission_launch_in_flight"
     }
 }

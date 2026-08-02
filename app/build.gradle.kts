@@ -5,6 +5,7 @@ plugins {
     id("callfromai.android.compose")
     id("callfromai.android.hilt")
     id("callfromai.android.orbit")
+    alias(libs.plugins.google.services)
 }
 
 val localProperties = Properties().apply {
@@ -85,6 +86,12 @@ dependencies {
 
     //kakao login
     implementation(libs.kakao.user)
+
+    // Firebase Cloud Messaging
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    // FirebaseMessaging.token.await()
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // test
     testImplementation(libs.junit)
