@@ -43,8 +43,8 @@ object ChatMapper {
         image = characterImageUrl,
         name = characterFirstName,
         isMainCharacter = isMain,
-        content = lastMessage,
-        whenSubmitted = TimeUtil.toTimeAgoText(lastMessageAt),
+        content = lastMessage ?: "",
+        whenSubmitted = lastMessageAt?.let { TimeUtil.toTimeAgoText(it) } ?: "",
         unReadMessageCount = unreadCount.toString(),
         isMuted = isMuted,
     )

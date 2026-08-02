@@ -50,7 +50,7 @@ class AppViewModel @Inject constructor(
      */
     private fun registerPushTokenIfLoggedIn() {
         viewModelScope.launch {
-            if (tokenDataStore.getAccessToken().isNullOrBlank()) {
+            if (tokenDataStore.getTokens().accessToken.isNullOrBlank()) {
                 Timber.d("FCM 재등록 스킵: 미로그인")
                 return@launch
             }

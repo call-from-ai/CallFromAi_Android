@@ -24,10 +24,10 @@ data class ChatRoomDTO(
     val isMuted: Boolean,
 
     @SerializedName("lastMessage")
-    val lastMessage: String,
+    val lastMessage: String?,
 
     @SerializedName("lastMessageAt")
-    val lastMessageAt: String,
+    val lastMessageAt: String?,
 
     @SerializedName("unreadCount")
     val unreadCount: Int

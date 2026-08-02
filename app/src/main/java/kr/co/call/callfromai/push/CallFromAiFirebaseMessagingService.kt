@@ -32,7 +32,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
         applicationScope.launch {
-            if (tokenDataStore.getAccessToken().isNullOrBlank()) {
+            if (tokenDataStore.getTokens().accessToken.isNullOrBlank()) {
                 Timber.d("FCM onNewToken: 미로그인 -> 서버 등록 스킵")
                 return@launch
             }
