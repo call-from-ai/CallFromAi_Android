@@ -219,11 +219,12 @@ class OnboardingViewModel @Inject constructor(
     fun loadPresetImages(
         gender: ProfileImageGender,
     ) = intent {
-        val cachedImages = when (gender) {
-            ProfileImageGender.MALE -> state.presetImageState.maleImages
-            ProfileImageGender.FEMALE -> state.presetImageState.femaleImages
+        val isAlreadyLoaded = when (gender) {
+            ProfileImageGender.MALE -> state.presetImageState.isMaleImagesLoaded
+            ProfileImageGender.FEMALE -> state.presetImageState.isFemaleImagesLoaded
         }
 
+        if (isAlreadyLoaded) return@intent
         if (state.presetImageState.loadStatus == LoadStatus.Loading) return@intent
         reduce {
             state.copy(
@@ -241,6 +242,7 @@ class OnboardingViewModel @Inject constructor(
                             presetImageState =
                                 state.presetImageState.copy(
                                     maleImages = images,
+                                    isMaleImagesLoaded = true,
                                     loadStatus = LoadStatus.Idle,
                                 ),
                         )
@@ -249,6 +251,7 @@ class OnboardingViewModel @Inject constructor(
                             presetImageState =
                                 state.presetImageState.copy(
                                     femaleImages = images,
+                                    isFemaleImagesLoaded = true,
                                     loadStatus = LoadStatus.Idle,
                                 ),
                         )
