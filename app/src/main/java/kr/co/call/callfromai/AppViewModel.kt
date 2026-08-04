@@ -1,25 +1,29 @@
 package kr.co.call.callfromai
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppAuthState
 import kr.co.call.callfromai.state.AppState
+import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import timber.log.Timber
-import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import timber.log.Timber
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore,
     private val authSessionManager: AuthSessionManager,
+    private val pushTokenManager: PushTokenManager,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -29,6 +33,7 @@ class AppViewModel @Inject constructor(
     init {
         checkAuthState()
         observeSessionExpiration()
+        registerPushTokenIfLoggedIn()
     }
 
     private fun checkAuthState() = intent {
@@ -64,8 +69,8 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    private fun observeSessionExpiration()=intent{
-        authSessionManager.sessionExpired.collect{
+    private fun observeSessionExpiration() = intent {
+        authSessionManager.sessionExpired.collect {
             postSideEffect(AppSideEffect.NavigateToLogin)
         }
     }
@@ -75,7 +80,20 @@ class AppViewModel @Inject constructor(
             else -> Unit
         }
     }
-    private companion object{
-        const val SPLASH_DURATION_MILLIS=3_000L
+
+    // 로그인 상태면 FCM 토큰 재등록
+    private fun registerPushTokenIfLoggedIn() {
+        viewModelScope.launch {
+            if (tokenDataStore.getTokens().accessToken.isNullOrBlank()) {
+                Timber.d("FCM 재등록 스킵: 미로그인")
+                return@launch
+            }
+
+            pushTokenManager.registerCurrentDevice()
+        }
+    }
+
+    private companion object {
+        const val SPLASH_DURATION_MILLIS = 3_000L
     }
 }

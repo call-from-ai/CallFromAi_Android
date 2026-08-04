@@ -12,6 +12,7 @@ import kr.co.call.network.api.AgreementApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
+import kr.co.call.network.api.PushTokenApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.PresetImageApi
 import kr.co.call.network.api.TokenReissueApi
@@ -71,6 +72,13 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
             .authenticator(tokenAuthenticator)
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = if (BuildConfig.DEBUG) {
+                    HttpLoggingInterceptor.Level.BODY
+                } else {
+                    HttpLoggingInterceptor.Level.NONE
+                }
+            })
             .build()
     }
 
@@ -147,7 +155,7 @@ object NetworkModule {
     fun provideTokenReissueApi(
         @Named("reissueRetrofit")
         retrofit: Retrofit,
-    ): TokenReissueApi {
+    ): TokenReissueApi{
         return retrofit.create(TokenReissueApi::class.java)
     }
 
@@ -155,7 +163,7 @@ object NetworkModule {
     @Singleton
     fun provideMyPageApi(
         retrofit: Retrofit,
-    ): MyPageApi {
+    ): MyPageApi{
         return retrofit.create(MyPageApi::class.java)
     }
 
@@ -163,7 +171,7 @@ object NetworkModule {
     @Singleton
     fun provideAICharacterApi(
         retrofit: Retrofit,
-    ): AICharacterApi {
+    ): AICharacterApi{
         return retrofit.create(AICharacterApi::class.java)
     }
 

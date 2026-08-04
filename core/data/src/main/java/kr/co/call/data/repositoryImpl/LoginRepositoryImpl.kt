@@ -1,6 +1,8 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
+import kr.co.call.data.push.PushTokenManager
+import kr.co.call.data.util.toAppResult
 import kr.co.call.data.util.safeApiResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.login.LoginToken
@@ -17,11 +19,13 @@ class LoginRepositoryImpl @Inject constructor(
     private val loginApi: LoginApi,
     private val tokenDataStore: TokenDataStore,
     private val errorResponseParser: ErrorResponseParser,
+    private val pushTokenManager: PushTokenManager,
 ) : LoginRepository {
 
     /**
      * 카카오 SDK에서 발급받은 토큰을 서버에 전달해 서비스용 토큰을 발급받습니다.
      * 로그인 성공 여부와 실패 예외를 Result 형태로 ViewModel에 전달합니다.
+     * JWT 저장 후 FCM 토큰 서버 등록을 시도한다(실패해도 로그인은 성공)
      */
     override suspend fun loginWithKakao(
         kakaoAccessToken: String,
@@ -42,6 +46,9 @@ class LoginRepositoryImpl @Inject constructor(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
             )
+
+            // AuthInterceptor 가 JWT 를 쓸 수 있는 상태에서 등록
+            pushTokenManager.registerCurrentDevice()
 
             LoginToken(
                 accessToken = result.accessToken,
