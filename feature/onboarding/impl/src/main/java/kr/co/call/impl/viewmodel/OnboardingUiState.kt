@@ -44,4 +44,8 @@ data class OnboardingUiState(
     val submitStatus: LoadStatus= LoadStatus.Idle,
 
     val presetImageState: PresetImageUiState= PresetImageUiState(),
+
+    //온보딩6스크린 ai캐릭터이름 받아오기
+    val createdAiId: Long? = null,
+    val createdAiName: String = "",
 )

@@ -4,6 +4,7 @@ import kr.co.call.data.util.safeApiResult
 import javax.inject.Inject
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
+import kr.co.call.domain.model.onboarding.CreatedCharacter
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
 import kr.co.call.domain.model.onboarding.PresetImage
 import kr.co.call.domain.repository.OnboardingRepository
@@ -41,8 +42,8 @@ class OnboardingRepositoryImpl @Inject constructor(
 
     override suspend fun submitCharacterOnboarding(
         submission: CharacterOnboardingInput,
-    ): Result<Unit> =
-        safeApiResultUnit(errorResponseParser) {
+    ): Result<CreatedCharacter> =
+        safeApiResult(errorResponseParser) {
             aiCharacterApi.createCharacter(
                 request = CreateCharacterRequestDto(
                     lastName = submission.lastName,
@@ -55,8 +56,7 @@ class OnboardingRepositoryImpl @Inject constructor(
                     preferTime = submission.preferTime,
                     mbti = submission.mbti,
                     speechStyle = submission.speechStyle,
-                    relationshipStage =
-                        submission.relationshipStage,
+                    relationshipStage = submission.relationshipStage,
                     traits = submission.traits.map { trait ->
                         CharacterTraitRequestDto(
                             trait = trait.trait,
@@ -64,6 +64,11 @@ class OnboardingRepositoryImpl @Inject constructor(
                         )
                     },
                 ),
+            )
+        }.map{response ->
+            CreatedCharacter(
+                id=response.id,
+                name=response.name,
             )
         }
 

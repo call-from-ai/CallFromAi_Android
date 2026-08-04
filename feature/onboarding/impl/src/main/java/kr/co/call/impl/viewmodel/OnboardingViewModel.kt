@@ -6,6 +6,7 @@ import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
+import kr.co.call.domain.model.onboarding.CreatedCharacter
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.util.LoadStatus
@@ -106,19 +107,6 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    //
-    fun onCreateAiSuccess(
-        name: String
-    ) = intent {
-        reduce {
-            state.copy(
-                aiFirstName = name,
-                isCreatingAi = false,
-                createAiError = null,
-            )
-        }
-    }
-
     fun submitOnboarding(
         preferTime: PreferTime,
     ) = intent {
@@ -178,7 +166,7 @@ class OnboardingViewModel @Inject constructor(
             },
         )
 
-        val submitResult: Result<Unit> =
+        val submitResult: Result<CreatedCharacter> =
             onboardingRepository.submitMemberOnboarding(memberSubmission)
                 .fold(
                     onSuccess = {
@@ -190,9 +178,13 @@ class OnboardingViewModel @Inject constructor(
                 )
 
         submitResult
-            .onSuccess {
+            .onSuccess { character ->
                 reduce {
-                    state.copy(submitStatus = LoadStatus.Idle)
+                    state.copy(
+                        createdAiId = character.id,
+                        createdAiName = character.name,
+                        submitStatus = LoadStatus.Idle
+                    )
                 }
 
                 postSideEffect(

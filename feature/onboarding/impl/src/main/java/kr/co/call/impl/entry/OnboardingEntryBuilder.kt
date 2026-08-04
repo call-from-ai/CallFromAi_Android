@@ -174,7 +174,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding6Screen(
-            firstName = uiState.aiFirstName,
+            characterName = uiState.createdAiName,
             isLoading = false,
             onCallNowClick = onOnboarding6CallNow,
             onCallLaterClick = onOnboarding6CallLater,
