@@ -8,6 +8,12 @@ package kr.co.call.callfromai.state
  *
  * ```
  *  *
+ *  * // state 패키지에 추가
+ *  * sealed interface AppAuthState {
+ *  *  *     data object Loading : AppAuthState
+ *  *  *     data object Authenticated : AppAuthState
+ *  *  *     data object Unauthenticated : AppAuthState
+ *  *  * }
  *  * data class AppState(
  *  *     val authState: AppAuthState = AppAuthStae.Loading,
  * )

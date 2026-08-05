@@ -46,7 +46,9 @@ class LoginRepositoryImpl @Inject constructor(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
             )
-
+            tokenDataStore.setNeedsOnboarding(
+                needsOnboarding=result.needsOnboarding,
+            )
             // AuthInterceptor 가 JWT 를 쓸 수 있는 상태에서 등록
             pushTokenManager.registerCurrentDevice()
 

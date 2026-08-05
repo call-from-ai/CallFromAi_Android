@@ -2,6 +2,7 @@ package kr.co.call.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.first
 data class StoredTokens(
     val accessToken: String? = null,
     val refreshToken: String? = null,
+    val needsOnboarding: Boolean=false,
 )
 
 /** 서버에서 발급한 Access Token과 Refresh Token을 DataStore에서 관리한다. */
@@ -50,6 +52,13 @@ class TokenDataStore @Inject constructor(
         dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN)
             preferences.remove(REFRESH_TOKEN)
+            preferences.remove(NEEDS_ONBOARDING)
+        }
+    }
+
+    suspend fun setNeedsOnboarding(needsOnboarding:Boolean){
+        dataStore.edit{preferences ->
+            preferences[NEEDS_ONBOARDING] =needsOnboarding
         }
     }
 
@@ -60,6 +69,7 @@ class TokenDataStore @Inject constructor(
         return StoredTokens(
             accessToken = this[ACCESS_TOKEN]?.takeIf { it.isNotBlank() },
             refreshToken = this[REFRESH_TOKEN]?.takeIf { it.isNotBlank() },
+            needsOnboarding=this[NEEDS_ONBOARDING] ?:false,
         )
     }
 
@@ -69,5 +79,8 @@ class TokenDataStore @Inject constructor(
 
         val REFRESH_TOKEN =
             stringPreferencesKey("refresh_token")
+
+        val NEEDS_ONBOARDING=
+            booleanPreferencesKey("needs_onboarding")
     }
 }

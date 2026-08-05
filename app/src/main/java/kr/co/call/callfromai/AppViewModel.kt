@@ -39,8 +39,8 @@ class AppViewModel @Inject constructor(
     private fun checkAuthState() = intent {
         val splashStartTime = System.currentTimeMillis()
 
-        val accessToken = try {
-            tokenDataStore.getTokens().accessToken
+        val storedTokens = try {
+            tokenDataStore.getTokens()
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: Exception) {
@@ -59,12 +59,19 @@ class AppViewModel @Inject constructor(
         }
 
         reduce {
-            state.copy(
-                authState = if (accessToken.isNullOrBlank()) {
+            val authState=
+                if(
+                    storedTokens == null ||
+                    storedTokens.accessToken.isNullOrBlank()
+                ){
                     AppAuthState.Unauthenticated
                 } else {
-                    AppAuthState.Authenticated
-                },
+                    AppAuthState.Authenticated(
+                        needsOnboarding=storedTokens.needsOnboarding,
+                    )
+                }
+            state.copy(
+                authState=authState,
             )
         }
     }

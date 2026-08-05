@@ -229,28 +229,30 @@ class OnboardingViewModel @Inject constructor(
             .getPresetImages(gender.name)
             .onSuccess { images ->
                 reduce {
-                    when (gender) {
-                        ProfileImageGender.MALE -> state.copy(
-                            presetImageState =
-                                state.presetImageState.copy(
-                                    maleImages = images,
-                                    isMaleImagesLoaded = true,
-                                    loadStatus = LoadStatus.Idle,
-                                ),
-                        )
+                    val updatedPresetState = when (gender) {
+                        ProfileImageGender.MALE -> {
+                            state.presetImageState.copy(
+                                        maleImages = images,
+                                        isMaleImagesLoaded = true,
+                                        loadStatus = LoadStatus.Idle,
+                                    )
+                        }
 
-                        ProfileImageGender.FEMALE -> state.copy(
-                            presetImageState =
-                                state.presetImageState.copy(
-                                    femaleImages = images,
-                                    isFemaleImagesLoaded = true,
-                                    loadStatus = LoadStatus.Idle,
-                                ),
-                        )
+                        ProfileImageGender.FEMALE -> {
+                            state.presetImageState.copy(
+                                femaleImages = images,
+                                isFemaleImagesLoaded = true,
+                                loadStatus = LoadStatus.Idle,
+                            )
+                        }
                     }
+
+                    state.copy(
+                        presetImageState = updatedPresetState,
+                    )
                 }
             }
-            .onFailure { error ->
+            .onFailure {
                 reduce {
                     state.copy(
                         presetImageState = state.presetImageState.copy(

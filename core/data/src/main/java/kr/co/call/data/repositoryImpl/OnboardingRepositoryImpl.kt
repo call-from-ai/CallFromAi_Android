@@ -1,8 +1,11 @@
 package kr.co.call.data.repositoryImpl
 
+import kr.co.call.data.mapper.toDomain
+import kr.co.call.data.mapper.toRequestDto
 import kr.co.call.data.util.safeApiResult
 import javax.inject.Inject
 import kr.co.call.data.util.safeApiResultUnit
+import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CreatedCharacter
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
@@ -11,9 +14,6 @@ import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.PresetImageApi
-import kr.co.call.network.dto.onboarding.CharacterTraitRequestDto
-import kr.co.call.network.dto.onboarding.CreateCharacterRequestDto
-import kr.co.call.network.dto.onboarding.UpdateMemberRequestDto
 import kr.co.call.network.util.ErrorResponseParser
 
 class OnboardingRepositoryImpl @Inject constructor(
@@ -21,6 +21,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     private val aiCharacterApi: AICharacterApi,
     private val presetImageApi: PresetImageApi,
     private val errorResponseParser: ErrorResponseParser,
+    private val tokenDataStore: TokenDataStore,
 ) : OnboardingRepository {
 
     override suspend fun submitMemberOnboarding(
@@ -28,15 +29,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     ): Result<Unit> =
         safeApiResultUnit(errorResponseParser) {
             myPageApi.updateMember(
-                request = UpdateMemberRequestDto(
-                    lastName = submission.lastName,
-                    firstName = submission.firstName,
-                    imageUrl = submission.imageUrl,
-                    gender = submission.gender,
-                    birth = submission.birth,
-                    mbti = submission.mbti,
-                    job = submission.job,
-                ),
+                request = submission.toRequestDto(),
             )
         }
 
@@ -45,31 +38,11 @@ class OnboardingRepositoryImpl @Inject constructor(
     ): Result<CreatedCharacter> =
         safeApiResult(errorResponseParser) {
             aiCharacterApi.createCharacter(
-                request = CreateCharacterRequestDto(
-                    lastName = submission.lastName,
-                    firstName = submission.firstName,
-                    gender = submission.gender,
-                    age = submission.age,
-                    job = submission.job,
-                    imageUrl = submission.imageUrl,
-                    spiceLevel = submission.spiceLevel,
-                    preferTime = submission.preferTime,
-                    mbti = submission.mbti,
-                    speechStyle = submission.speechStyle,
-                    relationshipStage = submission.relationshipStage,
-                    traits = submission.traits.map { trait ->
-                        CharacterTraitRequestDto(
-                            trait = trait.trait,
-                            priority = trait.priority,
-                        )
-                    },
-                ),
+                request = submission.toRequestDto(),
             )
-        }.map{response ->
-            CreatedCharacter(
-                id=response.id,
-                name=response.name,
-            )
+        }.mapCatching{response ->
+            tokenDataStore.setNeedsOnboarding(false)
+            response.toDomain()
         }
 
     override suspend fun getPresetImages(
@@ -77,12 +50,7 @@ class OnboardingRepositoryImpl @Inject constructor(
     ):Result<List<PresetImage>> =
         safeApiResult(errorResponseParser){
             presetImageApi.getPresetImages(gender)
-        }.map{ images ->
-            images.map {dto->
-                PresetImage(
-                    id=dto.presetImageId,
-                    imageUrl=dto.imageUrl,
-                )
-            }
+        }.map{ responses ->
+            responses.map{it.toDomain()}
         }
 }

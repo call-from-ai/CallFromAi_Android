@@ -81,18 +81,3 @@ private fun ApiResponse<*>.throwIfNotSuccess() {
     }
 }
 
-//빈 body 응답 전용 함수
-suspend fun safeEmptyBodyApiCall(
-    parser: ErrorResponseParser,
-    call: suspend () -> Unit,
-) {
-    try {
-        call()
-    } catch (error: CancellationException) {
-        throw error
-    } catch (error: ApiException) {
-        throw error
-    } catch (error: HttpException) {
-        throw error.toApiException(parser)
-    }
-}

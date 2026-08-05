@@ -5,9 +5,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.data.util.safeApiResultUnit
-import kr.co.call.data.util.safeEmptyBodyApiResult
 import kr.co.call.datastore.TokenDataStore
-import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.data.util.toAppResult
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
@@ -39,7 +37,7 @@ class MyPageRepositoryImpl @Inject constructor(
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.
      */
     override suspend fun logout(): Result<Unit> =
-        safeEmptyBodyApiResult(errorResponseParser) {
+        safeApiResultUnit(errorResponseParser) {
             myPageApi.logout()
         }.mapCatching {
             pushTokenManager.unregisterCurrentDevice()
