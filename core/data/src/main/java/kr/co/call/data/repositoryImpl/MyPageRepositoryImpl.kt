@@ -2,11 +2,14 @@ package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.delay
+import kr.co.call.data.mapper.toDomain
+import kr.co.call.data.mapper.toRequestDto
 import kr.co.call.data.push.PushTokenManager
+import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
-import kr.co.call.datastore.TokenDataStore
 import kr.co.call.data.util.toAppResult
+import kr.co.call.datastore.TokenDataStore
+import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.network.api.MyPageApi
@@ -20,18 +23,15 @@ class MyPageRepositoryImpl @Inject constructor(
     private val pushTokenManager: PushTokenManager,
 ) : MyPageRepository {
 
-    override suspend fun getMyProfile(): Result<MyPageProfile> {
-        delay(500)
-        return Result.success(
-            MyPageProfile(
-                profileImageUrl = "",
-                nickname = "김수현",
-                tier = "Basic",
-                remainingTicketCount = 18,
-                appVersion = "1.0.0",
-            ),
-        )
-    }
+    override suspend fun getMyProfile(): Result<MyPageProfile> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.getMyInfo()
+        }.map { it.toDomain() }
+
+    override suspend fun updateMyProfile(update: MemberProfileUpdate): Result<MyPageProfile> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.updateMember(update.toRequestDto())
+        }.map { it.toDomain() }
 
     /**
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.
@@ -44,9 +44,8 @@ class MyPageRepositoryImpl @Inject constructor(
             tokenDataStore.clearTokens()
         }.toAppResult()
 
-
     /**
-     * 회원 탈퇴: 푸시 토큰/JWT 정리 (서버 탈퇴 API 연동 전 로컬 정리)
+     * 회원 탈퇴: 서버 탈퇴 후 푸시 토큰/JWT 정리.
      */
     override suspend fun deleteAccount(): Result<Unit> =
         safeApiResultUnit(errorResponseParser) {
@@ -61,5 +60,4 @@ class MyPageRepositoryImpl @Inject constructor(
                 Timber.w(error, "회원 탈퇴 후 토큰 삭제 실패")
             }
         }
-
 }
