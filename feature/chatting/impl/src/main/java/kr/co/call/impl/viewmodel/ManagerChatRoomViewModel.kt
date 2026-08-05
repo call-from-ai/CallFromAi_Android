@@ -30,9 +30,10 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ManagerChatRoomViewModel @Inject constructor(
+    private val stateHolder: ManagerChatStateHolder,
+
     // 각 유스케이스들 주입
     private val firstManagerChatUseCase: FirstManagerChatUseCase,
-    private val stateHolder: ManagerChatStateHolder,
     private val wantToGetCallScheduleUseCase: WantToGetCallScheduleUseCase,
     private val wantToUpdatePartnerInfoUseCase: WantToUpdatePartnerInfoUseCase,
     private val wantToUpdateRecordUseCase: WantToUpdateRecordUseCase,
@@ -52,7 +53,11 @@ class ManagerChatRoomViewModel @Inject constructor(
     init {
         intent {
             if (!stateHolder.isInitialized) {
-                // 첫 진입 시에만 초기 메시지 로드
+                // 로드 도중 나갔다 재진입한 경우 부분 상태 초기화
+                stateHolder.chatItems.value = emptyList()
+                reduce { ManagerChatRoomUiState() }
+
+                // 초기 메시지 로드가 완전히 끝난 시점에 isInitialized 세팅
                 appendManagerMessages(firstManagerChatUseCase())
                 stateHolder.isInitialized = true
             }
