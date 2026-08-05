@@ -182,4 +182,11 @@ object NetworkModule {
         retrofit: Retrofit,
     ): PresetImageApi =
         retrofit.create(PresetImageApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providePushTokenApi(
+        retrofit: Retrofit,
+    ): PushTokenApi =
+        retrofit.create(PushTokenApi::class.java)
 }
