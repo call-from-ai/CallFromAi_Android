@@ -2,9 +2,11 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
+import kr.co.call.domain.model.onboarding.CreatedCharacter
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.util.LoadStatus
@@ -23,9 +25,9 @@ class OnboardingViewModel @Inject constructor(
     private val onboardingRepository: OnboardingRepository,
 ) : ViewModel(),
     ContainerHost<OnboardingUiState, OnboardingSideEffect> {
-        override val container=
-            container<OnboardingUiState, OnboardingSideEffect>(
-            initialState= OnboardingUiState(),
+    override val container =
+        container<OnboardingUiState, OnboardingSideEffect>(
+            initialState = OnboardingUiState(),
         )
 
     fun updateUserProfile(
@@ -36,19 +38,19 @@ class OnboardingViewModel @Inject constructor(
         mbti: String,
         gender: String,
         imageUrl: String,
-    ) =intent{
-        reduce{
-                state.copy(
-                    userLastName = lastName,
-                    userFirstName = firstName,
-                    userBirthday = birthday,
-                    userJob = job,
-                    userMbti = mbti,
-                    userGender = gender,
-                    userImageUrl = imageUrl,
-                )
-            }
+    ) = intent {
+        reduce {
+            state.copy(
+                userLastName = lastName,
+                userFirstName = firstName,
+                userBirthday = birthday,
+                userJob = job,
+                userMbti = mbti,
+                userGender = gender,
+                userImageUrl = imageUrl,
+            )
         }
+    }
 
     fun updateAiProfile(
         age: String,
@@ -56,9 +58,9 @@ class OnboardingViewModel @Inject constructor(
         firstName: String,
         job: String,
         mbti: String,
-        gender:String,
+        gender: String,
         imageUrl: String,
-    )=intent {
+    ) = intent {
         reduce {
             state.copy(
                 aiFirstName = firstName,
@@ -77,7 +79,7 @@ class OnboardingViewModel @Inject constructor(
         speechStyle: SpeechStyle,
         relationship: Relationship,
         temperature: Int,
-    ) =intent {
+    ) = intent {
         reduce {
             state.copy(
                 speechStyle = speechStyle,
@@ -88,32 +90,23 @@ class OnboardingViewModel @Inject constructor(
     }
 
 
-    fun updateTraits(traits: List<Trait>
-    )=intent{
+    fun updateTraits(
+        traits: List<Trait>
+    ) = intent {
         reduce {
             state.copy(traits = traits)
         }
     }
 
     //
-    fun updatePreferTime(preferTime: PreferTime
-    )=intent {
+    fun updatePreferTime(
+        preferTime: PreferTime
+    ) = intent {
         reduce {
             state.copy(preferTime = preferTime)
         }
     }
 
-    //
-    fun onCreateAiSuccess(name: String
-    ) = intent {
-        reduce {
-            state.copy(
-                aiFirstName = name,
-                isCreatingAi = false,
-                createAiError = null,
-            )
-        }
-    }
     fun submitOnboarding(
         preferTime: PreferTime,
     ) = intent {
@@ -173,7 +166,7 @@ class OnboardingViewModel @Inject constructor(
             },
         )
 
-        val submitResult: Result<Unit> =
+        val submitResult: Result<CreatedCharacter> =
             onboardingRepository.submitMemberOnboarding(memberSubmission)
                 .fold(
                     onSuccess = {
@@ -185,9 +178,13 @@ class OnboardingViewModel @Inject constructor(
                 )
 
         submitResult
-            .onSuccess {
+            .onSuccess { character ->
                 reduce {
-                    state.copy(submitStatus = LoadStatus.Idle)
+                    state.copy(
+                        createdAiId = character.id,
+                        createdAiName = character.name,
+                        submitStatus = LoadStatus.Idle
+                    )
                 }
 
                 postSideEffect(
@@ -210,4 +207,60 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
     }
+
+    fun loadPresetImages(
+        gender: ProfileImageGender,
+    ) = intent {
+        val isAlreadyLoaded = when (gender) {
+            ProfileImageGender.MALE -> state.presetImageState.isMaleImagesLoaded
+            ProfileImageGender.FEMALE -> state.presetImageState.isFemaleImagesLoaded
+        }
+
+        if (isAlreadyLoaded) return@intent
+        if (state.presetImageState.loadStatus == LoadStatus.Loading) return@intent
+        reduce {
+            state.copy(
+                presetImageState = state.presetImageState.copy(
+                    loadStatus = LoadStatus.Loading,
+                    ),
+            )
+        }
+        onboardingRepository
+            .getPresetImages(gender.name)
+            .onSuccess { images ->
+                reduce {
+                    val updatedPresetState = when (gender) {
+                        ProfileImageGender.MALE -> {
+                            state.presetImageState.copy(
+                                        maleImages = images,
+                                        isMaleImagesLoaded = true,
+                                        loadStatus = LoadStatus.Idle,
+                                    )
+                        }
+
+                        ProfileImageGender.FEMALE -> {
+                            state.presetImageState.copy(
+                                femaleImages = images,
+                                isFemaleImagesLoaded = true,
+                                loadStatus = LoadStatus.Idle,
+                            )
+                        }
+                    }
+
+                    state.copy(
+                        presetImageState = updatedPresetState,
+                    )
+                }
+            }
+            .onFailure {
+                reduce {
+                    state.copy(
+                        presetImageState = state.presetImageState.copy(
+                            loadStatus=LoadStatus.Idle,
+                            ),
+                    )
+                }
+            }
+    }
 }
+

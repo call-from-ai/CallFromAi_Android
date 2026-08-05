@@ -64,7 +64,7 @@ fun KeywordChoice(
         ){
             Row(
                 modifier=Modifier.padding(
-                    horizontal=15.dp,
+                    horizontal=10.dp,
                     vertical=5.dp,
                 ),
                 verticalAlignment=Alignment.CenterVertically,

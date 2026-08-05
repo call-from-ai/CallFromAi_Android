@@ -4,11 +4,6 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 /**
- * 랜딩 화면 NavKey
- */
-@Serializable
-data object LandingNavKey: NavKey
-/**
  * 로그인 화면 NavKey
  */
 @Serializable

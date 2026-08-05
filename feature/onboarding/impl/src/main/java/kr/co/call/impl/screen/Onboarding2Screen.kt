@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,7 +45,6 @@ import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
-import kr.co.call.impl.component.TemporaryProfileImageData
 import kr.co.call.impl.component.TopTitle
 import kr.co.call.impl.viewmodel.model.CharacterJob
 import kr.co.call.impl.viewmodel.model.Mbti
@@ -60,6 +60,9 @@ private enum class Onboarding2EditingNameField {
 fun Onboarding2Screen(
     onBackClick: () -> Unit,
     onNextClick: (Onboarding2State) -> Unit,
+    malePresetImages: List<ProfileImageOption>,
+    femalePresetImages: List<ProfileImageOption>,
+    onGenderChanged: (ProfileImageGender) ->Unit,
     modifier: Modifier = Modifier,
     profileImageUrl: String? = null,
 ) {
@@ -81,17 +84,30 @@ fun Onboarding2Screen(
     var selectedGender by rememberSaveable {
         mutableStateOf(ProfileImageGender.MALE)
     }
+    LaunchedEffect(Unit) {
+        onGenderChanged(ProfileImageGender.MALE)
+    }
+    val currentProfileImages = when (selectedGender) {
+        ProfileImageGender.MALE -> malePresetImages
+        ProfileImageGender.FEMALE -> femalePresetImages
+    }
     //캐러셀에서 보고 있는 사진
-    var selectedImageId by rememberSaveable {
+    var selectedMaleImageId by rememberSaveable {
         mutableStateOf<String?>(null)
+    }
+
+    var selectedFemaleImageId by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    val currentSelectedImageId = when (selectedGender) {
+        ProfileImageGender.MALE -> selectedMaleImageId
+        ProfileImageGender.FEMALE -> selectedFemaleImageId
     }
     //저장 버튼을 눌러 확정한 사진
     var savedProfileImageUrl by rememberSaveable {
         mutableStateOf(profileImageUrl)
     }
-
-    val currentProfileImages =
-        TemporaryProfileImageData.imagesFor(selectedGender)
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -141,10 +157,20 @@ fun Onboarding2Screen(
                     imageUrl = savedProfileImageUrl,
                     ),
                     onClick = {
-                        if (selectedImageId == null) {
-                            selectedImageId = currentProfileImages.firstOrNull()?.id
+                        when (selectedGender) {
+                            ProfileImageGender.MALE -> {
+                                if (selectedMaleImageId == null) {
+                                    selectedMaleImageId = currentProfileImages.firstOrNull()?.id
+                                }
+                            }
+
+                            ProfileImageGender.FEMALE -> {
+                                if (selectedFemaleImageId == null) {
+                                    selectedFemaleImageId = currentProfileImages.firstOrNull()?.id
+                                }
+                            }
                         }
-                        showProfileImagePicker=true
+                        showProfileImagePicker = true
                     },
                 )
 
@@ -296,25 +322,24 @@ fun Onboarding2Screen(
             ProfileImagePickerBottomSheet(
                 images = currentProfileImages,
                 selectedGender = selectedGender,
-                selectedImageId = selectedImageId,
+                selectedImageId = currentSelectedImageId,
 
                 onGenderChange = { newGender ->
                     selectedGender = newGender
-
-                    selectedImageId = TemporaryProfileImageData
-                        .imagesFor(newGender)
-                        .firstOrNull()
-                        ?.id
+                    onGenderChanged(newGender)
                 },
 
                 onImageSelected = { image ->
-                    selectedImageId = image.id
+                    when (selectedGender) {
+                        ProfileImageGender.MALE -> selectedMaleImageId = image.id
+                        ProfileImageGender.FEMALE -> selectedFemaleImageId = image.id
+                    }
                 },
 
                 onSaveClick = {
                     savedProfileImageUrl = currentProfileImages
                         .firstOrNull { image ->
-                            image.id == selectedImageId
+                            image.id == currentSelectedImageId
                         }
                         ?.imageUrl
 

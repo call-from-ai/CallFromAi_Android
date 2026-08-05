@@ -51,7 +51,7 @@ import kr.co.call.onboarding.impl.R
 
 @Composable
 fun Onboarding6Screen(
-    firstName: String,
+    characterName: String,
     isLoading: Boolean,
     onCallNowClick:()->Unit,
     onCallLaterClick:()->Unit,
@@ -166,7 +166,7 @@ fun Onboarding6Screen(
     if (isCallDialogVisible){
         TwoButtonPopup(
             label="통화 연결",
-            title="${firstName}에게 바로\n통화를 연결할까요?",
+            title="${characterName}에게 바로\n통화를 연결할까요?",
             positiveText = "연결",
             negativeText = "취소",
             onPositiveClick = {
@@ -205,23 +205,5 @@ private fun Modifier.trackPressState(
         }finally {
             onPressedChange(false)
         }
-    }
-}
-
-@Preview(
-    name = "Onboarding 6",
-    showBackground = true,
-    widthDp = 393,
-    heightDp = 852,
-)
-@Composable
-private fun Onboarding6ScreenPreview() {
-    CallFromAiTheme {
-        Onboarding6Screen(
-            firstName = "민준",
-            isLoading = false,
-            onCallNowClick = {},
-            onCallLaterClick = {},
-        )
     }
 }

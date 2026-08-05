@@ -2,6 +2,7 @@ package kr.co.call.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.first
 data class StoredTokens(
     val accessToken: String? = null,
     val refreshToken: String? = null,
+    val needsOnboarding: Boolean=false,
 )
 
 /** 서버에서 발급한 Access Token과 Refresh Token을 DataStore에서 관리한다. */
@@ -26,7 +28,25 @@ class TokenDataStore @Inject constructor(
         return dataStore.data.first().toStoredTokens()
     }
 
-    /** 로그인 또는 토큰 재발급에 성공했을 때 새 토큰을 저장한다. */
+    //로그인 응답 전체 저장
+    suspend fun setLoginSession(
+        accessToken: String,
+        refreshToken: String,
+        needsOnboarding: Boolean,
+    ){
+        require(accessToken.isNotBlank()){
+            "Access Token은 비어 있을 수 없습니다."
+        }
+        require(refreshToken.isNotBlank()){
+            "Refresh Token은 비어 있을 수 없습니다."
+        }
+        dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN] = accessToken
+            preferences[REFRESH_TOKEN] = refreshToken
+            preferences[NEEDS_ONBOARDING] = needsOnboarding
+        }
+    }
+    //토큰 재발급 시 토큰만 갱신
     suspend fun setTokens(
         accessToken: String,
         refreshToken: String,
@@ -50,6 +70,13 @@ class TokenDataStore @Inject constructor(
         dataStore.edit { preferences ->
             preferences.remove(ACCESS_TOKEN)
             preferences.remove(REFRESH_TOKEN)
+            preferences.remove(NEEDS_ONBOARDING)
+        }
+    }
+
+    suspend fun setNeedsOnboarding(needsOnboarding:Boolean){
+        dataStore.edit{preferences ->
+            preferences[NEEDS_ONBOARDING] =needsOnboarding
         }
     }
 
@@ -60,6 +87,7 @@ class TokenDataStore @Inject constructor(
         return StoredTokens(
             accessToken = this[ACCESS_TOKEN]?.takeIf { it.isNotBlank() },
             refreshToken = this[REFRESH_TOKEN]?.takeIf { it.isNotBlank() },
+            needsOnboarding=this[NEEDS_ONBOARDING] ?:false,
         )
     }
 
@@ -69,5 +97,8 @@ class TokenDataStore @Inject constructor(
 
         val REFRESH_TOKEN =
             stringPreferencesKey("refresh_token")
+
+        val NEEDS_ONBOARDING=
+            booleanPreferencesKey("needs_onboarding")
     }
 }

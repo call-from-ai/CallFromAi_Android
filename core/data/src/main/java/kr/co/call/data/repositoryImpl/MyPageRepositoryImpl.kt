@@ -4,8 +4,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kr.co.call.data.push.PushTokenManager
-import kr.co.call.datastore.TokenDataStore
 import kr.co.call.data.util.safeApiResultUnit
+import kr.co.call.datastore.TokenDataStore
 import kr.co.call.data.util.toAppResult
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
