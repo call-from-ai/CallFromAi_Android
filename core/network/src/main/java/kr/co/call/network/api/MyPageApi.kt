@@ -9,7 +9,7 @@ import retrofit2.http.POST
 
 interface MyPageApi {
     @POST("auth/logout")
-    suspend fun logout(): ApiResponse<Unit>
+    suspend fun logout(): ApiResponse<Any>
 
     @DELETE("members/me")
     suspend fun deleteAccount(): ApiResponse<Any>

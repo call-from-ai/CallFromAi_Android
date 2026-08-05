@@ -14,6 +14,7 @@ import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.PushTokenApi
 import kr.co.call.network.api.MyPageApi
+import kr.co.call.network.api.PresetImageApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -24,12 +25,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
 
-/**
- * Network 공통 의존성.
- *
- * [kr.co.call.network.util.ErrorResponseParser] 는 생성자 @Inject 로 제공된다.
- * (같은 Gson 인스턴스를 쓰도록 [provideGson] 을 공유)
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
@@ -93,7 +88,7 @@ object NetworkModule {
     fun provideRetrofit(
         gsonConverterFactory: GsonConverterFactory,
         okHttpClient: OkHttpClient,
-    ): Retrofit{
+    ): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
@@ -105,7 +100,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("reissueOkHttpClient")
-    fun provideReissueOkHttpClient(): OkHttpClient{
+    fun provideReissueOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(createReissueLoggingInterceptor())
             .build()
@@ -180,9 +175,11 @@ object NetworkModule {
         return retrofit.create(AICharacterApi::class.java)
     }
 
+    //프로필 사진 이미지 받아옴
     @Provides
     @Singleton
-    fun providePushTokenApi(retrofit: Retrofit): PushTokenApi {
-        return retrofit.create(PushTokenApi::class.java)
-    }
+    fun providePresetImageApi(
+        retrofit: Retrofit,
+    ): PresetImageApi =
+        retrofit.create(PresetImageApi::class.java)
 }

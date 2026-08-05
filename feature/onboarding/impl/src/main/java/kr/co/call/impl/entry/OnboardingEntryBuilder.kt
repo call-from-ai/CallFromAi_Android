@@ -22,6 +22,7 @@ import kr.co.call.impl.screen.Onboarding6Screen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
+import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.viewmodel.OnboardingSideEffect
 import kr.co.call.impl.viewmodel.OnboardingViewModel
@@ -42,7 +43,26 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
 ) {
     entry<Onboarding1NavKey> {
         val onboardingViewModel = sharedOnboardingViewModel()
+        val uiState by onboardingViewModel.container.stateFlow
+            .collectAsStateWithLifecycle()
         Onboarding1Screen(
+            malePresetImages =
+                uiState.presetImageState.maleImages.map { image ->
+                    ProfileImageOption(
+                        id = image.id.toString(),
+                        imageUrl = image.imageUrl,
+                    )
+                },
+            femalePresetImages =
+                uiState.presetImageState.femaleImages.map { image ->
+                    ProfileImageOption(
+                        id = image.id.toString(),
+                        imageUrl = image.imageUrl,
+                    )
+                },
+            onGenderChanged = { gender ->
+                onboardingViewModel.loadPresetImages(gender)
+            },
             onNextClick = {state ->
                 onboardingViewModel.updateUserProfile(
                     lastName = state.lastName,
@@ -60,8 +80,27 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
 
     entry<Onboarding2NavKey> {
         val onboardingViewModel = sharedOnboardingViewModel()
+        val uiState by onboardingViewModel.container.stateFlow
+            .collectAsStateWithLifecycle()
         Onboarding2Screen(
             onBackClick = onBackFromOnboarding2,
+            malePresetImages =
+                uiState.presetImageState.maleImages.map { image ->
+                    ProfileImageOption(
+                        id = image.id.toString(),
+                        imageUrl = image.imageUrl,
+                    )
+                },
+            femalePresetImages =
+                uiState.presetImageState.femaleImages.map { image ->
+                    ProfileImageOption(
+                        id = image.id.toString(),
+                        imageUrl = image.imageUrl,
+                    )
+                },
+            onGenderChanged = { gender ->
+                onboardingViewModel.loadPresetImages(gender)
+            },
             onNextClick ={ state ->
                 onboardingViewModel.updateAiProfile(
                     age = state.age,
@@ -135,7 +174,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding6Screen(
-            firstName = uiState.aiFirstName,
+            characterName = uiState.createdAiName,
             isLoading = false,
             onCallNowClick = onOnboarding6CallNow,
             onCallLaterClick = onOnboarding6CallLater,

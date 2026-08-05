@@ -12,7 +12,7 @@ data class CreateCharacterRequestDto(
     val mbti: String,
     val speechStyle: String,
     val relationshipStage: String,
-    val traits: List<CharacterTraitRequestDto>
+    val traits: List<CharacterTraitRequestDto>,
 )
 
 data class CharacterTraitRequestDto(

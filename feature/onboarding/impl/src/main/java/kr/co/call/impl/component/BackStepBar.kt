@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -24,10 +25,12 @@ fun BackStepBar(
     Row(
         modifier=modifier
             .fillMaxWidth()
+            .statusBarsPadding()
             .height(58.dp)
             .padding(
                 start=0.dp,
-                end=8.dp,),
+                end=8.dp,
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ){
         IconButton(

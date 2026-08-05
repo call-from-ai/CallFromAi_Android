@@ -42,11 +42,11 @@ class LoginRepositoryImpl @Inject constructor(
             ) {
                 "로그인 응답 토큰 값이 비어 있습니다"
             }
-            tokenDataStore.setTokens(
+            tokenDataStore.setLoginSession(
                 accessToken = result.accessToken,
                 refreshToken = result.refreshToken,
+                needsOnboarding = result.needsOnboarding,
             )
-
             // AuthInterceptor 가 JWT 를 쓸 수 있는 상태에서 등록
             pushTokenManager.registerCurrentDevice()
 

@@ -1,10 +1,12 @@
 package kr.co.call.impl.viewmodel
 
+import kr.co.call.domain.model.onboarding.PresetImage
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
 import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
 import kr.co.call.impl.viewmodel.model.SpeechStyle
+import kr.co.call.impl.viewmodel.state.PresetImageUiState
 import java.time.LocalDate
 
 data class OnboardingUiState(
@@ -40,4 +42,10 @@ data class OnboardingUiState(
     val isCreatingAi: Boolean=false,
     val createAiError: String?=null,
     val submitStatus: LoadStatus= LoadStatus.Idle,
+
+    val presetImageState: PresetImageUiState= PresetImageUiState(),
+
+    //온보딩6스크린 ai캐릭터이름 받아오기
+    val createdAiId: Long? = null,
+    val createdAiName: String = "",
 )
