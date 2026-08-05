@@ -7,7 +7,6 @@ import kr.co.call.network.dto.onboarding.UpdateMemberRequestDto
 
 internal fun MemberResponseDto.toDomain(
     appVersion: String = "",
-    tier: String = "",
 ): MyPageProfile {
     val last = lastName.orEmpty()
     val first = firstName.orEmpty()
@@ -20,7 +19,7 @@ internal fun MemberResponseDto.toDomain(
         birth = birth,
         mbti = mbti,
         job = job,
-        tier = tier,
+        tier = "Basic",
         remainingTicketCount = callTicketBalance,
         appVersion = appVersion,
     )

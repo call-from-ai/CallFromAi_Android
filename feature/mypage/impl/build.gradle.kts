@@ -12,6 +12,8 @@ android {
 
 dependencies {
     implementation(project(":feature:mypage:api"))
+    // 직업/MBTI MemberChoice 재사용
+    implementation(project(":feature:onboarding:impl"))
 
     // core 모듈
     implementation(project(":core:designsystem"))

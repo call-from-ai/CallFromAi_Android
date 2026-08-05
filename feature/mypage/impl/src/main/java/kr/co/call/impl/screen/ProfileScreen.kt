@@ -23,6 +23,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -57,6 +61,17 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.handleIntent(ProfileIntent.Refresh)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
