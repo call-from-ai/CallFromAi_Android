@@ -1,9 +1,11 @@
 package kr.co.call.network.api
 
 import kr.co.call.network.dto.ApiResponse
+import kr.co.call.network.dto.mypage.MemberResponseDto
 import kr.co.call.network.dto.onboarding.UpdateMemberRequestDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 
@@ -18,4 +20,7 @@ interface MyPageApi {
     suspend fun updateMember(
         @Body request: UpdateMemberRequestDto,
     ): ApiResponse<Any>
+
+    @GET("members/me")
+    suspend fun getMyInfo():ApiResponse<MemberResponseDto>
 }

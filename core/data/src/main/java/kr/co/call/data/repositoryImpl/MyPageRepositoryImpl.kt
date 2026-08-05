@@ -4,11 +4,13 @@ import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kr.co.call.data.push.PushTokenManager
+import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
-import kr.co.call.datastore.TokenDataStore
 import kr.co.call.data.util.toAppResult
+import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
+import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
@@ -32,6 +34,13 @@ class MyPageRepositoryImpl @Inject constructor(
             ),
         )
     }
+
+    override suspend fun getNeedsOnboarding(): Result<Boolean> =
+        safeApiResult(errorResponseParser){
+            myPageApi.getMyInfo()
+        }.map{response->
+            response.needsOnboarding
+        }
 
     /**
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.
