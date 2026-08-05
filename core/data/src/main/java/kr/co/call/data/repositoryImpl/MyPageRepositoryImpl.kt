@@ -12,12 +12,17 @@ import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.repository.MyPageRepository
+import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.MyPageApi
+import kr.co.call.network.api.RelationshipApi
+import kr.co.call.network.dto.mypage.ContactPreferenceUpdateRequestDto
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
 
 class MyPageRepositoryImpl @Inject constructor(
     private val myPageApi: MyPageApi,
+    private val characterApi: CharacterApi,
+    private val relationshipApi: RelationshipApi,
     private val tokenDataStore: TokenDataStore,
     private val errorResponseParser: ErrorResponseParser,
     private val pushTokenManager: PushTokenManager,
@@ -32,6 +37,18 @@ class MyPageRepositoryImpl @Inject constructor(
         safeApiResult(errorResponseParser) {
             myPageApi.updateMember(update.toRequestDto())
         }.map { it.toDomain() }
+
+    override suspend fun getPreferTime(): Result<String?> =
+        safeApiResult(errorResponseParser) {
+            characterApi.getActiveCharacter()
+        }.map { it.preferTime }
+
+    override suspend fun updatePreferTime(preferTime: String): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) {
+            relationshipApi.updateContactPreference(
+                ContactPreferenceUpdateRequestDto(preferTime = preferTime),
+            )
+        }
 
     /**
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.

@@ -8,6 +8,10 @@ interface MyPageRepository {
 
     suspend fun updateMyProfile(update: MemberProfileUpdate): Result<MyPageProfile>
 
+    suspend fun getPreferTime(): Result<String?>
+
+    suspend fun updatePreferTime(preferTime: String): Result<Unit>
+
     suspend fun logout(): Result<Unit>
 
     suspend fun deleteAccount(): Result<Unit>
