@@ -28,7 +28,25 @@ class TokenDataStore @Inject constructor(
         return dataStore.data.first().toStoredTokens()
     }
 
-    /** 로그인 또는 토큰 재발급에 성공했을 때 새 토큰을 저장한다. */
+    //로그인 응답 전체 저장
+    suspend fun setLoginSession(
+        accessToken: String,
+        refreshToken: String,
+        needsOnboarding: Boolean,
+    ){
+        require(accessToken.isNotBlank()){
+            "Access Token은 비어 있을 수 없습니다."
+        }
+        require(refreshToken.isNotBlank()){
+            "Refresh Token은 비어 있을 수 없습니다."
+        }
+        dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN] = accessToken
+            preferences[REFRESH_TOKEN] = refreshToken
+            preferences[NEEDS_ONBOARDING] = needsOnboarding
+        }
+    }
+    //토큰 재발급 시 토큰만 갱신
     suspend fun setTokens(
         accessToken: String,
         refreshToken: String,
