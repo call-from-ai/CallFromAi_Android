@@ -13,6 +13,7 @@ import kr.co.call.callfromai.state.AppState
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
+import kr.co.call.domain.repository.ChatSseRepository
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -24,6 +25,7 @@ class AppViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore,
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
+    private val chatSseRepository: ChatSseRepository,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -58,21 +60,21 @@ class AppViewModel @Inject constructor(
             delay(remainingTime)
         }
 
+        val authState =
+            if (storedTokens == null || storedTokens.accessToken.isNullOrBlank()) {
+                AppAuthState.Unauthenticated
+            } else {
+                AppAuthState.Authenticated(
+                    needsOnboarding = storedTokens.needsOnboarding,
+                )
+            }
+
+        if (authState is AppAuthState.Authenticated) {
+            chatSseRepository.connect()
+        }
+
         reduce {
-            val authState=
-                if(
-                    storedTokens == null ||
-                    storedTokens.accessToken.isNullOrBlank()
-                ){
-                    AppAuthState.Unauthenticated
-                } else {
-                    AppAuthState.Authenticated(
-                        needsOnboarding=storedTokens.needsOnboarding,
-                    )
-                }
-            state.copy(
-                authState=authState,
-            )
+            state.copy(authState = authState)
         }
     }
 
