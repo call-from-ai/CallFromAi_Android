@@ -11,6 +11,7 @@ import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.push.PushPayload
 import kr.co.call.domain.model.push.PushPayloadParser
+import kr.co.call.domain.repository.ChatSseRepository
 import timber.log.Timber
 
 /**
@@ -28,6 +29,9 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
+
+    @Inject
+    lateinit var chatSseRepository: ChatSseRepository
 
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
@@ -47,9 +51,13 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
             notificationBody = message.notification?.body,
         )
         when (payload) {
-            // Chat 알림
+            // Chat 알림 — SSE 연결 중(채팅 화면)이면 이미 실시간 수신 중이므로 스킵
             is PushPayload.Chat -> {
                 Timber.d("FCM CHAT roomId=%s", payload.chatRoomId)
+                if (chatSseRepository.isConnected) {
+                    Timber.d("FCM CHAT 스킵: SSE 연결 중(사용자가 채팅 관련 화면에 있음)")
+                    return
+                }
                 PushNotificationHelper.showChat(
                     context = this,
                     title = payload.title,

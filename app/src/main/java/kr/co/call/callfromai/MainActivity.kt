@@ -1,5 +1,6 @@
 package kr.co.call.callfromai
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -9,8 +10,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.activity.result.contract.ActivityResultContracts
 import dagger.hilt.android.AndroidEntryPoint
+import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.notification.NotificationPermission
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.domain.model.push.PushDataKeys
+import kr.co.call.domain.model.push.PushType
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -41,11 +45,29 @@ class MainActivity : ComponentActivity() {
         }
 
         requestNotificationPermissionIfNeeded()
+        handlePushIntent(intent)
 
         setContent {
             CallFromAiTheme {
                 AppScreen(appViewModel)
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handlePushIntent(intent)
+    }
+
+    private fun handlePushIntent(intent: Intent) {
+
+        val type = PushType.fromDataValue(intent.getStringExtra(PushDataKeys.TYPE))
+
+        if (type == PushType.CHAT) {
+            val chatRoomId = intent.getStringExtra(PushDataKeys.CHAT_ROOM_ID)?.toLongOrNull()
+                ?: return
+            Timber.d("Push 딥링크: CHAT chatRoomId=%d", chatRoomId)
+            appViewModel.handleIntent(AppIntent.OnChatPushTapped(chatRoomId))
         }
     }
 

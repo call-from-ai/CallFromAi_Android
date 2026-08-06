@@ -129,6 +129,9 @@ private fun MainAppContent(
             AppSideEffect.NavigateToLogin -> {
                 appNavigator.replaceAll(LoginNavKey)
             }
+            is AppSideEffect.NavigateToChatRoom -> {
+                appNavigator.navigateToChatRoom(sideEffect.chatRoomId)
+            }
         }
     }
 

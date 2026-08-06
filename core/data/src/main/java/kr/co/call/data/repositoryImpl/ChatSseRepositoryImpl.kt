@@ -28,6 +28,9 @@ class ChatSseRepositoryImpl @Inject constructor(
 
     private var connectJob: Job? = null
 
+    override val isConnected: Boolean
+        get() = connectJob?.isActive == true
+
     override fun connect() {
         if (connectJob?.isActive == true) {
             Timber.d("SSE 이미 연결 중, 중복 connect() 무시")
