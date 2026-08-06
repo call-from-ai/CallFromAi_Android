@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kr.co.call.domain.exception.toUserMessage
+import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.util.LoadStatus
+import kr.co.call.impl.util.formatDisturbRangeText
+import kr.co.call.impl.util.parseApiLocalTime
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -64,12 +67,7 @@ class ProfileViewModel @Inject constructor(
 
         settingResult
             .onSuccess { setting ->
-                reduce {
-                    state.copy(
-                        isAllNotificationEnabled = setting.allNotificationEnabled,
-                        isLateNightCallAllowed = setting.nightCallAllowed,
-                    )
-                }
+                reduce { state.applyNotificationSetting(setting) }
             }
             .onFailure { error ->
                 if (error is CancellationException) throw error
@@ -92,12 +90,7 @@ class ProfileViewModel @Inject constructor(
             allNotificationEnabled = enabled,
             nightCallAllowed = null,
         ).onSuccess { setting ->
-            reduce {
-                state.copy(
-                    isAllNotificationEnabled = setting.allNotificationEnabled,
-                    isLateNightCallAllowed = setting.nightCallAllowed,
-                )
-            }
+            reduce { state.applyNotificationSetting(setting) }
         }.onFailure { error ->
             if (error is CancellationException) throw error
             reduce { state.copy(isAllNotificationEnabled = previous) }
@@ -119,12 +112,7 @@ class ProfileViewModel @Inject constructor(
             allNotificationEnabled = null,
             nightCallAllowed = enabled,
         ).onSuccess { setting ->
-            reduce {
-                state.copy(
-                    isAllNotificationEnabled = setting.allNotificationEnabled,
-                    isLateNightCallAllowed = setting.nightCallAllowed,
-                )
-            }
+            reduce { state.applyNotificationSetting(setting) }
         }.onFailure { error ->
             if (error is CancellationException) throw error
             reduce { state.copy(isLateNightCallAllowed = previous) }
@@ -140,3 +128,14 @@ class ProfileViewModel @Inject constructor(
         postSideEffect(effect)
     }
 }
+
+private fun ProfileState.applyNotificationSetting(setting: NotificationSetting): ProfileState =
+    copy(
+        isAllNotificationEnabled = setting.allNotificationEnabled,
+        isLateNightCallAllowed = setting.nightCallAllowed,
+        disturbTimeText = formatDisturbRangeText(
+            start = parseApiLocalTime(setting.doNotDisturbStart),
+            end = parseApiLocalTime(setting.doNotDisturbEnd),
+        ),
+    )
+

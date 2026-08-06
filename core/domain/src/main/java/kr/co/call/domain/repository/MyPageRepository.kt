@@ -20,6 +20,11 @@ interface MyPageRepository {
         nightCallAllowed: Boolean? = null,
     ): Result<NotificationSetting>
 
+    suspend fun updateDoNotDisturb(
+        startTime: String,
+        endTime: String,
+    ): Result<NotificationSetting>
+
     suspend fun logout(): Result<Unit>
 
     suspend fun deleteAccount(): Result<Unit>

@@ -35,6 +35,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.impl.component.CommonTopAppBar
 import kr.co.call.impl.component.DisturbTimePickerBottomSheet
+import kr.co.call.impl.util.formatDisturbTimeLabel
 import kr.co.call.impl.viewmodel.DisturbTimeIntent
 import kr.co.call.impl.viewmodel.DisturbTimeSideEffect
 import kr.co.call.impl.viewmodel.DisturbTimeSheetType
@@ -42,7 +43,6 @@ import kr.co.call.impl.viewmodel.DisturbTimeState
 import kr.co.call.impl.viewmodel.DisturbTimeViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
-import java.util.Locale
 
 @Composable
 fun DisturbTimeScreen(
@@ -206,15 +206,6 @@ private fun TimeField(
                     .rotate(90f),
             )
         }
-    }
-}
-
-// 본문 필드 표시 (09:00 -> 09시, 09:30 -> 09시 30분)
-private fun formatDisturbTimeLabel(time: LocalTime): String {
-    return if (time.minute == 0) {
-        String.format(Locale.getDefault(), "%02d시", time.hour)
-    } else {
-        String.format(Locale.getDefault(), "%02d시 %02d분", time.hour, time.minute)
     }
 }
 

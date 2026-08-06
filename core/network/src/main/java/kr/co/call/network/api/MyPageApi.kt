@@ -1,6 +1,7 @@
 package kr.co.call.network.api
 
 import kr.co.call.network.dto.ApiResponse
+import kr.co.call.network.dto.mypage.DoNotDisturbUpdateRequestDto
 import kr.co.call.network.dto.mypage.MemberResponseDto
 import kr.co.call.network.dto.mypage.NotificationSettingDto
 import kr.co.call.network.dto.mypage.NotificationSettingUpdateRequestDto
@@ -32,5 +33,10 @@ interface MyPageApi {
     @PATCH("members/me/notification-settings")
     suspend fun updateNotificationSettings(
         @Body request: NotificationSettingUpdateRequestDto,
+    ): ApiResponse<NotificationSettingDto>
+
+    @PATCH("members/me/notification-settings/do-not-disturb")
+    suspend fun updateDoNotDisturb(
+        @Body request: DoNotDisturbUpdateRequestDto,
     ): ApiResponse<NotificationSettingDto>
 }

@@ -17,6 +17,7 @@ import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.RelationshipApi
 import kr.co.call.network.dto.mypage.ContactPreferenceUpdateRequestDto
+import kr.co.call.network.dto.mypage.DoNotDisturbUpdateRequestDto
 import kr.co.call.network.dto.mypage.NotificationSettingUpdateRequestDto
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
@@ -66,6 +67,19 @@ class MyPageRepositoryImpl @Inject constructor(
                 NotificationSettingUpdateRequestDto(
                     allNotificationEnabled = allNotificationEnabled,
                     nightCallAllowed = nightCallAllowed,
+                ),
+            )
+        }.map { it.toDomain() }
+
+    override suspend fun updateDoNotDisturb(
+        startTime: String,
+        endTime: String,
+    ): Result<NotificationSetting> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.updateDoNotDisturb(
+                DoNotDisturbUpdateRequestDto(
+                    startTime = startTime,
+                    endTime = endTime,
                 ),
             )
         }.map { it.toDomain() }
