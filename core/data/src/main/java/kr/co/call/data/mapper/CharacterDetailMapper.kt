@@ -63,5 +63,5 @@ private fun splitDisplayName(name: String): Pair<String, String> {
     val trimmed = name.trim()
     if (trimmed.isEmpty()) return "" to ""
     if (trimmed.length == 1) return trimmed to ""
-    return trimmed.take(1) to trimmed.drop(1).take(5)
+    return trimmed.take(1) to trimmed.drop(1)
 }

@@ -118,6 +118,7 @@ private fun TempDrag(
         var thumbOffsetPx by remember(
             minimumOffsetPx,
             maximumOffsetPx,
+            temperature
         ){
             mutableFloatStateOf(
                 minimumOffsetPx+dragDistancePx*(temperature/100f),
