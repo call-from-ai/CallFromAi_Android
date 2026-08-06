@@ -40,12 +40,12 @@ import timber.log.Timber
  * 각 화면과 ViewModel을 연결하고 SideEffect에 따라 화면 이동을 처리한다.
  */
 fun EntryProviderScope<NavKey>.loginEntry(
-    navigateToHome:()->Unit,
-    navigateToAgreement:()->Unit,
+    navigateToHome:(needsOnboarding: Boolean)->Unit,
+    navigateToAgreement:(needsOnboarding: Boolean)->Unit,
     navigateToAgreementDetail:(AgreementTerm)->Unit,
     navigateAfterAgreement:()->Unit,
     onBack: ()->Unit,
-    navigateToOnboarding: ()->Unit,
+    navigateToOnboarding: (needsOnboarding: Boolean)->Unit,
 ) {
     entry<LoginNavKey> {
         val context= LocalContext.current
@@ -62,14 +62,14 @@ fun EntryProviderScope<NavKey>.loginEntry(
          */
         loginViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
-                LoginSideEffect.NavigateToAgreement -> {
-                    navigateToAgreement()
+                is LoginSideEffect.NavigateToAgreement -> {
+                    navigateToAgreement(sideEffect.needsOnboarding)
                 }
-                LoginSideEffect.NavigateToOnboarding ->{
-                    navigateToOnboarding()
+                is LoginSideEffect.NavigateToOnboarding ->{
+                    navigateToOnboarding(sideEffect.needsOnboarding)
                 }
-                LoginSideEffect.NavigateToHome -> {
-                    navigateToHome()
+                is LoginSideEffect.NavigateToHome -> {
+                    navigateToHome(sideEffect.needsOnboarding)
                 }
 
                 is LoginSideEffect.ShowError -> {
