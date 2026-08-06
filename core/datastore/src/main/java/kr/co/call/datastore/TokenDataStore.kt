@@ -74,12 +74,6 @@ class TokenDataStore @Inject constructor(
         }
     }
 
-    suspend fun setNeedsOnboarding(needsOnboarding:Boolean){
-        dataStore.edit{preferences ->
-            preferences[NEEDS_ONBOARDING] =needsOnboarding
-        }
-    }
-
     /**
      * Preferences에 저장된 값을 StoredTokens 객체로 변환한다.
      */

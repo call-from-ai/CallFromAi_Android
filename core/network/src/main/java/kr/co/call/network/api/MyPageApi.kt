@@ -22,6 +22,11 @@ interface MyPageApi {
     @DELETE("members/me")
     suspend fun deleteAccount(): ApiResponse<Any>
 
+    @POST("members/me")
+    suspend fun createMember(
+        @Body request: UpdateMemberRequestDto,
+    ): ApiResponse<Any>
+
     @PATCH("members/me")
     suspend fun updateMember(
         @Body request: UpdateMemberRequestDto,
@@ -42,4 +47,5 @@ interface MyPageApi {
 
     @DELETE("members/me/notification-settings/do-not-disturb")
     suspend fun deleteDoNotDisturb(): ApiResponse<NotificationSettingDto>
+
 }

@@ -3,6 +3,7 @@ package kr.co.call.impl.viewmodel
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
+import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
 import kr.co.call.domain.model.onboarding.CharacterTraitInput
@@ -16,6 +17,7 @@ import kr.co.call.impl.viewmodel.model.Relationship
 import kr.co.call.impl.viewmodel.model.SpeechStyle
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import java.time.LocalDate
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -166,11 +168,39 @@ class OnboardingViewModel @Inject constructor(
             },
         )
 
+        val memberSubmitResult =
+            if (state.isMemberSubmitted) {
+                Result.success(Unit)
+            } else {
+                onboardingRepository.submitMemberOnboarding(memberSubmission)
+                    .recoverCatching { error ->
+                        if (
+                            error is AppException.Conflict &&
+                            error.code == "MEMBER409_1"
+                        ) {
+                            Unit
+                        } else {
+                            throw error
+                        }
+                    }
+                    .onSuccess {
+                        reduce {
+                            state.copy(isMemberSubmitted = true)
+                        }
+                    }
+            }
+
         val submitResult: Result<CreatedCharacter> =
-            onboardingRepository.submitMemberOnboarding(memberSubmission)
+            memberSubmitResult
+                .onFailure { error ->
+                    Timber.e(error, "회원정보 생성 실패")
+                }
                 .fold(
                     onSuccess = {
                         onboardingRepository.submitCharacterOnboarding(characterSubmission)
+                            .onFailure { error ->
+                                Timber.e(error, "캐릭터 생성 실패")
+                            }
                     },
                     onFailure = { error ->
                         Result.failure(error)

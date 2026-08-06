@@ -56,5 +56,5 @@ class LoginRepositoryImpl @Inject constructor(
                 needsOnboarding = result.needsOnboarding,
                 needsTermsAgreement = result.needsTermsAgreement,
             )
-        }
+        }.toAppResult()
 }

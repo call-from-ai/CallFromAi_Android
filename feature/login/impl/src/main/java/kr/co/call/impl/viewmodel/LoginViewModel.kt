@@ -53,12 +53,18 @@ class LoginViewModel @Inject constructor(
             val sideEffect=
                 when {
                     loginToken.needsTermsAgreement ->
-                        LoginSideEffect.NavigateToAgreement
+                        LoginSideEffect.NavigateToAgreement(
+                            needsOnboarding=loginToken.needsOnboarding,
+                        )
                     loginToken.needsOnboarding ->
-                        LoginSideEffect.NavigateToOnboarding
+                        LoginSideEffect.NavigateToOnboarding(
+                            needsOnboarding = loginToken.needsOnboarding,
+                        )
 
                     else ->
-                        LoginSideEffect.NavigateToHome
+                        LoginSideEffect.NavigateToHome(
+                            needsOnboarding = loginToken.needsOnboarding,
+                        )
                 }
             postSideEffect(sideEffect)
         }.onFailure { error ->

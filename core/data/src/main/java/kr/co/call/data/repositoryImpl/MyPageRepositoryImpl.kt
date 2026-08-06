@@ -13,6 +13,7 @@ import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.domain.repository.MyPageRepository
+import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.RelationshipApi
@@ -51,6 +52,13 @@ class MyPageRepositoryImpl @Inject constructor(
             relationshipApi.updateContactPreference(
                 ContactPreferenceUpdateRequestDto(preferTime = preferTime),
             )
+        }
+
+    override suspend fun getNeedsOnboarding(): Result<Boolean> =
+        safeApiResult(errorResponseParser){
+            myPageApi.getMyInfo()
+        }.map{response->
+            response.needsOnboarding
         }
 
     override suspend fun getNotificationSetting(): Result<NotificationSetting> =
