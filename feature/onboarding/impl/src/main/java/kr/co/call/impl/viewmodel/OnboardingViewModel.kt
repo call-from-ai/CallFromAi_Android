@@ -2,6 +2,9 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.LocalDate
+import javax.inject.Inject
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.exception.toUserMessage
@@ -12,14 +15,12 @@ import kr.co.call.domain.model.onboarding.MemberOnboardingInput
 import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
-import kr.co.call.impl.viewmodel.model.Trait
 import kr.co.call.impl.viewmodel.model.Relationship
 import kr.co.call.impl.viewmodel.model.SpeechStyle
+import kr.co.call.impl.viewmodel.model.Trait
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
-import java.time.LocalDate
-import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
@@ -31,6 +32,35 @@ class OnboardingViewModel @Inject constructor(
         container<OnboardingUiState, OnboardingSideEffect>(
             initialState = OnboardingUiState(),
         )
+
+    /**
+     * 플로우 진입 시 모드 설정 + 이상형(캐릭터) draft 초기화.
+     * 프리셋 이미지는 재사용한다.
+     */
+    fun prepareFlow(mode: OnboardingFlowMode) = intent {
+        reduce {
+            state.copy(
+                flowMode = mode,
+                aiFirstName = "",
+                aiLastName = "",
+                aiAge = "",
+                aiJob = "",
+                aiMbti = "",
+                aiGender = "",
+                aiImageUrl = "",
+                speechStyle = null,
+                relationship = null,
+                temperature = 50,
+                traits = emptyList(),
+                preferTime = null,
+                isCreatingAi = false,
+                createAiError = null,
+                submitStatus = LoadStatus.Idle,
+                createdAiId = null,
+                createdAiName = "",
+            )
+        }
+    }
 
     fun updateUserProfile(
         lastName: String,
@@ -76,7 +106,6 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-
     fun updateConversationStyle(
         speechStyle: SpeechStyle,
         relationship: Relationship,
@@ -91,18 +120,16 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-
     fun updateTraits(
-        traits: List<Trait>
+        traits: List<Trait>,
     ) = intent {
         reduce {
             state.copy(traits = traits)
         }
     }
 
-    //
     fun updatePreferTime(
-        preferTime: PreferTime
+        preferTime: PreferTime,
     ) = intent {
         reduce {
             state.copy(preferTime = preferTime)
@@ -138,16 +165,6 @@ class OnboardingViewModel @Inject constructor(
             )
         }
 
-        val memberSubmission = MemberOnboardingInput(
-            lastName = state.userLastName,
-            firstName = state.userFirstName,
-            imageUrl = state.userImageUrl,
-            gender = state.userGender,
-            birth = state.userBirthday.toString(),
-            mbti = state.userMbti,
-            job = state.userJob,
-        )
-
         val characterSubmission = CharacterOnboardingInput(
             lastName = state.aiLastName,
             firstName = state.aiFirstName,
@@ -168,44 +185,59 @@ class OnboardingViewModel @Inject constructor(
             },
         )
 
-        val memberSubmitResult =
-            if (state.isMemberSubmitted) {
-                Result.success(Unit)
-            } else {
-                onboardingRepository.submitMemberOnboarding(memberSubmission)
-                    .recoverCatching { error ->
-                        if (
-                            error is AppException.Conflict &&
-                            error.code == "MEMBER409_1"
-                        ) {
-                            Unit
-                        } else {
-                            throw error
-                        }
-                    }
-                    .onSuccess {
-                        reduce {
-                            state.copy(isMemberSubmitted = true)
-                        }
-                    }
-            }
+        val isAddCharacter = state.flowMode == OnboardingFlowMode.ADD_CHARACTER
 
         val submitResult: Result<CreatedCharacter> =
-            memberSubmitResult
-                .onFailure { error ->
-                    Timber.e(error, "회원정보 생성 실패")
-                }
-                .fold(
-                    onSuccess = {
-                        onboardingRepository.submitCharacterOnboarding(characterSubmission)
-                            .onFailure { error ->
-                                Timber.e(error, "캐릭터 생성 실패")
-                            }
-                    },
-                    onFailure = { error ->
-                        Result.failure(error)
-                    },
+            if (isAddCharacter) {
+                // 캐릭터 추가: 회원 프로필 재제출 없이 캐릭터만 생성
+                onboardingRepository.submitCharacterOnboarding(characterSubmission)
+            } else {
+                val memberSubmission = MemberOnboardingInput(
+                    lastName = state.userLastName,
+                    firstName = state.userFirstName,
+                    imageUrl = state.userImageUrl,
+                    gender = state.userGender,
+                    birth = state.userBirthday.toString(),
+                    mbti = state.userMbti,
+                    job = state.userJob,
                 )
+
+                val memberSubmitResult =
+                    if (state.isMemberSubmitted) {
+                        Result.success(Unit)
+                    } else {
+                        onboardingRepository.submitMemberOnboarding(memberSubmission)
+                            .recoverCatching { error ->
+                                if (
+                                    error is AppException.Conflict &&
+                                    error.code == "MEMBER409_1"
+                                ) {
+                                    Unit
+                                } else {
+                                    throw error
+                                }
+                            }
+                            .onSuccess {
+                                reduce {
+                                    state.copy(isMemberSubmitted = true)
+                                }
+                            }
+                    }
+
+                memberSubmitResult
+                    .onFailure { error ->
+                        Timber.e(error, "회원정보 생성 실패")
+                    }
+                    .fold(
+                        onSuccess = {
+                            onboardingRepository.submitCharacterOnboarding(characterSubmission)
+                                .onFailure { error ->
+                                    Timber.e(error, "캐릭터 생성 실패")
+                                }
+                        },
+                        onFailure = { error -> Result.failure(error) },
+                    )
+            }
 
         submitResult
             .onSuccess { character ->
@@ -213,12 +245,15 @@ class OnboardingViewModel @Inject constructor(
                     state.copy(
                         createdAiId = character.id,
                         createdAiName = character.name,
-                        submitStatus = LoadStatus.Idle
+                        submitStatus = LoadStatus.Idle,
                     )
                 }
-
                 postSideEffect(
-                    OnboardingSideEffect.OnboardingSubmitted,
+                    if (isAddCharacter) {
+                        OnboardingSideEffect.AdditionalCharacterCreated
+                    } else {
+                        OnboardingSideEffect.OnboardingSubmitted
+                    },
                 )
             }
             .onFailure { error ->
@@ -231,7 +266,11 @@ class OnboardingViewModel @Inject constructor(
                 postSideEffect(
                     OnboardingSideEffect.ShowMessage(
                         message = error.toUserMessage(
-                            default = "온보딩 저장에 실패했습니다.",
+                            default = if (isAddCharacter) {
+                                "캐릭터 생성에 실패했습니다."
+                            } else {
+                                "온보딩 저장에 실패했습니다."
+                            },
                         ),
                     ),
                 )
@@ -252,7 +291,7 @@ class OnboardingViewModel @Inject constructor(
             state.copy(
                 presetImageState = state.presetImageState.copy(
                     loadStatus = LoadStatus.Loading,
-                    ),
+                ),
             )
         }
         onboardingRepository
@@ -262,10 +301,10 @@ class OnboardingViewModel @Inject constructor(
                     val updatedPresetState = when (gender) {
                         ProfileImageGender.MALE -> {
                             state.presetImageState.copy(
-                                        maleImages = images,
-                                        isMaleImagesLoaded = true,
-                                        loadStatus = LoadStatus.Idle,
-                                    )
+                                maleImages = images,
+                                isMaleImagesLoaded = true,
+                                loadStatus = LoadStatus.Idle,
+                            )
                         }
 
                         ProfileImageGender.FEMALE -> {
@@ -286,11 +325,10 @@ class OnboardingViewModel @Inject constructor(
                 reduce {
                     state.copy(
                         presetImageState = state.presetImageState.copy(
-                            loadStatus=LoadStatus.Idle,
-                            ),
+                            loadStatus = LoadStatus.Idle,
+                        ),
                     )
                 }
             }
     }
 }
-
