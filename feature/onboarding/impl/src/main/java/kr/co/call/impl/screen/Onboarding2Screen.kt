@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
@@ -46,6 +47,7 @@ import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.OnboardingViewModel
 import kr.co.call.impl.viewmodel.model.CharacterJob
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.state.Onboarding2State
@@ -58,14 +60,26 @@ private enum class Onboarding2EditingNameField {
 }
 @Composable
 fun Onboarding2Screen(
+    viewModel: OnboardingViewModel,
     onBackClick: () -> Unit,
-    onNextClick: (Onboarding2State) -> Unit,
-    malePresetImages: List<ProfileImageOption>,
-    femalePresetImages: List<ProfileImageOption>,
-    onGenderChanged: (ProfileImageGender) ->Unit,
+    onNext: () -> Unit,
     modifier: Modifier = Modifier,
     profileImageUrl: String? = null,
 ) {
+    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val malePresetImages = uiState.presetImageState.maleImages.map { image ->
+        ProfileImageOption(
+            id = image.id.toString(),
+            imageUrl = image.imageUrl,
+        )
+    }
+    val femalePresetImages = uiState.presetImageState.femaleImages.map { image ->
+        ProfileImageOption(
+            id = image.id.toString(),
+            imageUrl = image.imageUrl,
+        )
+    }
+
     var age by rememberSaveable { mutableStateOf("") }
     var lastName by rememberSaveable { mutableStateOf("") }
     var firstName by rememberSaveable { mutableStateOf("") }
@@ -85,7 +99,7 @@ fun Onboarding2Screen(
         mutableStateOf(ProfileImageGender.MALE)
     }
     LaunchedEffect(Unit) {
-        onGenderChanged(ProfileImageGender.MALE)
+        viewModel.loadPresetImages(ProfileImageGender.MALE)
     }
     val currentProfileImages = when (selectedGender) {
         ProfileImageGender.MALE -> malePresetImages
@@ -262,17 +276,25 @@ fun Onboarding2Screen(
                     text = "다음",
                     enabled = canMoveNext,
                     onClick = {
-                        onNextClick(
-                            Onboarding2State(
-                                age=age,
-                                lastName=lastName,
-                                firstName=firstName,
-                                job=checkNotNull(selectedJob).name,
-                                mbti=mbti,
-                                gender=selectedGender.name,
-                                imageUrl=savedProfileImageUrl.orEmpty(),
-                            )
+                        val state = Onboarding2State(
+                            age=age,
+                            lastName=lastName,
+                            firstName=firstName,
+                            job=checkNotNull(selectedJob).name,
+                            mbti=mbti,
+                            gender=selectedGender.name,
+                            imageUrl=savedProfileImageUrl.orEmpty(),
                         )
+                        viewModel.updateAiProfile(
+                            age = state.age,
+                            lastName = state.lastName,
+                            firstName = state.firstName,
+                            job = state.job,
+                            mbti = state.mbti,
+                            gender = state.gender,
+                            imageUrl = state.imageUrl,
+                        )
+                        onNext()
                     },
                 )
             }
@@ -284,6 +306,15 @@ fun Onboarding2Screen(
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.15f))
                     .clickable {
+                        when (editingNameField) {
+                            Onboarding2EditingNameField.LAST_NAME -> {
+                                lastName = nameInput
+                            }
+                        Onboarding2EditingNameField.FIRST_NAME ->{
+                        firstName = nameInput
+                    }
+                        null->Unit
+                    }
                         editingNameField = null
                         nameInput = ""
                         focusManager.clearFocus()
@@ -326,7 +357,7 @@ fun Onboarding2Screen(
 
                 onGenderChange = { newGender ->
                     selectedGender = newGender
-                    onGenderChanged(newGender)
+                    viewModel.loadPresetImages(newGender)
                 },
 
                 onImageSelected = { image ->

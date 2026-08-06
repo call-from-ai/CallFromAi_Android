@@ -1,5 +1,11 @@
 package kr.co.call.impl.screen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,12 +27,21 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import kr.co.call.designsystem.component.popup.TwoButtonPopup
 import kr.co.call.designsystem.theme.Black
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme.typography
@@ -39,11 +54,94 @@ import kr.co.call.domain.model.login.AgreementTerm
 import kr.co.call.impl.component.AgreementItem
 import kr.co.call.impl.component.CheckBox
 import kr.co.call.impl.component.NextButton
+import kr.co.call.impl.viewmodel.AgreementSideEffect
+import kr.co.call.impl.viewmodel.AgreementViewModel
 import kr.co.call.impl.viewmodel.state.AgreementUiState
 import kr.co.call.login.impl.R
+import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
+import timber.log.Timber
+
 @Composable
 fun AgreementScreen(
-    modifier: Modifier,
+    onNavigateNext: () -> Unit,
+    onAgreementViewClick: (AgreementTerm) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: AgreementViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val uiState = viewModel.collectAsState().value
+
+    var isPopupDismissed by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val showNotificationPermissionPopup =
+        !isPopupDismissed &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) {
+        isPopupDismissed = true
+    }
+
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            AgreementSideEffect.NavigateToNext -> onNavigateNext()
+            is AgreementSideEffect.ShowError -> {
+                Toast.makeText(
+                    context,
+                    sideEffect.message,
+                    Toast.LENGTH_SHORT,
+                ).show()
+                Timber.e(sideEffect.message)
+            }
+        }
+    }
+
+    AgreementContent(
+        modifier = modifier,
+        uiState = uiState,
+        onNextClick = viewModel::submitAgreements,
+        onAgreementViewClick = onAgreementViewClick,
+        onAgreementToggle = viewModel::toggleAgreement,
+        onAllAgreementsCheckedChange = viewModel::toggleAllAgreements,
+    )
+
+    if (showNotificationPermissionPopup) {
+        TwoButtonPopup(
+            label = "",
+            title = "‘전화왔어’에서 알림을\n보내고자 합니다.",
+            description = AnnotatedString(
+                "경고, 사운드 및 아이콘 배지가 알림에\n" +
+                    "포함될 수 있습니다.\n" +
+                    "설정에서 이를 구성할 수 있습니다.",
+            ),
+            positiveText = "허용",
+            negativeText = "허용 안 함",
+            onPositiveClick = {
+                notificationPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS,
+                )
+            },
+            onNegativeClick = {
+                isPopupDismissed = true
+            },
+            onDismissRequest = {
+                isPopupDismissed = true
+            },
+        )
+    }
+}
+
+@Composable
+private fun AgreementContent(
+    modifier: Modifier = Modifier,
     uiState: AgreementUiState,
     onNextClick:()->Unit,
     onAgreementViewClick:(AgreementTerm)->Unit,
@@ -181,7 +279,7 @@ fun AgreementScreen(
 @Composable
 private fun AgreementScreenPreview() {
     CallFromAiTheme {
-        AgreementScreen(
+        AgreementContent(
             modifier = Modifier,
             uiState = AgreementUiState(
                 terms = listOf(

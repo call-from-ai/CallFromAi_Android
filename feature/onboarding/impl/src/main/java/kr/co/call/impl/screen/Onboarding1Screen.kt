@@ -19,7 +19,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import java.time.LocalDate
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
@@ -42,6 +42,7 @@ import kr.co.call.impl.component.MessageInputField
 import kr.co.call.impl.component.NameBox
 import kr.co.call.impl.component.ProfileChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.OnboardingViewModel
 import kr.co.call.impl.viewmodel.model.Mbti
 import kr.co.call.impl.viewmodel.model.MemberJob
 import kr.co.call.impl.viewmodel.state.Onboarding1State
@@ -53,14 +54,26 @@ private enum class EditingNameField {
 }
 @Composable
 fun Onboarding1Screen (
-    initialBirthday: LocalDate?,
-    onNextClick: (Onboarding1State)->Unit,
-    malePresetImages: List<ProfileImageOption>,
-    femalePresetImages: List<ProfileImageOption>,
-    onGenderChanged: (ProfileImageGender) -> Unit,
+    viewModel: OnboardingViewModel,
+    onNext: () -> Unit,
     modifier: Modifier =Modifier,
     profileImageUrl: String?=null,
 ) {
+    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val initialBirthday = uiState.userBirthday
+    val malePresetImages = uiState.presetImageState.maleImages.map { image ->
+        ProfileImageOption(
+            id = image.id.toString(),
+            imageUrl = image.imageUrl,
+        )
+    }
+    val femalePresetImages = uiState.presetImageState.femaleImages.map { image ->
+        ProfileImageOption(
+            id = image.id.toString(),
+            imageUrl = image.imageUrl,
+        )
+    }
+
     var lastName by rememberSaveable {
         mutableStateOf("")
     }
@@ -91,7 +104,7 @@ fun Onboarding1Screen (
         mutableStateOf(ProfileImageGender.MALE)
     }
     LaunchedEffect(Unit) {
-        onGenderChanged(ProfileImageGender.MALE)
+        viewModel.loadPresetImages(ProfileImageGender.MALE)
     }
     val currentProfileImages = when (selectedGender) {
         ProfileImageGender.MALE -> malePresetImages
@@ -246,17 +259,25 @@ fun Onboarding1Screen (
                     enabled = canMoveNext,
                     onClick = {
                         birthday?.let { selectedBirthday ->
-                            onNextClick(
-                                Onboarding1State(
-                                    lastName=lastName,
-                                    firstName=firstName,
-                                    birthday=selectedBirthday,
-                                    job=checkNotNull(selectedJob).name,
-                                    mbti=mbti,
-                                    gender=selectedGender.name,
-                                    imageUrl=savedProfileImageUrl.orEmpty(),
-                                )
+                            val state = Onboarding1State(
+                                lastName=lastName,
+                                firstName=firstName,
+                                birthday=selectedBirthday,
+                                job=checkNotNull(selectedJob).name,
+                                mbti=mbti,
+                                gender=selectedGender.name,
+                                imageUrl=savedProfileImageUrl.orEmpty(),
                             )
+                            viewModel.updateUserProfile(
+                                lastName = state.lastName,
+                                firstName = state.firstName,
+                                birthday = state.birthday,
+                                job = state.job,
+                                mbti = state.mbti,
+                                gender = state.gender,
+                                imageUrl = state.imageUrl,
+                            )
+                            onNext()
                         }
                     },
                 )
@@ -270,6 +291,17 @@ fun Onboarding1Screen (
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.15f))
                 .clickable {
+                    when (editingNameField) {
+                        EditingNameField.LAST_NAME -> {
+                            lastName = nameInput
+                        }
+
+                        EditingNameField.FIRST_NAME -> {
+                            firstName = nameInput
+                        }
+
+                        null -> Unit
+                    }
                     editingNameField = null
                     nameInput = ""
                 },
@@ -318,7 +350,7 @@ fun Onboarding1Screen (
                 selectedImageId = currentSelectedImageId,
                 onGenderChange = { newGender ->
                     selectedGender = newGender
-                    onGenderChanged(newGender)
+                    viewModel.loadPresetImages(newGender)
                 },
                 onImageSelected = { image ->
                     when (selectedGender) {
@@ -342,5 +374,5 @@ fun Onboarding1Screen (
                 confirmText = "저장하기",
             )
         }
-}
+    }
 }

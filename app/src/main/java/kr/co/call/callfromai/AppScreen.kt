@@ -15,9 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -126,10 +124,6 @@ private fun MainAppContent(
         AppNavigator(backStack)
     }
     val currentKey = backStack.lastOrNull()
-    var pendingNeedsOnboarding by rememberSaveable {
-        mutableStateOf<Boolean?>(null)
-    }
-
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             AppSideEffect.NavigateToLogin -> {
@@ -219,8 +213,11 @@ private fun MainAppContent(
                             appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement = {needsOnboarding ->
-                            pendingNeedsOnboarding = needsOnboarding
-                            appNavigator.replaceAll(AgreementNavKey)
+                            appNavigator.replaceAll(
+                                AgreementNavKey(
+                                    needsOnboarding = needsOnboarding,
+                                ),
+                            )
                         },
                         navigateToAgreementDetail = { term ->
                             appNavigator.navigate(
@@ -231,21 +228,17 @@ private fun MainAppContent(
                                 ),
                             )
                         },
-                        navigateAfterAgreement = {
-                            pendingNeedsOnboarding?.let { needsOnboarding ->
-                                viewModel.handleIntent(
-                                    AppIntent.LoginSucceeded(
-                                        needsOnboarding = needsOnboarding,
-                                    ),
-                                )
+                        navigateAfterAgreement = { needsOnboarding ->
+                            viewModel.handleIntent(
+                                AppIntent.LoginSucceeded(
+                                    needsOnboarding = needsOnboarding,
+                                ),
+                            )
 
-                                if (needsOnboarding) {
-                                    appNavigator.replaceAll(Onboarding1NavKey)
-                                } else {
-                                    appNavigator.replaceAll(HomeNavKey)
-                                }
-
-                                pendingNeedsOnboarding = null
+                            if (needsOnboarding) {
+                                appNavigator.replaceAll(Onboarding1NavKey)
+                            } else {
+                                appNavigator.replaceAll(HomeNavKey)
                             }
                         },
                         onBack = {
