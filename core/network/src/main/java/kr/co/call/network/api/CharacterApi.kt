@@ -18,6 +18,11 @@ interface CharacterApi {
     @GET("characters/active")
     suspend fun getActiveCharacter(): ApiResponse<ActiveCharacterDto>
 
+    @GET("characters/{characterId}")
+    suspend fun getCharacter(
+        @Path("characterId") characterId: Long,
+    ): ApiResponse<ActiveCharacterDto>
+
     @GET("characters/{characterId}/chat-summary")
     suspend fun getChatSummary(
         @Path("characterId") characterId: Long,

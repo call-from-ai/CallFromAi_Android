@@ -26,13 +26,8 @@ class AICharacterRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterDetail(characterId: Long): Result<CharacterDetail> =
         safeApiResult(errorResponseParser) {
-            characterApi.getActiveCharacter()
-        }.mapCatching { active ->
-            if (active.characterId != characterId) {
-                // TODO: GET /characters/{id} 필요할듯 : 비메인 상세 조회
-            }
-            active.toCharacterDetail()
-        }
+            characterApi.getCharacter(characterId)
+        }.map { dto -> dto.toCharacterDetail() }
 
     override suspend fun updateCharacter(
         characterId: Long,
