@@ -51,6 +51,7 @@ import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.api.TermNavKey
+import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
@@ -122,9 +123,7 @@ private fun MainAppContent(
     val appNavigator = remember(backStack) {
         AppNavigator(backStack)
     }
-
     val currentKey = backStack.lastOrNull()
-
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             AppSideEffect.NavigateToLogin -> {
@@ -199,14 +198,26 @@ private fun MainAppContent(
                 ),
                 entryProvider = entryProvider {
                     loginEntry(
-                        navigateToOnboarding = {
+                        navigateToOnboarding = {needsOnboarding ->
+                            viewModel.handleIntent(
+                                AppIntent.LoginSucceeded(
+                                    needsOnboarding = needsOnboarding,
+                            ),
+                            )
                             appNavigator.replaceAll(Onboarding1NavKey)
                         },
-                        navigateToHome = {
+                        navigateToHome = {needsOnboarding ->
+                        viewModel.handleIntent(
+                                AppIntent.LoginSucceeded(needsOnboarding = needsOnboarding),
+                            )
                             appNavigator.replaceAll(HomeNavKey)
                         },
-                        navigateToAgreement = {
-                            appNavigator.replaceAll(AgreementNavKey)
+                        navigateToAgreement = {needsOnboarding ->
+                            appNavigator.replaceAll(
+                                AgreementNavKey(
+                                    needsOnboarding = needsOnboarding,
+                                ),
+                            )
                         },
                         navigateToAgreementDetail = { term ->
                             appNavigator.navigate(
@@ -217,8 +228,18 @@ private fun MainAppContent(
                                 ),
                             )
                         },
-                        navigateAfterAgreement = {
-                            appNavigator.navigate(Onboarding1NavKey)
+                        navigateAfterAgreement = { needsOnboarding ->
+                            viewModel.handleIntent(
+                                AppIntent.LoginSucceeded(
+                                    needsOnboarding = needsOnboarding,
+                                ),
+                            )
+
+                            if (needsOnboarding) {
+                                appNavigator.replaceAll(Onboarding1NavKey)
+                            } else {
+                                appNavigator.replaceAll(HomeNavKey)
+                            }
                         },
                         onBack = {
                             appNavigator.popBackStack()
@@ -306,6 +327,7 @@ private fun MainAppContent(
 
                     myPageEntry(
                         navigateToLogin = {
+                            viewModel.handleIntent(AppIntent.LogoutSucceeded)
                             appNavigator.replaceAll(LoginNavKey)
                         },
                         navigateToFaq = {

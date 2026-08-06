@@ -13,7 +13,7 @@ data class OnboardingUiState(
     //사용자 정보
     val userLastName: String = "",
     val userFirstName: String = "",
-    val userBirthday: LocalDate = LocalDate.of(2000, 1, 1),
+    val userBirthday: LocalDate =LocalDate.now(),
     val userJob: String = "",
     val userMbti: String = "",
     val userGender: String="",
@@ -42,6 +42,7 @@ data class OnboardingUiState(
     val isCreatingAi: Boolean=false,
     val createAiError: String?=null,
     val submitStatus: LoadStatus= LoadStatus.Idle,
+    val isMemberSubmitted: Boolean = false,
 
     val presetImageState: PresetImageUiState= PresetImageUiState(),
 

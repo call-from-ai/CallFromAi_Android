@@ -12,7 +12,9 @@ data object LoginNavKey : NavKey
  * 약관 동의 화면 NavKey
  */
 @Serializable
-data object AgreementNavKey: NavKey
+data class AgreementNavKey(
+    val needsOnboarding: Boolean,
+): NavKey
 /**
  * 약관 상세 화면 NavKey
  */
