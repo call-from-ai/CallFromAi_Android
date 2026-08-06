@@ -163,7 +163,7 @@ private fun AgreementContent(
                 .padding(horizontal = 23.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.height(156.dp))
+            Spacer(modifier = Modifier.height(136.dp))
             Row(
                 verticalAlignment = Alignment.CenterVertically,
             ) {

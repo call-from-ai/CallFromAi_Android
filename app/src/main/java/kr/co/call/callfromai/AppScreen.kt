@@ -92,13 +92,23 @@ fun AppScreen(
 
         is AppAuthState.Authenticated -> {
             MainAppContent(
-                startKey = if (authState.needsOnboarding) {
-                    Onboarding1NavKey
-                }else {
-                    HomeNavKey
+                startKey = when {
+                    authState.needsTermsAgreement -> {
+                        AgreementNavKey(
+                            needsOnboarding = authState.needsOnboarding,
+                        )
+                    }
+
+                    authState.needsOnboarding -> {
+                        Onboarding1NavKey
+                    }
+
+                    else -> {
+                        HomeNavKey
+                    }
                 },
-                viewModel = viewModel,
-                modifier = modifier,
+                viewModel=viewModel,
+                modifier=modifier,
             )
         }
 
@@ -249,6 +259,10 @@ private fun MainAppContent(
                     onboardingEntry(
                         onOnboarding1Next = {
                             appNavigator.navigate(Onboarding2NavKey)
+                        },
+                        onBackFromOnboarding1 = {
+                            viewModel.handleIntent(AppIntent.LogoutSucceeded)
+                            appNavigator.replaceAll(LoginNavKey)
                         },
                         onBackFromOnboarding2 = {
                             appNavigator.popBackStack()

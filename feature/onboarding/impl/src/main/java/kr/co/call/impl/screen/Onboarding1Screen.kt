@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,9 +57,13 @@ private enum class EditingNameField {
 fun Onboarding1Screen (
     viewModel: OnboardingViewModel,
     onNext: () -> Unit,
+    onBackClick:()->Unit,
     modifier: Modifier =Modifier,
     profileImageUrl: String?=null,
 ) {
+    BackHandler {
+        onBackClick()
+    }
     val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val initialBirthday = uiState.userBirthday
     val malePresetImages = uiState.presetImageState.maleImages.map { image ->

@@ -29,6 +29,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding1Next: () -> Unit,
+    onBackFromOnboarding1: () -> Unit,
     onBackFromOnboarding2: () -> Unit,
     onOnboarding2Next: () -> Unit,
     onBackFromOnboarding3: () -> Unit,
@@ -45,6 +46,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         Onboarding1Screen(
             viewModel = onboardingViewModel,
             onNext = onOnboarding1Next,
+            onBackClick = onBackFromOnboarding1,
         )
     }
 

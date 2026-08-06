@@ -17,6 +17,7 @@ data class StoredTokens(
     val accessToken: String? = null,
     val refreshToken: String? = null,
     val needsOnboarding: Boolean=false,
+    val needsTermsAgreement: Boolean=false,
 )
 
 /** 서버에서 발급한 Access Token과 Refresh Token을 DataStore에서 관리한다. */
@@ -33,6 +34,7 @@ class TokenDataStore @Inject constructor(
         accessToken: String,
         refreshToken: String,
         needsOnboarding: Boolean,
+        needsTermsAgreement: Boolean,
     ){
         require(accessToken.isNotBlank()){
             "Access Token은 비어 있을 수 없습니다."
@@ -44,6 +46,7 @@ class TokenDataStore @Inject constructor(
             preferences[ACCESS_TOKEN] = accessToken
             preferences[REFRESH_TOKEN] = refreshToken
             preferences[NEEDS_ONBOARDING] = needsOnboarding
+            preferences[NEEDS_TERMS_AGREEMENT] = needsTermsAgreement
         }
     }
     //토큰 재발급 시 토큰만 갱신
@@ -64,6 +67,12 @@ class TokenDataStore @Inject constructor(
             preferences[REFRESH_TOKEN] = refreshToken
         }
     }
+    //약관 완료 후 needsTermsAgreement값 변경
+    suspend fun setNeedsTermsAgreement(needsTermsAgreement: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[NEEDS_TERMS_AGREEMENT] = needsTermsAgreement
+        }
+    }
 
     /** 로그아웃하거나 세션이 만료됐을 때 저장된 토큰을 삭제한다. */
     suspend fun clearTokens() {
@@ -71,6 +80,7 @@ class TokenDataStore @Inject constructor(
             preferences.remove(ACCESS_TOKEN)
             preferences.remove(REFRESH_TOKEN)
             preferences.remove(NEEDS_ONBOARDING)
+            preferences.remove(NEEDS_TERMS_AGREEMENT)
         }
     }
 
@@ -82,6 +92,7 @@ class TokenDataStore @Inject constructor(
             accessToken = this[ACCESS_TOKEN]?.takeIf { it.isNotBlank() },
             refreshToken = this[REFRESH_TOKEN]?.takeIf { it.isNotBlank() },
             needsOnboarding=this[NEEDS_ONBOARDING] ?:false,
+            needsTermsAgreement = this[NEEDS_TERMS_AGREEMENT] ?:false,
         )
     }
 
@@ -94,5 +105,8 @@ class TokenDataStore @Inject constructor(
 
         val NEEDS_ONBOARDING=
             booleanPreferencesKey("needs_onboarding")
+
+        val NEEDS_TERMS_AGREEMENT=
+            booleanPreferencesKey("needs_terms_agreement")
     }
 }
