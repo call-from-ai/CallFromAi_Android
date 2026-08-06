@@ -57,8 +57,9 @@ class ManagerChatRoomViewModel @Inject constructor(
                 stateHolder.chatItems.value = emptyList()
                 reduce { ManagerChatRoomUiState() }
 
-                // 초기 메시지 로드가 완전히 끝난 시점에 isInitialized 세팅
+                // 초기 메시지 로드가 완전히 끝난 시점에 stateHolder 반영 후 isInitialized 세팅
                 appendManagerMessages(firstManagerChatUseCase())
+                stateHolder.chatItems.value = state.chatItems
                 stateHolder.isInitialized = true
             }
 
@@ -114,8 +115,9 @@ class ManagerChatRoomViewModel @Inject constructor(
             ).also { stateHolder.chatItems.value = it.chatItems }
         }
 
-        // 매니저 메세지 flow 구독
+        // 매니저 메세지 flow 구독 후 로드 완료 시 stateHolder 반영
         appendManagerMessages(flow)
+        stateHolder.chatItems.value = state.chatItems
     }
 
     // 메시지를 로딩 상태로 추가한 뒤, 일정 시간 후 실제 내용을 표시하는 공통 로직
@@ -131,7 +133,7 @@ class ManagerChatRoomViewModel @Inject constructor(
                     chatItems = state.chatItems
                         + dateSeparatorIfNeeded(state.chatItems, message.createdAt.toLocalDate())
                         + message.toUiItem(loadStatus = LoadStatus.Loading)
-                ).also { stateHolder.chatItems.value = it.chatItems }
+                )
             }
 
             delay(1500.milliseconds)
@@ -143,7 +145,7 @@ class ManagerChatRoomViewModel @Inject constructor(
                             item.copy(loadStatus = LoadStatus.Idle)
                         else item
                     }
-                ).also { stateHolder.chatItems.value = it.chatItems }
+                )
             }
         }
     }
