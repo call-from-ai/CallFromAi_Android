@@ -6,6 +6,7 @@ import androidx.navigation3.runtime.NavKey
 import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditCharacterNavKey
 import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.MyPageNavKey
@@ -15,6 +16,7 @@ import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.TermNavKey
 import kr.co.call.impl.screen.CallTimeManagementScreen
 import kr.co.call.impl.screen.DisturbTimeScreen
+import kr.co.call.impl.screen.EditCharacterScreen
 import kr.co.call.impl.screen.EditProfileScreen
 import kr.co.call.impl.screen.FaqScreen
 import kr.co.call.impl.screen.MyPageScreen
@@ -30,8 +32,9 @@ fun EntryProviderScope<NavKey>.myPageEntry(
     navigateToEditProfile: () -> Unit,
     navigateToSubscription: () -> Unit,
     navigateToDisturbTime: () -> Unit,
-    navigateToLogin:()->Unit,
+    navigateToLogin: () -> Unit,
     navigateToCallTimeManagement: () -> Unit,
+    navigateToEditCharacter: (Long) -> Unit,
     onBack: () -> Unit = {},
 ) {
     entry<MyPageNavKey> {
@@ -48,6 +51,14 @@ fun EntryProviderScope<NavKey>.myPageEntry(
         CharacterManagementScreen(
             onBackClick = onBack,
             navigateToAddCharacter = { /* TODO: 캐릭터 추가 화면 연결 */ },
+            navigateToEditCharacter = navigateToEditCharacter,
+        )
+    }
+
+    entry<EditCharacterNavKey> { key ->
+        EditCharacterScreen(
+            characterId = key.characterId,
+            onBackClick = onBack,
         )
     }
 

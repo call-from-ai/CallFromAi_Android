@@ -35,6 +35,7 @@ import kr.co.call.api.CharacterManagementNavKey
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditCharacterNavKey
 import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
@@ -330,6 +331,9 @@ private fun MainAppContent(
                         },
                         navigateToCallTimeManagement = {
                             appNavigator.navigate(CallTimeManagementNavKey)
+                        },
+                        navigateToEditCharacter = { characterId ->
+                            appNavigator.navigate(EditCharacterNavKey(characterId))
                         },
                         onBack = {
                             appNavigator.popBackStack()

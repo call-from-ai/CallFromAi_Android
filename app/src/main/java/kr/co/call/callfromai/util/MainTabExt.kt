@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavKey
 import kr.co.call.api.CallTimeManagementNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.DisturbTimeNavKey
+import kr.co.call.api.EditCharacterNavKey
 import kr.co.call.api.EditProfileNavKey
 import kr.co.call.api.FaqNavKey
 import kr.co.call.api.HomeNavKey
@@ -26,6 +27,7 @@ fun NavKey.toMainTab(): MainTab = when (this) {
     is TermNavKey,
     is ProfileNavKey,
     is EditProfileNavKey,
+    is EditCharacterNavKey,
     is SubscriptionNavKey,
     is DisturbTimeNavKey,
     is CallTimeManagementNavKey,
