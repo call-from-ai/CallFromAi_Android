@@ -29,3 +29,8 @@ data object DisturbTimeNavKey : NavKey
 
 @Serializable
 data object CallTimeManagementNavKey : NavKey
+
+@Serializable
+data class EditCharacterNavKey(
+    val characterId: Long,
+) : NavKey

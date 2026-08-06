@@ -43,6 +43,7 @@ fun CharacterManagementScreen(
     viewModel: CharacterManagementViewModel = hiltViewModel(),
     onBackClick: () -> Unit,
     navigateToAddCharacter: () -> Unit,
+    navigateToEditCharacter: (Long) -> Unit = {},
 ) {
     val state by viewModel.collectAsState()
 
@@ -68,6 +69,9 @@ fun CharacterManagementScreen(
             is CharacterManagementSideEffect.ShowMainCharacterDeleteBlocked -> showMainDeleteBlocked = true
             is CharacterManagementSideEffect.ShowAddCharacterBlocked -> showAddBlocked = true
             is CharacterManagementSideEffect.NavigateToAddCharacter -> navigateToAddCharacter()
+            is CharacterManagementSideEffect.NavigateToEditCharacter -> {
+                navigateToEditCharacter(sideEffect.characterId)
+            }
         }
     }
 
@@ -180,6 +184,7 @@ private fun CharacterManagementScreenContent(
                     aiCharacter = character,
                     onChatHistoryClick = { onIntent(CharacterManagementIntent.ClickChatHistory(character)) },
                     onDeleteClick = { onIntent(CharacterManagementIntent.ClickDeleteCharacter(character)) },
+                    onEditClick = { onIntent(CharacterManagementIntent.ClickEditCharacter(character)) },
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
