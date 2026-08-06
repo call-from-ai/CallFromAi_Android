@@ -14,6 +14,7 @@ import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.repository.ChatSseRepository
+import kr.co.call.domain.repository.MyPageRepository
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -23,6 +24,7 @@ import timber.log.Timber
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val tokenDataStore: TokenDataStore,
+    private val myPageRepository: MyPageRepository,
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
     private val chatSseRepository: ChatSseRepository,
@@ -50,6 +52,23 @@ class AppViewModel @Inject constructor(
             null
         }
 
+        val hasAccessToken=
+            storedTokens?.accessToken.isNullOrBlank().not()
+        val serverNeedsOnboarding=
+            if(hasAccessToken){
+                myPageRepository.getNeedsOnboarding()
+                    .onFailure{error ->
+                        if (error is CancellationException){
+                            throw error
+                        }
+                        Timber.e(
+                            error, "서버 온보딩 상태 조회 실패",
+                        )
+                    }
+                    .getOrNull()
+            }else {
+                null
+            }
         val elapsedTime =
             System.currentTimeMillis() - splashStartTime
 
@@ -61,11 +80,15 @@ class AppViewModel @Inject constructor(
         }
 
         val authState =
-            if (storedTokens == null || storedTokens.accessToken.isNullOrBlank()) {
+            if (
+                storedTokens == null ||
+                storedTokens.accessToken.isNullOrBlank()
+            ) {
                 AppAuthState.Unauthenticated
             } else {
                 AppAuthState.Authenticated(
-                    needsOnboarding = storedTokens.needsOnboarding,
+                    needsOnboarding = serverNeedsOnboarding
+                        ?: storedTokens.needsOnboarding,
                 )
             }
 
@@ -74,7 +97,9 @@ class AppViewModel @Inject constructor(
         }
 
         reduce {
-            state.copy(authState = authState)
+            state.copy(
+                authState = authState,
+            )
         }
     }
 
@@ -86,7 +111,39 @@ class AppViewModel @Inject constructor(
 
     fun handleIntent(appIntent: AppIntent) {
         when (appIntent) {
-            else -> Unit
+            is AppIntent.LoginSucceeded -> onLoginSucceeded(
+                needsOnboarding=appIntent.needsOnboarding,
+            )
+            AppIntent.LogoutSucceeded ->onLogoutSucceeded()
+        }
+    }
+    private fun onLoginSucceeded(
+        needsOnboarding: Boolean,
+    ) = intent {
+        Timber.d(
+            "인증 상태 변경: Unauthenticated -> Authenticated, needsOnboarding=%s",
+            needsOnboarding,
+        )
+
+        reduce {
+            state.copy(
+                authState = AppAuthState.Authenticated(
+                    needsOnboarding = needsOnboarding,
+                ),
+            )
+        }
+    }
+
+    private fun onLogoutSucceeded() = intent {
+        Timber.d(
+            "로그아웃 분기: %s -> Unauthenticated",
+            state.authState,
+        )
+
+        reduce {
+            state.copy(
+                authState = AppAuthState.Unauthenticated,
+            )
         }
     }
 

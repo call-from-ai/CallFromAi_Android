@@ -1,5 +1,6 @@
 package kr.co.call.network.interceptor
 
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
@@ -112,23 +113,38 @@ class TokenAuthenticator @Inject constructor(
                     )
                 } catch (error: CancellationException) {
                     throw error
-                } catch (error: Throwable) {
+                } catch (error: HttpException) {
+                    if (error.code()==401){
+                        try {
+                            tokenDataStore.clearTokens()
+                            authSessionManager.notifySessionExpired()
+                        } catch (clearError: CancellationException){
+                            throw clearError
+                        } catch (clearError: Throwable){
+                            Timber.e(
+                                clearError,"만료된 토큰 삭제 실패",
+                            )
+                        }
+                    }
                     Timber.e(
                         error,
-                        "토큰 재발급 API 호출 실패",
+                        "토큰 재발급 HttpCode=%s",
+                        error.code(),
                     )
-
+                    return@runBlocking null
+                } catch(error: Throwable){
+                    Timber.e(
+                        error, "토큰 재발급 API 호출 실패",
+                    )
                     return@runBlocking null
                 }
 
-                val reissueBody = reissueResponse.body()
 
                 /**
                  * 응답의 result가 존재하고 두 토큰 모두 비어 있지 않을 때만
                  * 정상적인 재발급 결과로 사용한다.
                  */
-                val newTokens = reissueBody
-                    ?.result
+                val newTokens = reissueResponse.result
                     ?.takeIf { tokens ->
                         tokens.accessToken.isNotBlank() &&
                                 tokens.refreshToken.isNotBlank()
@@ -139,8 +155,7 @@ class TokenAuthenticator @Inject constructor(
                  * 새 토큰을 DataStore에 저장하고 기존 요청을 다시 실행한다.
                  */
                 if (
-                    reissueResponse.isSuccessful &&
-                    reissueBody?.isSuccess == true &&
+                    reissueResponse.isSuccess &&
                     newTokens != null
                 ) {
                     try {
@@ -165,29 +180,10 @@ class TokenAuthenticator @Inject constructor(
                         )
                 }
 
-                /**
-                 * Refresh Token까지 만료되어 서버가 401을 반환한 경우
-                 * 토큰을 모두 삭제해 잘못된 자동 로그인 상태를 해제한다.
-                 */
-                if (reissueResponse.code() == 401) {
-                    try {
-                        tokenDataStore.clearTokens()
-                        authSessionManager.notifySessionExpired()
-                    } catch (error: CancellationException) {
-                        throw error
-                    } catch (error: Throwable) {
-                        Timber.e(
-                            error,
-                            "만료된 토큰 삭제 실패",
-                        )
-                    }
-                }
-
                 Timber.w(
-                    "토큰 재발급 실패: httpCode=%s, code=%s, message=%s",
-                    reissueResponse.code(),
-                    reissueBody?.code,
-                    reissueBody?.message,
+                    "토큰 재발급 실패: code=%s, message=%s",
+                    reissueResponse.code,
+                    reissueResponse.message,
                 )
 
                 null
@@ -241,13 +237,9 @@ class TokenAuthenticator @Inject constructor(
     private companion object {
         const val MAX_RESPONSE_COUNT = 2
 
-        /**
-         * 현재 baseUrl이 /api/v1/까지 포함하므로
-         * encodedPath의 전체 경로도 /api/v1/부터 작성한다.
-         */
         val AUTH_FREE_PATHS = setOf(
             "/auth/kakao",
-            "/auth/reissue",
+            "/auth/refresh",
         )
     }
 }

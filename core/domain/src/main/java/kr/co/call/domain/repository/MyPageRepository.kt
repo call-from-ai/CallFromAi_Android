@@ -5,6 +5,7 @@ import kr.co.call.domain.model.mypage.MyPageProfile
 
 interface MyPageRepository {
     suspend fun getMyProfile(): Result<MyPageProfile>
+    suspend fun getNeedsOnboarding():Result<Boolean>
 
     suspend fun updateMyProfile(update: MemberProfileUpdate): Result<MyPageProfile>
 

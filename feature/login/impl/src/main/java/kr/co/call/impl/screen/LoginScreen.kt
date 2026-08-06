@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,14 +14,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kr.co.call.designsystem.component.button.PrimaryButton
 import kr.co.call.designsystem.theme.Black
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -28,13 +32,52 @@ import kr.co.call.designsystem.theme.CallTheme.typography
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.SubYellow
 import kr.co.call.designsystem.theme.White
+import kr.co.call.impl.auth.KakaoLoginManager
+import kr.co.call.impl.viewmodel.LoginSideEffect
+import kr.co.call.impl.viewmodel.LoginViewModel
 import kr.co.call.login.impl.R
+import org.orbitmvi.orbit.compose.collectSideEffect
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(
-    modifier: Modifier= Modifier,
-    onKakaoLoginClick:()->Unit={},
+    navigateToAgreement: (needsOnboarding: Boolean) -> Unit,
+    navigateToOnboarding: (needsOnboarding: Boolean) -> Unit,
+    navigateToHome: (needsOnboarding: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+
+    val kakaoLoginManager = remember {
+        KakaoLoginManager()
+    }
+
+    viewModel.collectSideEffect { sideEffect ->
+        when (sideEffect) {
+            is LoginSideEffect.NavigateToAgreement -> {
+                navigateToAgreement(sideEffect.needsOnboarding)
+            }
+
+            is LoginSideEffect.NavigateToOnboarding -> {
+                navigateToOnboarding(sideEffect.needsOnboarding)
+            }
+
+            is LoginSideEffect.NavigateToHome -> {
+                navigateToHome(sideEffect.needsOnboarding)
+            }
+
+            is LoginSideEffect.ShowError -> {
+                Toast.makeText(
+                    context,
+                    "서버 로그인 실패: ${sideEffect.message}",
+                    Toast.LENGTH_SHORT,
+                ).show()
+
+                Timber.e("서버 로그인 실패: ${sideEffect.message}")
+            }
+        }
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -74,7 +117,24 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.height(51.dp))
         KakaoLoginButton(
-            onClick =onKakaoLoginClick,
+            onClick = {
+                kakaoLoginManager.login(
+                    context = context,
+                    onSuccess = viewModel::loginWithKakao,
+                    onFailure = { error ->
+                        Toast.makeText(
+                            context,
+                            error.message ?: "카카오 로그인에 실패했습니다",
+                            Toast.LENGTH_SHORT,
+                        ).show()
+
+                        Timber.e(error, "카카오 SDK 로그인 실패")
+                    },
+                    onCancel = {
+                        Timber.d("카카오 로그인 취소")
+                    },
+                )
+            },
         )
     }
 }
@@ -106,21 +166,6 @@ private fun KakaoLoginButton(
                 width=21.dp,
                 height=20.1.dp
             ),
-        )
-    }
-}
-
-@Preview(
-    showBackground = true,
-    widthDp = 393,
-    heightDp = 852,
-)
-@Composable
-private fun LoginScreenPreview() {
-    CallFromAiTheme {
-        LoginScreen(
-            modifier = Modifier,
-            onKakaoLoginClick = {},
         )
     }
 }
