@@ -42,7 +42,7 @@ class AuthInterceptor @Inject constructor(
     private companion object{
         val AUTH_FREE_ENDPOINTS=setOf(
             "/auth/kakao",
-            "/auth/reissue",
+            "/auth/refresh",
         )
     }
 }

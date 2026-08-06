@@ -12,7 +12,7 @@ import retrofit2.http.POST
  * 재발급은 영어로 reissue이며 기존 토큰을 새 토큰으로 교체하는 과정이다.
  */
 interface TokenReissueApi {
-    @POST("auth/reissue")
+    @POST("auth/refresh")
     suspend fun reissue(
         @Body request: TokenReissueRequestDto,
     ): Response<ApiResponse<LoginTokenResult>>

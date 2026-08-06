@@ -247,7 +247,7 @@ class TokenAuthenticator @Inject constructor(
          */
         val AUTH_FREE_PATHS = setOf(
             "/auth/kakao",
-            "/auth/reissue",
+            "/auth/refresh",
         )
     }
 }
