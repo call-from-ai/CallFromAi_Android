@@ -12,6 +12,8 @@ android {
 
 dependencies {
     implementation(project(":feature:mypage:api"))
+    // 온보딩 컴포넌트 재사용
+    implementation(project(":feature:onboarding:impl"))
 
     // core 모듈
     implementation(project(":core:designsystem"))

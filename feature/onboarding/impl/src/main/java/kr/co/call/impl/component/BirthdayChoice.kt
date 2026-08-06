@@ -38,26 +38,29 @@ import androidx.compose.runtime.getValue
 @Composable
 fun BirthdayChoice(
     selectedDate: LocalDate?,
-    onDateSelected: (LocalDate)->Unit,
-    modifier: Modifier =Modifier,
-){
+    onDateSelected: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier,
+    required: Boolean = true,
+) {
     var showBottomWheel by rememberSaveable {
         mutableStateOf(false)
     }
-    Column(modifier=modifier){
+    Column(modifier = modifier) {
         Row(
-            verticalAlignment=Alignment.CenterVertically
-        ){
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
-                text="생년월일 ",
-                color= Gray600,
-                style= CallTheme.typography.bodyMedium
+                text = "생년월일",
+                color = Gray600,
+                style = CallTheme.typography.bodyMedium,
             )
-            Text(
-                text="*",
-                color= SubRed,
-                style= CallTheme.typography.bodyMedium
-            )
+            if (required) {
+                Text(
+                    text = " *",
+                    color = SubRed,
+                    style = CallTheme.typography.bodyMedium,
+                )
+            }
         }
         Spacer(modifier=Modifier.height(7.dp))
 

@@ -40,6 +40,7 @@ fun CharacterCard(
     aiCharacter: AiCharacter,
     onChatHistoryClick: () -> Unit,
     onDeleteClick: () -> Unit,
+    onEditClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val cardShape = RoundedCornerShape(20.dp)
@@ -64,20 +65,19 @@ fun CharacterCard(
                     placeholder = painterResource(id = R.drawable.img_mypage_profile_default),
                     error = painterResource(id = R.drawable.img_mypage_profile_default),
                 )
-                // 프로필 편집하기 아이콘
-                // TODO : 추후 캐릭터 편집 화면으로 이동 구현
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .size(23.dp)
                         .clip(CircleShape)
-                        .background(CallTheme.colors.white),
+                        .background(CallTheme.colors.white)
+                        .clickable(onClick = onEditClick),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_mypage_edit),
                         contentDescription = "편집하기 버튼",
-                        tint = Color.Unspecified
+                        tint = Color.Unspecified,
                     )
                 }
             }

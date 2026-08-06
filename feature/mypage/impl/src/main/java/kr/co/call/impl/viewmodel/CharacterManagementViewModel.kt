@@ -25,6 +25,7 @@ class CharacterManagementViewModel @Inject constructor(
     fun handleIntent(userIntent: CharacterManagementIntent) {
         when (userIntent) {
             is CharacterManagementIntent.ClickChatHistory -> showChatHistory(userIntent.aiCharacter)
+            is CharacterManagementIntent.ClickEditCharacter -> navigateToEdit(userIntent.aiCharacter)
             is CharacterManagementIntent.ClickDeleteCharacter -> handleDeleteClick(userIntent.aiCharacter)
             is CharacterManagementIntent.ConfirmDeleteCharacter -> deleteCharacter(userIntent.aiCharacter.id)
             is CharacterManagementIntent.ClickAddCharacter -> checkAddCharacter()
@@ -46,6 +47,12 @@ class CharacterManagementViewModel @Inject constructor(
 
     private fun showChatHistory(aiCharacter: AiCharacter) = intent {
         postSideEffect(CharacterManagementSideEffect.ShowChatHistorySummary(aiCharacter))
+    }
+
+    private fun navigateToEdit(aiCharacter: AiCharacter) = intent {
+        val id = aiCharacter.id.toLongOrNull()
+        if (id == null) return@intent
+        postSideEffect(CharacterManagementSideEffect.NavigateToEditCharacter(id))
     }
 
     private fun handleDeleteClick(aiCharacter: AiCharacter) = intent {
