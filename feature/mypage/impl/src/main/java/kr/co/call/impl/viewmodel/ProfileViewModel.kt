@@ -23,6 +23,7 @@ class ProfileViewModel @Inject constructor(
 
     fun handleIntent(intent: ProfileIntent) {
         when (intent) {
+            is ProfileIntent.Refresh -> loadProfile()
             is ProfileIntent.ClickEditProfile -> navigate(ProfileSideEffect.NavigateToEditProfile)
             is ProfileIntent.ClickSubscription -> navigate(ProfileSideEffect.NavigateToSubscription)
             is ProfileIntent.ClickDisturbTime -> navigate(ProfileSideEffect.NavigateToDisturbTime)

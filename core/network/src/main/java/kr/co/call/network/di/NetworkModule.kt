@@ -15,6 +15,7 @@ import kr.co.call.network.api.LoginApi
 import kr.co.call.network.api.PushTokenApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.PresetImageApi
+import kr.co.call.network.api.RelationshipApi
 import kr.co.call.network.api.TokenReissueApi
 import kr.co.call.network.interceptor.AuthInterceptor
 import kr.co.call.network.interceptor.TokenAuthenticator
@@ -166,6 +167,13 @@ object NetworkModule {
     ): MyPageApi{
         return retrofit.create(MyPageApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideRelationshipApi(
+        retrofit: Retrofit,
+    ): RelationshipApi =
+        retrofit.create(RelationshipApi::class.java)
 
     @Provides
     @Singleton

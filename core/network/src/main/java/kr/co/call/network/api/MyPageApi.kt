@@ -13,6 +13,9 @@ interface MyPageApi {
     @POST("auth/logout")
     suspend fun logout(): ApiResponse<Any>
 
+    @GET("members/me")
+    suspend fun getMyInfo(): ApiResponse<MemberResponseDto>
+
     @DELETE("members/me")
     suspend fun deleteAccount(): ApiResponse<Any>
 
@@ -24,8 +27,6 @@ interface MyPageApi {
     @PATCH("members/me")
     suspend fun updateMember(
         @Body request: UpdateMemberRequestDto,
-    ): ApiResponse<Any>
+    ): ApiResponse<MemberResponseDto>
 
-    @GET("members/me")
-    suspend fun getMyInfo():ApiResponse<MemberResponseDto>
 }
