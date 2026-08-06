@@ -25,6 +25,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -128,6 +130,31 @@ private fun DisturbTimeScreenContent(
                         modifier = Modifier.weight(1f),
                     )
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // 방해 금지 시간 삭제
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "방해 금지 시간 삭제",
+                        style = CallTheme.typography.bodySmall.copy(
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                        color = CallTheme.colors.gray400,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.clickable(
+                            enabled = !state.isSaving,
+                            onClick = { onIntent(DisturbTimeIntent.ClickDelete) },
+                        ),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
             }
 
             // 하단 '완료' 버튼
@@ -138,6 +165,7 @@ private fun DisturbTimeScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp),
             )
         }
 

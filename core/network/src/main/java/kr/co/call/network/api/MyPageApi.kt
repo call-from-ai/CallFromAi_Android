@@ -39,4 +39,7 @@ interface MyPageApi {
     suspend fun updateDoNotDisturb(
         @Body request: DoNotDisturbUpdateRequestDto,
     ): ApiResponse<NotificationSettingDto>
+
+    @DELETE("members/me/notification-settings/do-not-disturb")
+    suspend fun deleteDoNotDisturb(): ApiResponse<NotificationSettingDto>
 }

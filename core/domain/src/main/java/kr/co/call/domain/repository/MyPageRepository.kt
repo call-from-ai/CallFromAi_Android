@@ -25,6 +25,8 @@ interface MyPageRepository {
         endTime: String,
     ): Result<NotificationSetting>
 
+    suspend fun deleteDoNotDisturb(): Result<NotificationSetting>
+
     suspend fun logout(): Result<Unit>
 
     suspend fun deleteAccount(): Result<Unit>

@@ -34,6 +34,7 @@ class DisturbTimeViewModel @Inject constructor(
             is DisturbTimeIntent.ConfirmSheet -> confirmSheet()
             is DisturbTimeIntent.DismissSheet -> dismissSheet()
             is DisturbTimeIntent.ClickComplete -> complete()
+            is DisturbTimeIntent.ClickDelete -> delete()
         }
     }
 
@@ -42,13 +43,15 @@ class DisturbTimeViewModel @Inject constructor(
         myPageRepository.getNotificationSetting()
             .onSuccess { setting ->
                 val start = parseApiLocalTime(setting.doNotDisturbStart)
-                    ?: DisturbTimeState.DEFAULT_START
+                    ?: DisturbTimeState.CLEARED_TIME
                 val end = parseApiLocalTime(setting.doNotDisturbEnd)
-                    ?: DisturbTimeState.DEFAULT_END
+                    ?: DisturbTimeState.CLEARED_TIME
+                // 서버에 값이 없으면 둘 다 00시로 표시
+                val hasSetting = setting.doNotDisturbStart != null && setting.doNotDisturbEnd != null
                 reduce {
                     state.copy(
-                        startTime = start,
-                        endTime = end,
+                        startTime = if (hasSetting) start else DisturbTimeState.CLEARED_TIME,
+                        endTime = if (hasSetting) end else DisturbTimeState.CLEARED_TIME,
                         loadStatus = LoadStatus.Idle,
                     )
                 }
@@ -123,5 +126,31 @@ class DisturbTimeViewModel @Inject constructor(
                 ),
             )
         }
+    }
+
+    private fun delete() = intent {
+        if (state.isSaving) return@intent
+
+        reduce { state.copy(isSaving = true) }
+        myPageRepository.deleteDoNotDisturb()
+            .onSuccess {
+                reduce {
+                    state.copy(
+                        startTime = DisturbTimeState.CLEARED_TIME,
+                        endTime = DisturbTimeState.CLEARED_TIME,
+                        openSheet = null,
+                        isSaving = false,
+                    )
+                }
+            }
+            .onFailure { error ->
+                if (error is CancellationException) throw error
+                reduce { state.copy(isSaving = false) }
+                postSideEffect(
+                    DisturbTimeSideEffect.ShowMessage(
+                        error.toUserMessage(default = "방해 금지 시간 삭제에 실패했습니다."),
+                    ),
+                )
+            }
     }
 }

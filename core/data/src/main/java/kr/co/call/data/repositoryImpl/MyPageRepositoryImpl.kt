@@ -84,6 +84,11 @@ class MyPageRepositoryImpl @Inject constructor(
             )
         }.map { it.toDomain() }
 
+    override suspend fun deleteDoNotDisturb(): Result<NotificationSetting> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.deleteDoNotDisturb()
+        }.map { it.toDomain() }
+
     /**
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.
      */

@@ -22,5 +22,6 @@ data class DisturbTimeState(
     companion object {
         val DEFAULT_START: LocalTime = LocalTime.of(9, 0)
         val DEFAULT_END: LocalTime = LocalTime.of(12, 30)
+        val CLEARED_TIME: LocalTime = LocalTime.MIDNIGHT
     }
 }
