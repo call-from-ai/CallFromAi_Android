@@ -52,12 +52,13 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun TempControl (
-    onTemperatureChange: (Int)->Unit,
-    modifier: Modifier= Modifier,
+fun TempControl(
+    onTemperatureChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    initialTemperature: Int = 50,
 ) {
-    var temperature by rememberSaveable {
-        mutableIntStateOf(50)
+    var temperature by rememberSaveable(initialTemperature) {
+        mutableIntStateOf(initialTemperature.coerceIn(0, 100))
     }
     Column(
         modifier = modifier,
