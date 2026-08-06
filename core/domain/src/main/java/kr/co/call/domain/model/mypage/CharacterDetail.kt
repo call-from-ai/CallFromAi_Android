@@ -20,7 +20,6 @@ data class CharacterDetail(
     val relationshipStage: String = "SOME",
     val isMain: Boolean = false,
     val traits: List<CharacterTraitDetail> = emptyList(),
-    /** false면 목록 요약만 있음 → 풀 PATCH 비권장 (비메인 + 상세 API 미구현) */
     val isFullDetail: Boolean = true,
 )
 
