@@ -31,6 +31,16 @@ class ChatSseClient @Inject constructor(
 
     private var eventSource: EventSource? = null
 
+    // 실제 SSE Transport 연결 상태.
+    // 재연결 루프(connectJob)와는 별개로,
+    // onOpen ~ onClosed/onFailure 사이에만 true가 된다.
+    @Volatile
+    private var transportConnected = false
+
+    // 현재 SSE Transport가 서버와 연결되어 있는지 여부
+    val isConnected: Boolean
+        get() = transportConnected
+
     /**
      * SSE 서버에 연결하고 파싱된 이벤트를 Flow로 반환합니다.
      *
@@ -48,6 +58,7 @@ class ChatSseClient @Inject constructor(
         val listener = object : EventSourceListener() {
 
             override fun onOpen(eventSource: EventSource, response: Response) {
+                transportConnected = true
                 Timber.d("SSE HTTP 연결 성공 (code=${response.code})")
             }
 
@@ -79,6 +90,8 @@ class ChatSseClient @Inject constructor(
             }
 
             override fun onClosed(eventSource: EventSource) {
+                transportConnected = false
+
                 Timber.d("SSE 연결 종료")
                 this@ChatSseClient.eventSource = null
                 channel.close()
@@ -89,6 +102,8 @@ class ChatSseClient @Inject constructor(
                 t: Throwable?,
                 response: Response?,
             ) {
+                transportConnected = false
+
                 this@ChatSseClient.eventSource = null
                 Timber.w(t, "SSE 연결 실패 (code=${response?.code})")
                 channel.close()
@@ -110,6 +125,8 @@ class ChatSseClient @Inject constructor(
      * 현재 SSE 연결을 종료합니다.
      */
     fun disconnect() {
+        transportConnected = false
+
         eventSource?.cancel()
         eventSource = null
     }

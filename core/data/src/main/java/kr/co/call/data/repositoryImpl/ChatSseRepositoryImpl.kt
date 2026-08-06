@@ -28,12 +28,17 @@ class ChatSseRepositoryImpl @Inject constructor(
     private val _sseFlow = MutableSharedFlow<ChatSseEvent>(extraBufferCapacity = 64)
     override val sseFlow: SharedFlow<ChatSseEvent> = _sseFlow.asSharedFlow()
 
+    // SSE 연결 및 재연결을 관리하는 Job.
+    // 실제 SSE Transport 연결 여부는 ChatSseClient.isConnected에서 관리
     private var connectJob: Job? = null
 
+    // 현재 SSE Transport가 서버와 연결된 상태인지 반환한다.
+    // connectJob의 활성 상태가 아닌 실제 EventSource 연결 상태를 기준으로 한다.
     override val isConnected: Boolean
-        get() = connectJob?.isActive == true
+        get() = chatSseClient.isConnected
 
     override fun connect() {
+        // 재연결 루프가 이미 실행 중이면 중복 SSE 연결 생성을 방지한다.
         if (connectJob?.isActive == true) {
             Timber.d("SSE 이미 연결 중, 중복 connect() 무시")
             return
@@ -41,6 +46,8 @@ class ChatSseRepositoryImpl @Inject constructor(
         Timber.d("SSE connect() 호출됨")
         connectJob = appScope.launch {
             while (isActive) {
+                // SSE 연결 종료 또는 실패 시 일정 시간 후 재연결을 시도한다.
+                // 단, 실제 연결 상태(isConnected)는 ChatSseClient의 EventSource 상태를 따른다.
                 runCatching {
                     chatSseClient.connect().collect { event ->
                         _sseFlow.emit(event.toDomain())

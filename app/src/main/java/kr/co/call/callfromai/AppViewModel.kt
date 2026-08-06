@@ -147,6 +147,13 @@ class AppViewModel @Inject constructor(
                 ),
             )
         }
+
+        // 인증이 완료되기 전에 푸시를 눌렀다면 pending으로 저장해 둔 채팅방으로 이동
+        // 한 번만 처리되도록 pending 값을 먼저 비운 뒤 네비게이션 SideEffect를 발생시킨다.
+        pendingChatRoomId?.let { roomId ->
+            pendingChatRoomId = null
+            postSideEffect(AppSideEffect.NavigateToChatRoom(roomId))
+        }
     }
 
     private fun onLogoutSucceeded() = intent {
