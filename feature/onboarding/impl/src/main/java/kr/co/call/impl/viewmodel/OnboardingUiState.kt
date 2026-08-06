@@ -13,7 +13,7 @@ data class OnboardingUiState(
     //사용자 정보
     val userLastName: String = "",
     val userFirstName: String = "",
-    val userBirthday: LocalDate? =null,
+    val userBirthday: LocalDate =LocalDate.now(),
     val userJob: String = "",
     val userMbti: String = "",
     val userGender: String="",

@@ -15,5 +15,5 @@ interface TokenReissueApi {
     @POST("auth/refresh")
     suspend fun reissue(
         @Body request: TokenReissueRequestDto,
-    ): Response<ApiResponse<LoginTokenResult>>
+    ): ApiResponse<LoginTokenResult>
 }

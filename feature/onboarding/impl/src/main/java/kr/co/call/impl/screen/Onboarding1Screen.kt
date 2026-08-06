@@ -132,7 +132,6 @@ fun Onboarding1Screen (
     val canMoveNext =
         lastName.isNotBlank() &&
             firstName.isNotBlank() &&
-            birthday != null &&
             selectedJob!=null
     Box(
         modifier = modifier.fillMaxSize()
@@ -258,11 +257,10 @@ fun Onboarding1Screen (
                     text = "다음",
                     enabled = canMoveNext,
                     onClick = {
-                        birthday?.let { selectedBirthday ->
                             val state = Onboarding1State(
                                 lastName=lastName,
                                 firstName=firstName,
-                                birthday=selectedBirthday,
+                                birthday=birthday,
                                 job=checkNotNull(selectedJob).name,
                                 mbti=mbti,
                                 gender=selectedGender.name,
@@ -278,7 +276,6 @@ fun Onboarding1Screen (
                                 imageUrl = state.imageUrl,
                             )
                             onNext()
-                        }
                     },
                 )
             }
