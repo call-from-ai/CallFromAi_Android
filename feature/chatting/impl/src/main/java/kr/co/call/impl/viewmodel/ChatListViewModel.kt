@@ -2,7 +2,10 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filterIsInstance
+import kr.co.call.domain.model.chatting.ChatSseEvent
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatListIntent
 import kr.co.call.impl.sideeffect.ChatListSideEffect
@@ -14,12 +17,20 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
+    private val chatSseRepository: ChatSseRepository
 ) : ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
     ) {
         loadChatList()
+        observeSseEvents()
+    }
+
+    private fun observeSseEvents() = intent {
+        chatSseRepository.sseFlow
+            .filterIsInstance<ChatSseEvent.Message>()
+            .collect { refreshChatList() }
     }
 
     // 초기 로딩

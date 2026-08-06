@@ -78,7 +78,6 @@ object ChatMapper {
                 chatMessageId = chatMessageId,
                 senderType = SenderType.fromApiValue(senderType),
                 content = content,
-                photoUrl = photoUrl,
                 messageType = MessageType.fromApiValue(messageType),
                 createdAt = createdAt,
             )

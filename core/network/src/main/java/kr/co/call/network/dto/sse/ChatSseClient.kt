@@ -118,7 +118,6 @@ class ChatSseClient @Inject constructor(
                     chatMessageId = json.get("chatMessageId").asLong,
                     senderType = json.get("senderType").asString,
                     content = json.get("content").asString,
-                    photoUrl = json.get("photoUrl")?.asString,
                     messageType = json.get("messageType").asString,
                     createdAt = json.get("createdAt").asString,
                 )

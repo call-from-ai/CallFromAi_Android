@@ -12,7 +12,6 @@ data class ChatSseMessage(
     val chatMessageId: Long,
     val senderType: SenderType,
     val content: String,
-    val photoUrl: String?,
     val messageType: MessageType,
     val createdAt: String,
 )

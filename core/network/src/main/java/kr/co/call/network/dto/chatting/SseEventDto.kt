@@ -13,7 +13,6 @@ sealed interface ChatSseNetworkEvent {
         val chatMessageId: Long,
         val senderType: String,
         val content: String,
-        val photoUrl: String?,
         val messageType: String,
         val createdAt: String,
     ) : ChatSseNetworkEvent
