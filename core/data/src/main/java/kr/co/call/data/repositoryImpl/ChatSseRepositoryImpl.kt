@@ -23,6 +23,8 @@ class ChatSseRepositoryImpl @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope,
 ) : ChatSseRepository {
 
+    // SSE로 수신한 이벤트를 ChatListViewModel / ChatRoomViewModel에 브로드캐스트
+    // extraBufferCapacity: 구독자가 느려도 최대 64개 이벤트까지 유실 없이 버퍼링
     private val _sseFlow = MutableSharedFlow<ChatSseEvent>(extraBufferCapacity = 64)
     override val sseFlow: SharedFlow<ChatSseEvent> = _sseFlow.asSharedFlow()
 

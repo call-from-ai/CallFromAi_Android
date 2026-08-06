@@ -51,6 +51,17 @@ class ChatSseClient @Inject constructor(
                 Timber.d("SSE HTTP 연결 성공 (code=${response.code})")
             }
 
+            /**
+             * 서버로부터 SSE 이벤트를 수신했을 때 호출됩니다.
+             *
+             * "heartbeat" 타입의 이벤트는 무시하며, 그 외의 이벤트는 [SseEventDto]로 래핑하여
+             * [ChatSseNetworkEvent]로 파싱한 후 Flow 스트림으로 전달합니다.
+             *
+             * @param eventSource 이벤트를 수신한 [EventSource] 객체
+             * @param id 이벤트의 ID (선택 사항)
+             * @param type 이벤트의 타입 (예: "connect", "message", "heartbeat" 등)
+             * @param data 수신된 실제 데이터 문자열 (JSON 형태)
+             */
             override fun onEvent(
                 eventSource: EventSource,
                 id: String?,
@@ -103,6 +114,18 @@ class ChatSseClient @Inject constructor(
         eventSource = null
     }
 
+    /**
+     * [SseEventDto]에서 전달된 raw 데이터를 [ChatSseNetworkEvent]로 변환합니다.
+     *
+     * 처리되는 이벤트 타입:
+     * - "connect": 연결 성공 이벤트
+     * - "loading": 채팅방 로딩 중 이벤트 (chatRoomId 포함)
+     * - "message": 새로운 채팅 메시지 수신 이벤트 (상세 메시지 정보 포함)
+     * - "chat-error": 채팅 관련 에러 발생 이벤트 (chatRoomId 포함)
+     *
+     * @return 파싱에 성공하면 [ChatSseNetworkEvent] 객체를, 정의되지 않은 이벤트이거나
+     * JSON 파싱 중 오류가 발생하면 null을 반환합니다.
+     */
     private fun SseEventDto.parse(): ChatSseNetworkEvent? = runCatching {
         when (event) {
             "connect" -> ChatSseNetworkEvent.Connected

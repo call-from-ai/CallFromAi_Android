@@ -7,7 +7,8 @@ interface ChatSseRepository {
 
     /**
      * 앱 전역에서 공유되는 SSE 이벤트 스트림.
-     * 채팅방별 구독은 [chatRoomId]로 필터링하여 사용합니다.
+     * ChatListViewModel / ChatRoomViewModel 에서 구독하며,
+     * 채팅방별 이벤트 필터링은 각 ViewModel에서 [chatRoomId]로 처리합니다.
      */
     val sseFlow: SharedFlow<ChatSseEvent>
 

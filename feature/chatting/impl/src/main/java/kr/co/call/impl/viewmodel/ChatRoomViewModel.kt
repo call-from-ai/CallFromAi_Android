@@ -84,6 +84,7 @@ class ChatRoomViewModel @AssistedInject constructor(
                 when (event) {
                     is ChatSseEvent.Loading -> event.chatRoomId == navKey.roomId
                     is ChatSseEvent.Message -> event.message.chatRoomId == navKey.roomId
+                    is ChatSseEvent.Failed -> event.chatRoomId == navKey.roomId
                     else -> false
                 }
             }
@@ -101,7 +102,6 @@ class ChatRoomViewModel @AssistedInject constructor(
                         // 받은 메세지를 UI모델로 변환
                         val receivedItem = event.message.toUiItem()
 
-
                         reduce {
                             // 로딩 버블을 제거하고 수신 메시지를 항상 index 0(최하단)에 추가
                             // 제자리 교체 시 msg2 전송 후 reply가 오면 msg1~msg2 사이에 끼는 문제 방지
@@ -110,6 +110,17 @@ class ChatRoomViewModel @AssistedInject constructor(
                             }
                             state.copy(chatItems = listOf(receivedItem) + withoutBubble)
                         }
+                    }
+                    is ChatSseEvent.Failed -> {
+                        // 로딩 버블 제거 후 오류 토스트
+                        reduce {
+                            state.copy(
+                                chatItems = state.chatItems.filter {
+                                    it !is ChatItemUiModel.Message || it.clientId != SSE_LOADING_CLIENT_ID
+                                }
+                            )
+                        }
+                        postSideEffect(ChatRoomSideEffect.ShowToast("오류로 인해 답장을 받지 못했어요"))
                     }
                     else -> Unit
                 }
