@@ -11,7 +11,7 @@ enum class MemberJob(
 enum class CharacterJob(
     val label: String,
 ){
-    STUDENT("대학생"),
-    EMPLOYED("직장인"),
-    UMEMPLOYED("기타")
+    UNIVERSITY_STUDENT("대학생"),
+    EMPLOYEE("직장인"),
+    OTHER("기타")
 }

@@ -27,7 +27,7 @@ class OnboardingRepositoryImpl @Inject constructor(
         submission: MemberOnboardingInput,
     ): Result<Unit> =
         safeApiResultUnit(errorResponseParser) {
-            myPageApi.updateMember(
+            myPageApi.createMember(
                 request = submission.toRequestDto(),
             )
         }

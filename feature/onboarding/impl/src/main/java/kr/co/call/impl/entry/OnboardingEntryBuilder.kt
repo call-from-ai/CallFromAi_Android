@@ -46,7 +46,8 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding1Screen(
-            malePresetImages =
+                initialBirthday = uiState.userBirthday,
+                malePresetImages =
                 uiState.presetImageState.maleImages.map { image ->
                     ProfileImageOption(
                         id = image.id.toString(),

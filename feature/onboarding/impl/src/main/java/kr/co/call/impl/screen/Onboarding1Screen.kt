@@ -53,6 +53,7 @@ private enum class EditingNameField {
 }
 @Composable
 fun Onboarding1Screen (
+    initialBirthday: LocalDate?,
     onNextClick: (Onboarding1State)->Unit,
     malePresetImages: List<ProfileImageOption>,
     femalePresetImages: List<ProfileImageOption>,
@@ -66,8 +67,8 @@ fun Onboarding1Screen (
     var firstName by rememberSaveable {
         mutableStateOf("")
     }
-    var birthday by remember {
-        mutableStateOf<LocalDate?>(null)
+    var birthday by remember(initialBirthday) {
+        mutableStateOf(initialBirthday)
     }
     var selectedJob by rememberSaveable {
         mutableStateOf<MemberJob?>(null)

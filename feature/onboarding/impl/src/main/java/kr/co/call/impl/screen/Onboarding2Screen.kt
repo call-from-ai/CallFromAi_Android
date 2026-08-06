@@ -211,14 +211,14 @@ fun Onboarding2Screen(
                     modifier = Modifier.fillMaxWidth(),
                     label = "직업",
                     selectedOption = when (selectedJob) {
-                        CharacterJob.UMEMPLOYED -> "기타"
+                        CharacterJob.OTHER -> "기타"
                         else -> selectedJob?.label.orEmpty()
                     },
                     placeholder = "직업을 선택해주세요",
                     options = listOf("대학생", "직장인", "기타"),
                     onOptionSelected = {selectedLabel->
                         selectedJob = when (selectedLabel) {
-                            "기타" -> CharacterJob.UMEMPLOYED
+                            "기타" -> CharacterJob.OTHER
                             else -> CharacterJob.entries.firstOrNull { job ->
                                 job.label == selectedLabel
                             }
