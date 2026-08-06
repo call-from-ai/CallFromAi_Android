@@ -42,9 +42,10 @@ class ChatRoomViewModel @AssistedInject constructor(
     override val container: Container<ChatRoomUiState, ChatRoomSideEffect> = container(
         initialState = ChatRoomUiState()
     ) {
-        loadHeader()
-        readChats(navKey.roomId)
-        observeSseEvents()
+        chatSseRepository.connect() // sse 구독
+        loadHeader() // 헤더 정보 조회
+        readChats(navKey.roomId) // 읽음 처리
+        observeSseEvents() // sse 이벤트 수신
     }
 
     // 채팅 메시지 목록을 PagingData로 불러오고, 날짜 구분선을 삽입한 뒤 UI 모델로 변환

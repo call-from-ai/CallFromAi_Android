@@ -23,8 +23,14 @@ class ChatListViewModel @Inject constructor(
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
     ) {
+        chatSseRepository.connect()
         loadChatList()
         observeSseEvents()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatSseRepository.disconnect()
     }
 
     // SSE로 새 메시지 이벤트가 수신될 때마다

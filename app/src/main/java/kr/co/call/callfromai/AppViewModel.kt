@@ -13,7 +13,6 @@ import kr.co.call.callfromai.state.AppState
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
-import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.domain.repository.MyPageRepository
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -27,7 +26,6 @@ class AppViewModel @Inject constructor(
     private val myPageRepository: MyPageRepository,
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
-    private val chatSseRepository: ChatSseRepository,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -91,10 +89,6 @@ class AppViewModel @Inject constructor(
                         ?: storedTokens.needsOnboarding,
                 )
             }
-
-        if (authState is AppAuthState.Authenticated) {
-            chatSseRepository.connect()
-        }
 
         reduce {
             state.copy(
