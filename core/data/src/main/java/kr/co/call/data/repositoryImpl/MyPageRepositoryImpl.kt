@@ -11,11 +11,13 @@ import kr.co.call.data.util.toAppResult
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
+import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.RelationshipApi
 import kr.co.call.network.dto.mypage.ContactPreferenceUpdateRequestDto
+import kr.co.call.network.dto.mypage.NotificationSettingUpdateRequestDto
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
 
@@ -49,6 +51,24 @@ class MyPageRepositoryImpl @Inject constructor(
                 ContactPreferenceUpdateRequestDto(preferTime = preferTime),
             )
         }
+
+    override suspend fun getNotificationSetting(): Result<NotificationSetting> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.getNotificationSettings()
+        }.map { it.toDomain() }
+
+    override suspend fun updateNotificationToggles(
+        allNotificationEnabled: Boolean?,
+        nightCallAllowed: Boolean?,
+    ): Result<NotificationSetting> =
+        safeApiResult(errorResponseParser) {
+            myPageApi.updateNotificationSettings(
+                NotificationSettingUpdateRequestDto(
+                    allNotificationEnabled = allNotificationEnabled,
+                    nightCallAllowed = nightCallAllowed,
+                ),
+            )
+        }.map { it.toDomain() }
 
     /**
      * 로그아웃: FCM 서버 해제 > 로컬 FCM 토큰 삭제 > JWT 삭제.
