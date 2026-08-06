@@ -9,4 +9,5 @@ sealed interface CharacterManagementSideEffect {
     data object ShowAddCharacterBlocked : CharacterManagementSideEffect
     data object NavigateToAddCharacter : CharacterManagementSideEffect
     data class NavigateToEditCharacter(val characterId: Long) : CharacterManagementSideEffect
+    data class ShowMessage(val message: String) : CharacterManagementSideEffect
 }

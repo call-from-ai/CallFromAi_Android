@@ -62,4 +62,10 @@ class AICharacterRepositoryImpl @Inject constructor(
         // TODO: 마지막 캐릭터 생성 시각 기준 24시간 경과 여부 (백엔드)
         return runCatching { true }
     }
+
+    override suspend fun getChatSummary(characterId: Long): Result<String> =
+        safeApiResult(errorResponseParser) {
+            characterApi.getChatSummary(characterId)
+        }.map { dto -> dto.summary }
 }
+

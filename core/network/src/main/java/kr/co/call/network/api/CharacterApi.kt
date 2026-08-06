@@ -2,6 +2,7 @@ package kr.co.call.network.api
 
 import kr.co.call.network.dto.ApiResponse
 import kr.co.call.network.dto.character.ActiveCharacterDto
+import kr.co.call.network.dto.character.ChatSummaryDto
 import kr.co.call.network.dto.character.MyCharacterDto
 import kr.co.call.network.dto.character.UpdateCharacterRequestDto
 import retrofit2.http.Body
@@ -16,6 +17,11 @@ interface CharacterApi {
 
     @GET("characters/active")
     suspend fun getActiveCharacter(): ApiResponse<ActiveCharacterDto>
+
+    @GET("characters/{characterId}/chat-summary")
+    suspend fun getChatSummary(
+        @Path("characterId") characterId: Long,
+    ): ApiResponse<ChatSummaryDto>
 
     @PATCH("characters/{characterId}")
     suspend fun updateCharacter(
