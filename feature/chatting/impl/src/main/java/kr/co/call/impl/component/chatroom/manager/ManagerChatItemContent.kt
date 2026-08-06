@@ -141,8 +141,7 @@ fun ManagerChatItemContent(
         is UserMessage -> {
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 18.dp),
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
                 ChatPinkBubble(

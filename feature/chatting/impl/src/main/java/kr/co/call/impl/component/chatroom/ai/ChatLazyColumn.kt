@@ -128,7 +128,7 @@ fun ChatLazyColumn(
                     if (shouldShowDateSeparator(pagingItems, index, deletedIds)) {
                         DateSeparator(
                             text = item.date,
-                            modifier = Modifier.padding(top = 11.dp, bottom = 5.dp)
+                            modifier = Modifier.padding(top = 11.dp, bottom = 10.dp)
                         )
                     }
                 }
