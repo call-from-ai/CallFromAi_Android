@@ -71,12 +71,6 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 if (error is CancellationException) throw error
-                // 프로필은 유지하고 알림 설정만 실패 안내
-                postSideEffect(
-                    ProfileSideEffect.ShowMessage(
-                        error.toUserMessage(default = "알림 설정을 불러오지 못했습니다."),
-                    ),
-                )
             }
     }
 
@@ -94,11 +88,6 @@ class ProfileViewModel @Inject constructor(
         }.onFailure { error ->
             if (error is CancellationException) throw error
             reduce { state.copy(isAllNotificationEnabled = previous) }
-            postSideEffect(
-                ProfileSideEffect.ShowMessage(
-                    error.toUserMessage(default = "알림 설정 변경에 실패했습니다."),
-                ),
-            )
         }
     }
 
@@ -116,11 +105,6 @@ class ProfileViewModel @Inject constructor(
         }.onFailure { error ->
             if (error is CancellationException) throw error
             reduce { state.copy(isLateNightCallAllowed = previous) }
-            postSideEffect(
-                ProfileSideEffect.ShowMessage(
-                    error.toUserMessage(default = "심야 통화 설정 변경에 실패했습니다."),
-                ),
-            )
         }
     }
 

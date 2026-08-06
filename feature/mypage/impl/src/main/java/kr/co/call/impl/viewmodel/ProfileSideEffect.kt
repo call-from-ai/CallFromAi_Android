@@ -5,8 +5,4 @@ sealed interface ProfileSideEffect {
     data object NavigateToSubscription : ProfileSideEffect
     data object NavigateToDisturbTime : ProfileSideEffect
     data object NavigateToCallTimeManagement : ProfileSideEffect
-
-    data class ShowMessage(
-        val message: String,
-    ) : ProfileSideEffect
 }
