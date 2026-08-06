@@ -56,6 +56,8 @@ class OnboardingViewModel @Inject constructor(
                 isCreatingAi = false,
                 createAiError = null,
                 submitStatus = LoadStatus.Idle,
+                // 이전 온보딩의 회원 제출 플래그가 남지 않도록 초기화
+                isMemberSubmitted = false,
                 createdAiId = null,
                 createdAiName = "",
             )
