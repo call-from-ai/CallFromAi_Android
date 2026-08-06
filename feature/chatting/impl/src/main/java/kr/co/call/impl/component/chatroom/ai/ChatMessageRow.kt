@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
 import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.model.ChatItemUiModel
@@ -53,6 +54,7 @@ fun ChatMessageRow(
             ChatGrayBubble(
                 text = AnnotatedString(item.content),
                 time = item.time,
+                isLoading = item.loadStatus is LoadStatus.Loading,
             )
             if (isSelected) {
                 ChatBubblePopUp(

@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.DateSeparator
 import kr.co.call.impl.model.ChatItemUiModel
 import kr.co.call.impl.util.shouldShowDateSeparator
@@ -52,10 +53,19 @@ fun ChatLazyColumn(
             bottom = 13.dp + bottomPadding,
         ),
     ) {
-        // 낙관적(실시간) 메시지: reverseLayout=true 이므로 맨 앞 = 화면 하단
+        // SSE 로딩 버블(AI의 Loading 상태 메시지)을 앞으로 정렬해 reverseLayout 기준 항상 최하단에 표시
         // 삭제된 메시지는 슬롯 자체를 제거해 spacing이 남지 않도록 미리 필터링
-        val visibleRealtimeMessages = realtimeMessages.filter {
-            it !is ChatItemUiModel.Message || it.chatMessageId !in deletedIds
+        val visibleRealtimeMessages = buildList {
+            addAll(realtimeMessages.filter {
+                it is ChatItemUiModel.Message &&
+                it.senderType == SenderType.AI &&
+                it.loadStatus is LoadStatus.Loading
+            })
+            addAll(realtimeMessages.filter {
+                it !is ChatItemUiModel.Message ||
+                it.chatMessageId !in deletedIds &&
+                !(it.senderType == SenderType.AI && it.loadStatus is LoadStatus.Loading)
+            })
         }
         items(
             count = visibleRealtimeMessages.size,
