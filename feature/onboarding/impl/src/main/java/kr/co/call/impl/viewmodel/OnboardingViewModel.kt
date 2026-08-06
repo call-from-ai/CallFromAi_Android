@@ -138,21 +138,12 @@ class OnboardingViewModel @Inject constructor(
             )
         }
 
-        val userBirthday=state.userBirthday
-        if(userBirthday==null){
-            postSideEffect(
-                OnboardingSideEffect.ShowMessage(
-                    message="생년월일을 입력해주세요.",
-                ),
-            )
-            return@intent
-        }
         val memberSubmission = MemberOnboardingInput(
             lastName = state.userLastName,
             firstName = state.userFirstName,
             imageUrl = state.userImageUrl,
             gender = state.userGender,
-            birth = userBirthday.toString(),
+            birth = state.userBirthday.toString(),
             mbti = state.userMbti,
             job = state.userJob,
         )

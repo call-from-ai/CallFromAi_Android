@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,7 +41,13 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.Gray600
+import kr.co.call.designsystem.theme.SubRed
 import kr.co.call.designsystem.theme.White
+import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
+import kr.co.call.domain.model.onboarding.CreatedCharacter
+import kr.co.call.domain.model.onboarding.MemberOnboardingInput
+import kr.co.call.domain.model.onboarding.PresetImage
+import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.impl.component.AgeInputField
 import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.MemberChoice
@@ -129,7 +137,9 @@ fun Onboarding2Screen(
     val canMoveNext = age.isNotBlank() &&
             lastName.isNotBlank() &&
             firstName.isNotBlank() &&
-            selectedJob != null
+            selectedJob != null &&
+            mbti.isNotBlank() &&
+            !savedProfileImageUrl.isNullOrBlank()
 
     Box(
         modifier = modifier
@@ -157,12 +167,19 @@ fun Onboarding2Screen(
                     .padding(horizontal = 27.dp),
             ) {
                 Spacer(modifier = Modifier.height(25.dp))
-
+                Row() {
                 Text(
                     text = "사진 선택",
                     style = CallTheme.typography.bodyMedium,
                     color = Gray600,
                 )
+                Spacer(modifier=Modifier.width(3.dp))
+                Text(
+                    text="*",
+                    style=CallTheme.typography.bodyMedium,
+                    color= SubRed
+                )
+            }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
@@ -250,6 +267,7 @@ fun Onboarding2Screen(
                     placeholder = "MBTI를 선택해주세요",
                     options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
+                    required = true,
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -388,3 +406,48 @@ fun Onboarding2Screen(
     }
 }
 
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFFFFFFF,
+    widthDp = 360,
+    heightDp = 800,
+)
+@Composable
+private fun Onboarding2ScreenPreview() {
+    val previewViewModel = remember {
+        OnboardingViewModel(
+            onboardingRepository = object : OnboardingRepository {
+                override suspend fun submitMemberOnboarding(
+                    submission: MemberOnboardingInput,
+                ): Result<Unit> {
+                    return Result.success(Unit)
+                }
+
+                override suspend fun submitCharacterOnboarding(
+                    submission: CharacterOnboardingInput,
+                ): Result<CreatedCharacter> {
+                    return Result.success(
+                        CreatedCharacter(
+                            id = 1L,
+                            name = "미리보기",
+                        ),
+                    )
+                }
+
+                override suspend fun getPresetImages(
+                    gender: String,
+                ): Result<List<PresetImage>> {
+                    return Result.success(emptyList())
+                }
+            },
+        )
+    }
+
+    CallFromAiTheme {
+        Onboarding2Screen(
+            viewModel = previewViewModel,
+            onBackClick = {},
+            onNext = {},
+        )
+    }
+}
