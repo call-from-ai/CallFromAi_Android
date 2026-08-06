@@ -27,6 +27,9 @@ class ChatListViewModel @Inject constructor(
         observeSseEvents()
     }
 
+    // SSE로 새 메시지 이벤트가 수신될 때마다
+    // 목록 조회 api를 호출하여
+    // 채팅 목록을 조용히 갱신
     private fun observeSseEvents() = intent {
         chatSseRepository.sseFlow
             .filterIsInstance<ChatSseEvent.Message>()
@@ -61,7 +64,7 @@ class ChatListViewModel @Inject constructor(
         )
     }
 
-    // onResume 시 로딩 없이 조용히 목록 갱신 — 변경된 항목만 교체
+    // 조용히 목록 갱신 — 변경된 항목만 교체
     private fun refreshChatList() = intent {
         chatRepository.getChatList()
             .onSuccess { newList ->

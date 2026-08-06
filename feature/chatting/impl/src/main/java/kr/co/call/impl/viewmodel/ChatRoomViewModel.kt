@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.impl.intent.ChatRoomIntent
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.model.ChatItemUiModel
@@ -26,6 +27,7 @@ import org.orbitmvi.orbit.viewmodel.container
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
+    private val chatSseRepository: ChatSseRepository,
     @Assisted val navKey: ChatRoomNavKey,
 ): ViewModel(), ContainerHost<ChatRoomUiState, ChatRoomSideEffect> {
 
