@@ -42,6 +42,26 @@ suspend fun <T : Any> safeApiCall(
 }
 
 /**
+ * 정상 응답에서 result가 없을 수 있는 조회 API를 처리합니다.
+ */
+suspend fun <T : Any> safeApiCallNullable(
+    parser: ErrorResponseParser,
+    call: suspend () -> ApiResponse<T>,
+): T? {
+    return try {
+        val response = call()
+        response.throwIfNotSuccess()
+        response.result
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: ApiException) {
+        throw e
+    } catch (e: HttpException) {
+        throw e.toApiException(parser)
+    }
+}
+
+/**
  * 성공 시 result 가 null 이어도 되는 API (BE `ApiResponse<Void>` / result 없음).
  */
 suspend fun safeApiCallUnit(

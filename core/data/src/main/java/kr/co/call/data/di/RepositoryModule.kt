@@ -7,7 +7,6 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import kr.co.call.data.repositoryImpl.AgreementRepositoryImpl
 import kr.co.call.data.repositoryImpl.AICharacterRepositoryImpl
-import kr.co.call.data.repositoryImpl.AndroidCallSessionRepository
 import kr.co.call.data.repositoryImpl.CallControlRepositoryImpl
 import kr.co.call.data.repositoryImpl.CallStreamingRepositoryImpl
 import kr.co.call.data.repositoryImpl.CallRecordRepositoryImpl
@@ -24,7 +23,6 @@ import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
 import kr.co.call.data.repositoryImpl.PushTokenRepositoryImpl
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.domain.repository.CallControlRepository
-import kr.co.call.domain.repository.CallSessionRepository
 import kr.co.call.domain.repository.CallStreamingRepository
 import kr.co.call.domain.repository.FaqRepository
 import kr.co.call.domain.repository.HomeRepository
@@ -93,13 +91,6 @@ abstract class RepositoryModule {
     abstract fun bindCallStreamingRepository(
         impl: CallStreamingRepositoryImpl
     ): CallStreamingRepository
-
-    @Binds
-    @Singleton
-    abstract fun bindCallSessionRepository(
-        impl: AndroidCallSessionRepository,
-    ): CallSessionRepository
-
     @Binds
     @Singleton
     abstract fun bindOnboardingRepository(

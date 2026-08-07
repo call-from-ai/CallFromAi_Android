@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import kr.co.call.network.BuildConfig
 import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.AgreementApi
+import kr.co.call.network.api.CallApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.HomeApi
 import kr.co.call.network.api.LoginApi
@@ -150,6 +151,12 @@ object NetworkModule {
         retrofit: Retrofit,
     ): CharacterApi =
         retrofit.create(CharacterApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideCallApi(retrofit: Retrofit): CallApi {
+        return retrofit.create(CallApi::class.java)
+    }
 
     @Provides
     @Singleton
