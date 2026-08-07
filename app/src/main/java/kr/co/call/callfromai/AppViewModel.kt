@@ -112,6 +112,7 @@ class AppViewModel @Inject constructor(
     }
 
     // cold start 시 auth 확인 전에 push가 들어올 수 있어 pending으로 보관
+    // 다른 분들과 충돌날까봐 이렇게 했서용..
     private var pendingChatRoomId: Long? = null
 
     fun handleIntent(appIntent: AppIntent) {
