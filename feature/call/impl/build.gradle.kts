@@ -32,6 +32,9 @@ dependencies {
     // timber
     implementation(libs.timber)
 
+    // coil (통화 화면 진입 시 프로필 이미지 프리로드)
+    implementation(libs.coil)
+
     // test
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
