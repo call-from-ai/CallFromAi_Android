@@ -1,5 +1,7 @@
 package kr.co.call.callfromai.state
 
+import kr.co.call.domain.model.call.IncomingCall
+
 /**
  * 앱 전역에서 관리되어야 하는 상태를 정의합니다.
  *
@@ -21,4 +23,5 @@ package kr.co.call.callfromai.state
  */
 data class AppState(
     val authState: AppAuthState = AppAuthState.Loading,
+    val incomingCall: IncomingCall? = null,
 )

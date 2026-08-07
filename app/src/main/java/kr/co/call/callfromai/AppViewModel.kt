@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kr.co.call.callfromai.incomingcall.IncomingCallStore
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppAuthState
@@ -26,6 +27,7 @@ class AppViewModel @Inject constructor(
     private val myPageRepository: MyPageRepository,
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
+    private val incomingCallStore: IncomingCallStore,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -35,6 +37,7 @@ class AppViewModel @Inject constructor(
     init {
         checkAuthState()
         observeSessionExpiration()
+        observeIncomingCall()
         registerPushTokenIfLoggedIn()
     }
 
@@ -99,6 +102,12 @@ class AppViewModel @Inject constructor(
     private fun observeSessionExpiration() = intent {
         authSessionManager.sessionExpired.collect {
             postSideEffect(AppSideEffect.NavigateToLogin)
+        }
+    }
+
+    private fun observeIncomingCall() = intent {
+        incomingCallStore.incomingCall.collect { call ->
+            reduce { state.copy(incomingCall = call) }
         }
     }
 

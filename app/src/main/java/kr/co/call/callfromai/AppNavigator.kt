@@ -93,6 +93,13 @@ class AppNavigator(
         if (backStack.size > 1) backStack.removeAt(backStack.lastIndex)
     }
 
+    fun replaceTop(key: NavKey) {
+        if (backStack.isNotEmpty()) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+        backStack += key
+    }
+
     fun replaceAll(key: NavKey) {
         backStack.clear()
         backStack += key
