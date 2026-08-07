@@ -24,6 +24,7 @@ dependencies {
 
     // network
     implementation(libs.okhttp)
+    implementation(libs.gson)
 
     // timber
     implementation(libs.timber)
