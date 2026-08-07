@@ -6,11 +6,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kr.co.call.callfromai.incomingcall.IncomingCallRouter
 import kr.co.call.common.di.ApplicationScope
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.TokenDataStore
 import kr.co.call.domain.model.push.PushPayload
 import kr.co.call.domain.model.push.PushPayloadParser
+import kr.co.call.domain.model.push.toIncomingCall
 import timber.log.Timber
 
 /**
@@ -28,6 +30,9 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
+
+    @Inject
+    lateinit var incomingCallRouter: IncomingCallRouter
 
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
@@ -74,11 +79,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
                     payload.characterId,
                     payload.characterName,
                 )
-                PushNotificationHelper.showCall(
-                    context = this,
-                    characterName = payload.characterName,
-                    callId = payload.callId,
-                )
+                incomingCallRouter.route(payload.toIncomingCall())
             }
             null -> Timber.w("Unknown push data=%s", message.data)
         }

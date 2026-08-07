@@ -27,9 +27,6 @@ object PushNotificationHelper {
     /** 채팅: [CHAT_ID_BASE, CHAT_ID_BASE + ID_SPAN) */
     private const val CHAT_ID_BASE = 1_000_000
 
-    /** 통화: [CALL_ID_BASE, CALL_ID_BASE + ID_SPAN) */
-    private const val CALL_ID_BASE = 2_000_000
-
     private const val ID_SPAN = 1_000_000
 
     fun showChat(
@@ -58,21 +55,6 @@ object PushNotificationHelper {
             title = title.ifBlank { "알림" },
             body = body,
             priority = NotificationCompat.PRIORITY_HIGH,
-        )
-    }
-
-    fun showCall(
-        context: Context,
-        characterName: String,
-        callId: Long,
-    ) {
-        notify(
-            context = context,
-            notificationId = callNotificationId(callId),
-            title = characterName.ifBlank { "전화" },
-            body = "수신 전화가 왔습니다",
-            priority = NotificationCompat.PRIORITY_MAX,
-            category = NotificationCompat.CATEGORY_CALL,
         )
     }
 
@@ -105,7 +87,4 @@ object PushNotificationHelper {
 
     private fun chatNotificationId(chatRoomId: Long): Int =
         CHAT_ID_BASE + chatRoomId.mod(ID_SPAN.toLong()).toInt()
-
-    private fun callNotificationId(callId: Long): Int =
-        CALL_ID_BASE + callId.mod(ID_SPAN.toLong()).toInt()
 }
