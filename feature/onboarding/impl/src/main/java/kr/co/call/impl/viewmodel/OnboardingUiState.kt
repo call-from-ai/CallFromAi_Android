@@ -1,5 +1,6 @@
 package kr.co.call.impl.viewmodel
 
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.domain.model.onboarding.PresetImage
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.PreferTime
@@ -10,6 +11,8 @@ import kr.co.call.impl.viewmodel.state.PresetImageUiState
 import java.time.LocalDate
 
 data class OnboardingUiState(
+    val flowMode: OnboardingFlowMode = OnboardingFlowMode.FIRST_ONBOARDING,
+
     //사용자 정보
     val userLastName: String = "",
     val userFirstName: String = "",

@@ -2,6 +2,7 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.exception.toUserMessage
@@ -31,6 +32,25 @@ class OnboardingViewModel @Inject constructor(
         container<OnboardingUiState, OnboardingSideEffect>(
             initialState = OnboardingUiState(),
         )
+
+    /**
+     * 새 온보딩 플로우 진입 시 draft를 초기화한다.
+     * - ADD_CHARACTER: 회원 정보는 이미 있으므로 제출을 건너뛰고, AI(캐릭터) 정보만 새로 입력받는다.
+     * - FIRST_ONBOARDING: 전체 상태를 초기화한다.
+     */
+    fun prepareFlow(mode: OnboardingFlowMode) = intent {
+        reduce {
+            when (mode) {
+                OnboardingFlowMode.ADD_CHARACTER -> OnboardingUiState(
+                    flowMode = OnboardingFlowMode.ADD_CHARACTER,
+                    isMemberSubmitted = true,
+                )
+                OnboardingFlowMode.FIRST_ONBOARDING -> OnboardingUiState(
+                    flowMode = OnboardingFlowMode.FIRST_ONBOARDING,
+                )
+            }
+        }
+    }
 
     fun updateUserProfile(
         lastName: String,

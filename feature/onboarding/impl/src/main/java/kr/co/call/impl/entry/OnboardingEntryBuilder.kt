@@ -4,11 +4,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kr.co.call.api.Onboarding1NavKey
 import kr.co.call.api.Onboarding2NavKey
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
@@ -20,7 +23,6 @@ import kr.co.call.impl.screen.Onboarding4Screen
 import kr.co.call.impl.screen.Onboarding5Screen
 import kr.co.call.impl.screen.Onboarding6Screen
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.viewmodel.OnboardingSideEffect
@@ -48,8 +50,19 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         )
     }
 
-    entry<Onboarding2NavKey> {
+    entry<Onboarding2NavKey> { key ->
         val onboardingViewModel = sharedOnboardingViewModel()
+        val uiState by onboardingViewModel.container.stateFlow
+            .collectAsStateWithLifecycle()
+
+        LaunchedEffect(key.mode, key.resetToken) {
+            if (key.mode == OnboardingFlowMode.ADD_CHARACTER) {
+                onboardingViewModel.prepareFlow(OnboardingFlowMode.ADD_CHARACTER)
+            } else if (uiState.flowMode != OnboardingFlowMode.FIRST_ONBOARDING) {
+                onboardingViewModel.prepareFlow(OnboardingFlowMode.FIRST_ONBOARDING)
+            }
+        }
+
         Onboarding2Screen(
             viewModel = onboardingViewModel,
             onBackClick = onBackFromOnboarding2,
