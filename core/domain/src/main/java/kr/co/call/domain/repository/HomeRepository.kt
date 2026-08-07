@@ -2,6 +2,7 @@ package kr.co.call.domain.repository
 
 import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.HomeCharacter
+import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
 
 interface HomeRepository {
@@ -14,5 +15,9 @@ interface HomeRepository {
     suspend fun activateCharacter(
         characterId: Long,
     ): Result<Unit>
+
+    suspend fun getNotifications(): Result<List<HomeNotification>>
+
+    suspend fun readAllNotifications(): Result<Unit>
 
 }

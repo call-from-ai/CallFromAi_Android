@@ -31,6 +31,7 @@ import kotlinx.coroutines.isActive
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.domain.model.home.CallInfo
+import kr.co.call.domain.model.home.CallRecordStatus
 import kr.co.call.domain.model.home.CallTranscript
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.record.CallRecordLoadingContent
@@ -354,6 +355,8 @@ private fun CallRecordScreenPreview() {
                     characterName = "민준",
                     recordingUrl = null,
                     durationMillis = 81_000L,
+                    summaryStatus = CallRecordStatus.READY,
+                    recordingStatus = CallRecordStatus.READY,
                 ),
                 transcripts = listOf(
                     "여보세요",

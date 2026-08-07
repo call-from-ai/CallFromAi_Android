@@ -5,7 +5,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.repository.HomeRepository
-import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.tab.HomeHistoryTab
 import kr.co.call.impl.viewmodel.state.HomeDialogState
 import kr.co.call.impl.viewmodel.state.HomeState
@@ -26,7 +25,15 @@ class HomeViewModel @Inject constructor(
     )
 
     init {
-        loadHome()
+        refresh()
+    }
+
+    private fun refresh() {
+        loadSummary()
+        loadCallHistories()
+        loadCharacters()
+        loadNotifications()
+        readAllNotifications()
     }
 
     fun handleIntent(intent: HomeIntent) {
@@ -35,6 +42,7 @@ class HomeViewModel @Inject constructor(
             is HomeIntent.Call -> handleCallIntent(intent)
             is HomeIntent.Character -> handleCharacterIntent(intent)
             HomeIntent.DismissDialog -> dismissDialog()
+            HomeIntent.OnResume -> refresh()
         }
     }
 
@@ -52,7 +60,10 @@ class HomeViewModel @Inject constructor(
         when (intent) {
             HomeIntent.Call.ClickMain -> showMainCharacterCallConfirmation()
             is HomeIntent.Call.ClickNotification -> {
-                showCallDialog(characterName = intent.characterName)
+                showCallDialog(
+                    characterId = intent.characterId,
+                    characterName = intent.characterName,
+                )
             }
             HomeIntent.Call.Confirm -> confirmCall()
         }
@@ -88,11 +99,15 @@ class HomeViewModel @Inject constructor(
     }
 
     // 통화 대상에 맞는 팝업 표시
-    private fun showCallDialog(characterName: String) = intent {
-        val mainCharacter = state.characters.firstOrNull { character -> character.isMain }
-        val dialogState = if (mainCharacter?.name == characterName) {
+    private fun showCallDialog(
+        characterId: Long,
+        characterName: String,
+    ) = intent {
+        val targetCharacter = state.characters.firstOrNull { character -> character.id == characterId }
+
+        val dialogState = if (targetCharacter?.isMain == true) {
             HomeDialogState.CallConfirmation(
-                characterId = mainCharacter.id,
+                characterId = characterId,
                 characterName = characterName,
             )
         } else {
@@ -115,6 +130,10 @@ class HomeViewModel @Inject constructor(
         postSideEffect(
             HomeSideEffect.NavigateToCall(
                 characterId = confirmation.characterId,
+                characterName = confirmation.characterName,
+                characterImageUrl = state.characters
+                    .firstOrNull { character -> character.id == confirmation.characterId }
+                    ?.imageUrl,
             ),
         )
     }
@@ -220,35 +239,58 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadHome() = intent {
-        reduce {
-            state.copy(loadStatus = LoadStatus.Loading)
-        }
-
-        try {
-            val summary = homeRepository.getSummary().getOrThrow()
-            val callHistories = homeRepository.getCallHistories().getOrThrow()
-            val characters = homeRepository.getCharacters().getOrThrow()
-
-            reduce {
-                state.copy(
-                    summary = summary,
-                    callHistories = callHistories,
-                    characters = characters,
-                    loadStatus = LoadStatus.Idle,
-                )
+    // 상단 요약 정보 조회
+    private fun loadSummary() = intent {
+        homeRepository.getSummary()
+            .onSuccess { summary ->
+                reduce { state.copy(summary = summary) }
             }
-        } catch (cancellationException: CancellationException) {
-            throw cancellationException
-        } catch (throwable: Throwable) {
-            reduce {
-                state.copy(
-                    loadStatus = LoadStatus.Error(
-                        message = throwable.message ?: "홈 정보를 불러오지 못했습니다.",
-                    ),
-                )
+            .onFailure {
+                postSideEffect(HomeSideEffect.ShowMessage("정보를 불러오지 못했습니다."))
             }
-        }
+    }
+
+    // 통화 기록 조회
+    private fun loadCallHistories() = intent {
+        homeRepository.getCallHistories()
+            .onSuccess { callHistories ->
+                reduce { state.copy(callHistories = callHistories) }
+            }
+            .onFailure {
+                postSideEffect(HomeSideEffect.ShowMessage("통화 기록을 불러오지 못했습니다."))
+            }
+    }
+
+    // 캐릭터 목록 조회
+    private fun loadCharacters() = intent {
+        homeRepository.getCharacters()
+            .onSuccess { characters ->
+                reduce { state.copy(characters = characters) }
+            }
+            .onFailure {
+                postSideEffect(HomeSideEffect.ShowMessage("캐릭터 목록을 불러오지 못했습니다."))
+            }
+    }
+
+    // 지난 알림 목록 조회
+    private fun loadNotifications() = intent {
+        homeRepository.getNotifications()
+            .onSuccess { notifications ->
+                reduce {
+                    state.copy(
+                        notifications = notifications,
+                        hasUnreadNotification = notifications.any { notification -> !notification.isRead },
+                    )
+                }
+            }
+            .onFailure {
+                postSideEffect(HomeSideEffect.ShowMessage("알림을 불러오지 못했습니다."))
+            }
+    }
+
+    // 안 읽은 알림 전체 읽음 처리 (홈 화면 진입 시 1회 호출)
+    private fun readAllNotifications() = intent {
+        homeRepository.readAllNotifications()
     }
 
     private companion object {
