@@ -45,6 +45,23 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        val type = message.data["type"]
+
+        if (type == "CHAT") {
+            Timber.d(
+                """
+            ========== FCM CHAT ==========
+            messageId: ${message.messageId}
+            chatRoomId: ${message.data["chatRoomId"]}
+            title: ${message.notification?.title}
+            body: ${message.notification?.body}
+            data: ${message.data}
+            ==============================
+            """.trimIndent()
+            )
+        }
+
+
         val payload = PushPayloadParser.parse(
             data = message.data,
             notificationTitle = message.notification?.title,
