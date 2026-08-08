@@ -12,9 +12,6 @@ interface ChatSseRepository {
      */
     val sseFlow: SharedFlow<ChatSseEvent>
 
-    /** SSE 연결이 활성화된 상태인지 여부 */
-    val isConnected: Boolean
-
     /** 로그인 성공 시 SSE 연결을 시작 */
     fun connect()
 

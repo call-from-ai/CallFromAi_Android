@@ -16,9 +16,7 @@ import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.network.dto.sse.ChatSseClient
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
 class ChatSseRepositoryImpl @Inject constructor(
     private val chatSseClient: ChatSseClient,
     @ApplicationScope private val appScope: CoroutineScope,
@@ -35,13 +33,8 @@ class ChatSseRepositoryImpl @Inject constructor(
 
     // 현재 SSE가 필요한 화면(ViewModel)의 수.
     // 0이 되면 SSE를 끊고, 0→1이 될 때 SSE를 연결한다.
-    // 디버깅 용으로 추가.
+    // 디버깅 용으로 추가한 값일 뿐임.
     private val subscriberCount = AtomicInteger(0)
-
-    // 현재 SSE Transport가 서버와 연결된 상태인지 반환한다.
-    // connectJob의 활성 상태가 아닌 실제 EventSource 연결 상태를 기준으로 한다.
-    override val isConnected: Boolean
-        get() = chatSseClient.isConnected
 
     override fun connect() {
         val count = subscriberCount.incrementAndGet()

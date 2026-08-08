@@ -30,8 +30,8 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     @ApplicationScope
     lateinit var applicationScope: CoroutineScope
 
-    @Inject
-    lateinit var chatSseRepository: ChatSseRepository
+//    @Inject
+//    lateinit var chatSseRepository: ChatSseRepository
 
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
@@ -83,7 +83,8 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
             notificationBody = message.notification?.body,
         )
         when (payload) {
-            // Chat 알림 — SSE 연결 중(채팅 화면)이면 이미 실시간 수신 중이므로 스킵 -> 일단 테스트를 위해 주석처리
+            // Chat 알림 — SSE 연결 중(채팅 화면)이면 이미 실시간 수신 중이므로 스킵 -> 서버에 로직이 반영되어 있음
+            // 그에 따라 주석 처리
             is PushPayload.Chat -> {
                 Timber.d("FCM CHAT roomId=%s", payload.chatRoomId)
 //                if (chatSseRepository.isConnected) {
