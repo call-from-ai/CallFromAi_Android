@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kr.co.call.callfromai.incomingcall.IncomingCallRouter
 import kr.co.call.callfromai.incomingcall.IncomingCallStore
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
@@ -14,6 +15,7 @@ import kr.co.call.callfromai.state.AppState
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
+import kr.co.call.domain.repository.CallControlRepository
 import kr.co.call.domain.repository.MyPageRepository
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -28,6 +30,8 @@ class AppViewModel @Inject constructor(
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
     private val incomingCallStore: IncomingCallStore,
+    private val incomingCallRouter: IncomingCallRouter,
+    private val callControlRepository: CallControlRepository,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -39,6 +43,7 @@ class AppViewModel @Inject constructor(
         observeSessionExpiration()
         observeIncomingCall()
         registerPushTokenIfLoggedIn()
+        checkPendingIncomingCall()
     }
 
     private fun checkAuthState() = intent {
@@ -108,6 +113,24 @@ class AppViewModel @Inject constructor(
     private fun observeIncomingCall() = intent {
         incomingCallStore.incomingCall.collect { call ->
             reduce { state.copy(incomingCall = call) }
+        }
+    }
+
+    // 전화 push 유실되었을 경우 방지용 착신 대기중인 전화 1회성 조회 (콜드 스타트 + onResume에서 호출)
+    fun checkPendingIncomingCall() {
+        viewModelScope.launch {
+            if (tokenDataStore.getTokens().accessToken.isNullOrBlank()) {
+                return@launch
+            }
+            try {
+                callControlRepository.getIncomingCall()?.let { call ->
+                    incomingCallRouter.route(call)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                Timber.e(exception, "대기 중인 착신 조회 실패")
+            }
         }
     }
 

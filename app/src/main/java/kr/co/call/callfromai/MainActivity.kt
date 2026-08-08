@@ -97,6 +97,8 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         appVisibilityTracker.onResumed()
+        // push가 지연·유실됐을 수 있어 포그라운드 복귀 시마다 대기 중인 착신을 보완 조회
+        appViewModel.checkPendingIncomingCall()
     }
 
     // MainActivity로 상호작용 불가능할 때 먼저 기록하고 알림 표시
