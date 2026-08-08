@@ -23,7 +23,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun IncomingCallDialogRoute(
     call: IncomingCall,
     onNavigateToChatRoom: (Long?) -> Unit,
-    onAccepted: (callId: Long, characterId: Long) -> Unit,
+    onAccepted: (callId: Long, characterId: Long, characterName: String, characterImageUrl: String?) -> Unit,
     onRejected: (callId: Long) -> Unit,
     onShowMessage: (String) -> Unit,
     viewModel: CallIncomingViewModel = hiltViewModel(),
@@ -65,6 +65,8 @@ fun IncomingCallDialogRoute(
                 onAccepted(
                     sideEffect.callId,
                     sideEffect.characterId,
+                    call.characterName,
+                    call.characterImageUrl,
                 )
             }
 

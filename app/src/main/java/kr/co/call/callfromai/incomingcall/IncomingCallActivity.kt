@@ -29,6 +29,7 @@ import javax.inject.Inject
  *
  * [createIntent]로 전달받은 통화 식별자를 사용해 착신 화면을 표시하고,
  * 수락이 완료되면 같은 Activity 안에서 실제 통화 화면으로 전환합니다.
+ * 거절은 [CallNotificationActionReceiver]에서 관리합니다.
  */
 @AndroidEntryPoint
 class IncomingCallActivity : ComponentActivity() {
@@ -77,7 +78,7 @@ class IncomingCallActivity : ComponentActivity() {
                         characterName = args.characterName,
                         characterImageUrl = args.characterImageUrl,
                         autoAcceptOnLaunch = args.autoAccept,
-                        onNavigateToCall = { callId, characterId ->
+                        onNavigateToCall = { callId, characterId, _, _ ->
                             callNotificationManager.cancel(callId)
                             activeCallId = callId
                             activeCharacterId = characterId
@@ -96,6 +97,8 @@ class IncomingCallActivity : ComponentActivity() {
                     CallScreen(
                         callId = activeCallId,
                         characterId = activeCharacterId,
+                        characterName = args.characterName,
+                        characterImageUrl = args.characterImageUrl,
                         isIncoming = true,
                         onCallFinished = {
                             finishAndRemoveTask()
@@ -167,6 +170,7 @@ class IncomingCallActivity : ComponentActivity() {
     }
 }
 
+// 통화 걸려오는 화면에서 들고 있어야 할 데이터
 private data class IncomingCallArgs(
     val callId: Long,
     val characterId: Long,

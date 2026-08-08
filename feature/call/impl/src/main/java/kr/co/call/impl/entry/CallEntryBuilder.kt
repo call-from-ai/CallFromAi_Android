@@ -9,7 +9,12 @@ import kr.co.call.impl.screen.CallIncomingScreen
 import kr.co.call.impl.screen.CallScreen
 
 fun EntryProviderScope<NavKey>.callEntry(
-    onIncomingAccepted: (callId: Long, characterId: Long) -> Unit,
+    onIncomingAccepted: (
+        callId: Long,
+        characterId: Long,
+        characterName: String,
+        characterImageUrl: String?,
+    ) -> Unit,
     onIncomingFinished: () -> Unit,
     onCallFinished: () -> Unit,
     onShowMessage: (String) -> Unit,
@@ -43,6 +48,8 @@ fun EntryProviderScope<NavKey>.callEntry(
         CallScreen(
             callId = key.callId,
             characterId = key.characterId,
+            characterName = key.characterName,
+            characterImageUrl = key.characterImageUrl,
             isIncoming = key.isIncoming,
             onCallFinished = onCallFinished,
         )

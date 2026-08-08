@@ -19,6 +19,8 @@ data class CallActiveNavKey(
     val callId: Long,
     val characterId: Long,
     val isIncoming: Boolean,
+    val characterName: String = "",
+    val characterImageUrl: String? = null,
 ) : NavKey
 
 @Serializable

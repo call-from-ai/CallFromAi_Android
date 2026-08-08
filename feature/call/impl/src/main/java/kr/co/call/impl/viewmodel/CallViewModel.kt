@@ -128,18 +128,8 @@ class CallViewModel @Inject constructor(
             )
         }
 
-        if (isIncoming && characterId > 0L) {
-            // 착신은 메인 아닐 수 있어 characterId로 직접 조회
-            runCatching { callControlRepository.getCharacter(characterId) }
-                .onSuccess { character ->
-                    _character.value = CallCharacterUiModel(
-                        name = character.name,
-                        profileImageUrl = character.imageUrl,
-                    )
-                    preloadProfileImage(character.imageUrl)
-                }
-        } else if (characterName.isNotBlank()) {
-            // 발신은 Home이 넘긴 이름·사진 그대로 사용
+        // 착신·발신 모두 진입 시점(Home/착신 알림)에 이미 알고 있던 이름·사진을 그대로 사용
+        if (characterName.isNotBlank()) {
             _character.value = CallCharacterUiModel(
                 name = characterName,
                 profileImageUrl = characterImageUrl,

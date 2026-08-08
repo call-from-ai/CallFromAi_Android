@@ -47,7 +47,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun CallIncomingScreen(
     callId: Long,
     characterId: Long,
-    onNavigateToCall: (callId: Long, characterId: Long) -> Unit,
+    onNavigateToCall: (callId: Long, characterId: Long, characterName: String, characterImageUrl: String?) -> Unit,
     onFinished: () -> Unit,
     characterName: String = "",
     characterImageUrl: String? = null,
@@ -87,7 +87,12 @@ fun CallIncomingScreen(
             }
 
             is CallIncomingSideEffect.NavigateToCall -> {
-                onNavigateToCall(sideEffect.callId, sideEffect.characterId)
+                onNavigateToCall(
+                    sideEffect.callId,
+                    sideEffect.characterId,
+                    characterName,
+                    characterImageUrl,
+                )
             }
 
             CallIncomingSideEffect.Finish -> onFinished()

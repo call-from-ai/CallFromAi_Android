@@ -333,12 +333,14 @@ private fun MainAppContent(
                     )
 
                     callEntry(
-                        onIncomingAccepted = { callId, characterId ->
+                        onIncomingAccepted = { callId, characterId, characterName, characterImageUrl ->
                             appNavigator.replaceTop(
                                 CallActiveNavKey(
                                     callId = callId,
                                     characterId = characterId,
                                     isIncoming = true,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
                                 ),
                             )
                         },
@@ -429,12 +431,14 @@ private fun MainAppContent(
                 }
                 onClearIncomingCall(call.callId)
             },
-            onAccepted = { callId, characterId ->
+            onAccepted = { callId, characterId, characterName, characterImageUrl ->
                 appNavigator.navigate(
                     CallActiveNavKey(
                         callId = callId,
                         characterId = characterId,
                         isIncoming = true,
+                        characterName = characterName,
+                        characterImageUrl = characterImageUrl,
                     ),
                 )
                 onClearIncomingCall(callId)
