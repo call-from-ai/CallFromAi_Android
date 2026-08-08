@@ -46,10 +46,7 @@ fun RelationshipChoiceCard(
 ){
     Surface(
         modifier = modifier
-            .size(
-                width = 110.dp,
-                height = 172.dp,
-            )
+            .height(172.dp)
             .selectable(
                 selected=selected,
                 onClick=onClick,
@@ -92,7 +89,7 @@ fun RelationshipChoiceCard(
                     brush=ChatGradient
                 ),
                 textAlign =TextAlign.Center,
-                maxLines=1,
+                maxLines=2,
             )
 
             Spacer(modifier=Modifier.height(5.dp))

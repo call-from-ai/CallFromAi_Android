@@ -1,5 +1,6 @@
 package kr.co.call.impl.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,9 +59,13 @@ private enum class EditingNameField {
 fun Onboarding1Screen (
     viewModel: OnboardingViewModel,
     onNext: () -> Unit,
+    onBackClick:()->Unit,
     modifier: Modifier =Modifier,
     profileImageUrl: String?=null,
 ) {
+    BackHandler {
+        onBackClick()
+    }
     val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val initialBirthday = uiState.userBirthday
     val malePresetImages = uiState.presetImageState.maleImages.map { image ->
@@ -139,24 +146,29 @@ fun Onboarding1Screen (
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .padding(
                     start = 27.dp,
                     end = 27.dp,
-                    top = 54.dp,
-                    bottom = 18.dp,
+                    bottom = 10.dp,
                 ),
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-            ) {
+            Spacer(
+                modifier=Modifier
+                    .statusBarsPadding()
+                    .height(29.dp)
+            )
+
                 TopTitle(
                     title = "먼저 나를\n소개해볼까요?",
                     description = "전화왔어에서 사용할 나의 프로필을 완성해주세요.",
                     horizontalPadding = 0.dp,
                 )
-                Spacer(modifier = Modifier.height(23.dp))
+                Spacer(modifier = Modifier.height(40.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text(
                     text="사진선택",
                     style= CallTheme.typography.bodyMedium,
@@ -239,6 +251,7 @@ fun Onboarding1Screen (
                     options = Mbti.entries.map { it.name },
                     onOptionSelected = { mbti = it },
                 )
+                Spacer(modifier = Modifier.height(24.dp))
             }
             Column(
                 modifier=Modifier.fillMaxWidth(),
