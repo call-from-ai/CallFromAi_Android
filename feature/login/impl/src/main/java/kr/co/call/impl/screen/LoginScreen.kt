@@ -128,6 +128,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(51.dp))
             KakaoLoginButton(
+                enabled= !isLoading,
                 onClick = {
                     kakaoLoginManager.login(
                         context = context,
@@ -173,6 +174,7 @@ fun LoginScreen(
 @Composable
 private fun KakaoLoginButton(
     onClick:()->Unit={},
+    enabled:Boolean=true,
 ){
     Box(
         modifier=Modifier
@@ -182,7 +184,11 @@ private fun KakaoLoginButton(
             modifier= Modifier
                 .fillMaxWidth(),
             text="카카오로 3초 만에 시작하기",
-            onClick=onClick,
+            onClick={
+                if (enabled){
+                    onClick()
+                }
+            },
             containerColor = SubYellow,
             contentColor = Black,
             pressedContainerColor =SubYellow,

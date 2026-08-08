@@ -33,8 +33,8 @@ class MainActivity : ComponentActivity() {
             savedInstanceState?.getBoolean(STATE_NOTIFICATION_PERMISSION_IN_FLIGHT) == true
 
         enableEdgeToEdge()
-        // 시스템의 창 resize를 끄고, 키보드 대응은 Compose imePadding()에 맡긴다
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        // 시스템의 창 resize를 끄고, 키보드 대응은 Compose imePadding()에 맡긴다고 되어있었는데 제가 NOTHING->RESIZE로 수정했습니다
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false

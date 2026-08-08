@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -75,8 +74,7 @@ fun Onboarding4Screen(
             modifier=Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .background(SubGray2)
-                .navigationBarsPadding(),
+                .background(SubGray2),
         ) {
         Column(
             modifier = Modifier
@@ -126,7 +124,7 @@ fun Onboarding4Screen(
                         .padding(
                             start = 27.dp,
                             end = 27.dp,
-                            bottom = 18.dp,
+                            bottom = 10.dp,
                         ),
                     text = "다음",
                     enabled = selectedTraits.isNotEmpty(),

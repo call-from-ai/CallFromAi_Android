@@ -223,7 +223,7 @@ private fun MainAppContent(
                             appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement = {needsOnboarding ->
-                            appNavigator.replaceAll(
+                            appNavigator.navigate(
                                 AgreementNavKey(
                                     needsOnboarding = needsOnboarding,
                                 ),
