@@ -156,6 +156,7 @@ class CallNotificationManager @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        // CallStyle 알림 생성
         val builder = NotificationCompat.Builder(context, CALL_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_call_accept_icon)
             .setContentTitle(call.characterName)
@@ -218,6 +219,7 @@ class CallNotificationManager @Inject constructor(
         const val CALL_CHANNEL_DESCRIPTION = "AI 캐릭터의 수신 전화를 표시합니다."
         const val INCOMING_CALL_TEXT = "전화가 왔어요"
 
+        // 통화 액션 Offset 변수, CallStyle은 최대 3개까지 설정 가능
         const val CONTENT_REQUEST_OFFSET = 1
         const val ANSWER_REQUEST_OFFSET = 2
         const val DECLINE_REQUEST_OFFSET = 3

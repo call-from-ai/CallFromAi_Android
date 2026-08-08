@@ -7,14 +7,14 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kr.co.call.common.di.ApplicationScope
 import kr.co.call.domain.repository.CallControlRepository
 import timber.log.Timber
 
 /**
- * CallStyle 알림의 통화 거절 동작을 처리합니다.
+ * 통화 알림의 통화 거절 동작을 처리합니다.
+ * - 앱이 떠있지 않은 상태에서 거절을 하게 되면 앱을 열 필요가 없으므로, 간단하게 거절 api를 호출을 담당합니다.
  */
 @AndroidEntryPoint
 class CallNotificationActionReceiver : BroadcastReceiver() {
@@ -25,6 +25,10 @@ class CallNotificationActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var callNotificationManager: CallNotificationManager
 
+    @Inject
+    @ApplicationScope
+    lateinit var applicationScope: CoroutineScope
+
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -34,10 +38,12 @@ class CallNotificationActionReceiver : BroadcastReceiver() {
         val callId = intent.getLongExtra(EXTRA_CALL_ID, INVALID_CALL_ID)
         if (callId == INVALID_CALL_ID) return
 
+        // 걸려오는 통화를 취소하고 알림을 제거
         callNotificationManager.cancel(callId)
         val pendingResult = goAsync()
 
-        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+
+        applicationScope.launch {
             try {
                 callControlRepository.rejectCall(callId)
             } catch (cancellationException: CancellationException) {
