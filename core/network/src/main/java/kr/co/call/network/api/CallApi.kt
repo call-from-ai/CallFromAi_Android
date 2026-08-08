@@ -1,7 +1,6 @@
 package kr.co.call.network.api
 
 import kr.co.call.network.dto.ApiResponse
-import kr.co.call.network.dto.call.CallCharacterDetailDto
 import kr.co.call.network.dto.call.CallConnectionResultDto
 import kr.co.call.network.dto.call.CallDetailResultDto
 import kr.co.call.network.dto.call.CallEndResultDto
@@ -37,12 +36,6 @@ interface CallApi {
 
     @GET("calls/incoming")
     suspend fun getIncomingCall(): ApiResponse<IncomingCallResultDto>
-
-    // characterId로 캐릭터 상세 조회. 통화 화면에 필요한 이름·사진만 사용
-    @GET("characters/{characterId}")
-    suspend fun getCharacter(
-        @Path("characterId") characterId: Long,
-    ): ApiResponse<CallCharacterDetailDto>
 
     @PATCH("calls/{callId}/reject")
     suspend fun rejectCall(

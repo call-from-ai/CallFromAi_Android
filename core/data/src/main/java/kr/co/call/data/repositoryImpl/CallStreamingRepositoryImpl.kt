@@ -9,35 +9,27 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import javax.inject.Named
+import kr.co.call.data.mapper.toCallEndReason
+import kr.co.call.data.mapper.toCallStreamingFailureReason
 import kr.co.call.domain.model.call.CallEndReason
 import kr.co.call.domain.model.call.CallStreamingEvent
 import kr.co.call.domain.model.call.CallStreamingFailureReason
 import kr.co.call.domain.repository.CallStreamingRepository
+import kr.co.call.network.BuildConfig
 import kr.co.call.network.dto.call.CallWebSocketMessageDto
-import kr.co.call.network.websocket.CallWebSocketClient
+import okhttp3.HttpUrl.Companion.toHttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 import timber.log.Timber
 
-private const val TAG = "CallSocket"
-
-private const val CALL_READY_TIMEOUT_MILLIS = 5_000L
-private const val NORMAL_CLOSE_CODE = 1_000
-
-/**
- * 하나의 Coroutine에서 관리할 WebSocket 연결 상태입니다.
- */
-private enum class ConnectionState {
-    CONNECTING, // 핸드셰이크 미완료 상태
-    WAITING_READY, // 서버 CALL_READY 기다리는 상태
-    READY, // CALL_READY 완료
-    TERMINATED, // 종료 또는 실패 이벤트 처리 상태
-}
-
 /**
  * 여러 스레드에서 발생한 WebSocket 콜백을 직렬화합니다.
+ * -
  */
 private sealed interface SocketSignal {
 
@@ -64,8 +56,13 @@ private sealed interface SocketSignal {
 }
 
 
+/**
+ * WebSocket 연결을 관리하는 Repository입니다.
+ *
+ */
 class CallStreamingRepositoryImpl @Inject constructor(
-    private val callWebSocketClient: CallWebSocketClient,
+    @param:Named("callWebSocketClient")
+    private val okHttpClient: OkHttpClient,
     private val gson: Gson,
 ) : CallStreamingRepository {
 
@@ -75,15 +72,18 @@ class CallStreamingRepositoryImpl @Inject constructor(
     @Volatile
     private var activeWebSocket: WebSocket? = null
 
+    // 음소거 활성화 여부를같이 전송하기 위한 setter
     override suspend fun setMicrophoneEnabled(enabled: Boolean) {
         isMicrophoneEnabled = enabled
     }
 
+    // 사용자 음성을 서버에 PCM 데이터로 전송
     override suspend fun sendAudio(pcmBytes: ByteArray) {
         val payload = if (isMicrophoneEnabled) pcmBytes else ByteArray(pcmBytes.size)
         activeWebSocket?.send(ByteString.of(*payload))
     }
 
+    // wsTicket으로 웹소켓에 연결, 웹소켓이 살아있는 동안 발생 이벤트의 실시간 관리가 필요
     override fun connect(wsTicket: String): Flow<CallStreamingEvent> = callbackFlow {
         Timber.tag(TAG).d("connect() 호출: ticket 길이=%d", wsTicket.length)
         val output = this
@@ -144,7 +144,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
                             continue
                         }
 
-                        when (message.type) {
+                        when (message.type) { // 웹소켓 메시지에 따라 타입을 처리
                             "CALL_READY" -> {
                                 val callId = message.data?.callId
                                 if (
@@ -212,9 +212,8 @@ class CallStreamingRepositoryImpl @Inject constructor(
                             }
                         }
                     }
-
+                    //
                     is SocketSignal.BinaryReceived -> {
-                        // Audio byteArray로 받음
                         output.trySend(
                             CallStreamingEvent.AudioReceived(
                                 wav = signal.bytes.toByteArray(),
@@ -223,6 +222,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
 
                     }
 
+                    // 소켓 연결을 닫고 연결 상태에 따른 이벤트 전달
                     is SocketSignal.Closed -> {
                         Timber.tag(TAG).d(
                             "소켓 종료 (onClosed): code=%d, reason=%s, state=%s",
@@ -367,10 +367,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
             }
         }
 
-        currentWebSocket = callWebSocketClient.open(
-            wsTicket = wsTicket,
-            listener = listener,
-        )
+        currentWebSocket = okHttpClient.newWebSocket(buildWebSocketRequest(wsTicket), listener)
         activeWebSocket = currentWebSocket
 
         awaitClose {
@@ -384,22 +381,42 @@ class CallStreamingRepositoryImpl @Inject constructor(
         }
     }
 
+    // 통화 WebSocket 요청 (엔드포인트 + 1회용 ticket 쿼리 파라미터)
+    // Retrofit을 사용할 수 없으므로 요청 build 방식 사용
+    private fun buildWebSocketRequest(wsTicket: String): Request {
+        val baseUrl = BuildConfig.BASE_URL.toHttpUrl()
+        val webSocketUrl = baseUrl.newBuilder()
+            .encodedPath("/ws/call")
+            .query(null)
+            .addQueryParameter("ticket", wsTicket)
+            .build()
+
+        Timber.tag(TAG).d("WebSocket 요청 URL: %s", webSocketUrl)
+        return Request.Builder()
+            .url(webSocketUrl)
+            .build()
+    }
+
+    // 소켓 연결 종료, 활성화 웹소켓 및 음소거 상태 초기화
     override suspend fun close() {
         activeWebSocket?.close(NORMAL_CLOSE_CODE, null)
         activeWebSocket = null
         isMicrophoneEnabled = true
     }
+
+    private companion object {
+        const val TAG = "CallSocket"
+        const val CALL_READY_TIMEOUT_MILLIS = 5_000L
+        const val NORMAL_CLOSE_CODE = 1_000
+
+        /**
+         * 하나의 Coroutine에서 관리할 WebSocket 연결 상태입니다.
+         */
+        private enum class ConnectionState {
+            CONNECTING, // 핸드셰이크 미완료 상태
+            WAITING_READY, // 서버 CALL_READY 기다리는 상태
+            READY, // CALL_READY 완료
+            TERMINATED, // 종료 또는 실패 이벤트 처리 상태
+        }
+    }
 }
-
-private fun String?.toCallEndReason(): CallEndReason =
-    when (this) {
-        "USER_ENDED" -> CallEndReason.USER_ENDED
-        "TIMEOUT" -> CallEndReason.TIMEOUT
-        else -> CallEndReason.UNKNOWN
-    }
-
-private fun String?.toCallStreamingFailureReason(): CallStreamingFailureReason =
-    when (this) {
-        "SERVER_ERROR" -> CallStreamingFailureReason.SERVER_ERROR
-        else -> CallStreamingFailureReason.UNKNOWN
-    }

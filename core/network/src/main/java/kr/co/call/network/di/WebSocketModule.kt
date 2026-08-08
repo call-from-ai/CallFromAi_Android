@@ -9,7 +9,6 @@ import javax.inject.Singleton
 import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 
-
 @Module
 @InstallIn(SingletonComponent::class)
 object WebSocketModule {

@@ -3,17 +3,17 @@ package kr.co.call.data.mapper
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import kr.co.call.domain.model.call.ActiveCharacter
 import kr.co.call.domain.model.call.CallConnectionInfo
 import kr.co.call.domain.model.call.CallEndInfo
+import kr.co.call.domain.model.call.CallEndReason
 import kr.co.call.domain.model.call.CallListItem
 import kr.co.call.domain.model.call.CallSender
 import kr.co.call.domain.model.call.CallStatus
+import kr.co.call.domain.model.call.CallStreamingFailureReason
 import kr.co.call.domain.model.call.IncomingCall
 import kr.co.call.domain.model.home.CallInfo
 import kr.co.call.domain.model.home.CallRecordStatus
 import kr.co.call.domain.model.home.CallTranscript
-import kr.co.call.network.dto.call.CallCharacterDetailDto
 import kr.co.call.network.dto.call.CallConnectionResultDto
 import kr.co.call.network.dto.call.CallDetailResultDto
 import kr.co.call.network.dto.call.CallEndResultDto
@@ -52,13 +52,6 @@ private fun CallScriptLineDto.toDomain(): CallTranscript =
         content = content,
         speaker = speaker.toTranscriptSpeaker(),
         createdAt = createdAt.toLocalDateTime(),
-    )
-
-internal fun CallCharacterDetailDto.toDomain(): ActiveCharacter =
-    ActiveCharacter(
-        characterId = characterId,
-        name = name,
-        imageUrl = imageUrl,
     )
 
 internal fun IncomingCallResultDto.toDomain(): IncomingCall =
@@ -117,6 +110,19 @@ private fun String.toTranscriptSpeaker(): CallTranscript.Speaker =
         "USER" -> CallTranscript.Speaker.USER
         "AI" -> CallTranscript.Speaker.AI
         else -> error("지원하지 않는 통화 화자입니다: $this")
+    }
+
+internal fun String?.toCallEndReason(): CallEndReason =
+    when (this) {
+        "USER_ENDED" -> CallEndReason.USER_ENDED
+        "TIMEOUT" -> CallEndReason.TIMEOUT
+        else -> CallEndReason.UNKNOWN
+    }
+
+internal fun String?.toCallStreamingFailureReason(): CallStreamingFailureReason =
+    when (this) {
+        "SERVER_ERROR" -> CallStreamingFailureReason.SERVER_ERROR
+        else -> CallStreamingFailureReason.UNKNOWN
     }
 
 /**

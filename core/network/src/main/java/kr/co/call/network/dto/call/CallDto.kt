@@ -67,16 +67,6 @@ data class IncomingCallResultDto(
 )
 
 /**
- * 캐릭터 상세 조회 응답 DTO. 응답에 성별·직업·MBTI 등 더 많은 필드가 내려오지만
- * 통화 화면 표시에 필요한 이름·사진만 선언(나머지는 Gson이 무시함)
- */
-data class CallCharacterDetailDto(
-    val characterId: Long,
-    val name: String,
-    val imageUrl: String?,
-)
-
-/**
  * 통화 수락 또는 발신 결과 DTO
  */
 data class CallConnectionResultDto(
