@@ -293,9 +293,16 @@ private fun MainAppContent(
                         onOnboarding5Next = {
                             appNavigator.navigate(Onboarding6NavKey)
                         },
-                        onOnboarding6CallNow = {
-                            //나중에 전화화면으로 바꾸기
+                        onOnboarding6CallNow = { characterId, characterName ->
+                            // 온보딩 백스택은 정리하고 홈을 기반으로 통화 화면을 쌓아,
+                            // 통화 종료 시 popBackStack()이 홈으로 돌아가도록 함
                             appNavigator.replaceAll(HomeNavKey)
+                            appNavigator.navigate(
+                                CallSendingNavKey(
+                                    characterId = characterId,
+                                    characterName = characterName,
+                                ),
+                            )
                         },
                         onOnboarding6CallLater = {
                             appNavigator.replaceAll(HomeNavKey)
