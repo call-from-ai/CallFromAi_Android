@@ -11,16 +11,19 @@ private val characterCreatedAtFormatter: DateTimeFormatter =
 
 internal fun MyCharacterDto.toAiCharacter(): AiCharacter {
     val createdAtDate = TimeUtil.parseLocalDateTime(createdAt).toLocalDate()
-    val lastMessageDateTime = TimeUtil.parseLocalDateTime(lastMessageAt)
+    val lastConversationLabel = lastMessageAt
+        ?.takeIf { it.isNotBlank() }
+        ?.let { TimeUtil.toTimeAgoText(TimeUtil.parseLocalDateTime(it)) }
+        ?: "대화 없음"
 
     return AiCharacter(
         id = characterId.toString(),
         name = name,
-        profileImageUrl = imageUrl,
+        profileImageUrl = imageUrl.orEmpty(),
         isMain = main,
         createdAtLabel = createdAtDate.format(characterCreatedAtFormatter),
         daysTogetherLabel = "${daysTogether}일 째",
-        lastConversationLabel = TimeUtil.toTimeAgoText(lastMessageDateTime),
+        lastConversationLabel = lastConversationLabel,
         summary = "",
     )
 }
@@ -30,6 +33,6 @@ internal fun MyCharacterDto.toHomeCharacter(): HomeCharacter =
         id = characterId,
         name = name,
         relationshipDays = daysTogether,
-        imageUrl = imageUrl,
+        imageUrl = imageUrl.orEmpty(),
         isMain = main,
     )

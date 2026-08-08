@@ -35,6 +35,7 @@ fun EntryProviderScope<NavKey>.myPageEntry(
     navigateToLogin: () -> Unit,
     navigateToCallTimeManagement: () -> Unit,
     navigateToEditCharacter: (Long) -> Unit,
+    navigateToAddCharacter: () -> Unit,
     onBack: () -> Unit = {},
 ) {
     entry<MyPageNavKey> {
@@ -50,7 +51,7 @@ fun EntryProviderScope<NavKey>.myPageEntry(
     entry<CharacterManagementNavKey> {
         CharacterManagementScreen(
             onBackClick = onBack,
-            navigateToAddCharacter = { /* TODO: 캐릭터 추가 화면 연결 */ },
+            navigateToAddCharacter = navigateToAddCharacter,
             navigateToEditCharacter = navigateToEditCharacter,
         )
     }

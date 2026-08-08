@@ -2,13 +2,17 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kr.co.call.domain.exception.toUserMessage
+import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.util.LoadStatus
+import kr.co.call.impl.util.formatDisturbRangeText
+import kr.co.call.impl.util.parseApiLocalTime
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import java.util.concurrent.CancellationException
-import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -16,7 +20,7 @@ class ProfileViewModel @Inject constructor(
 ) : ViewModel(), ContainerHost<ProfileState, ProfileSideEffect> {
 
     override val container: Container<ProfileState, ProfileSideEffect> = container(
-        initialState = ProfileState()
+        initialState = ProfileState(),
     ) {
         loadProfile()
     }
@@ -27,7 +31,8 @@ class ProfileViewModel @Inject constructor(
             is ProfileIntent.ClickEditProfile -> navigate(ProfileSideEffect.NavigateToEditProfile)
             is ProfileIntent.ClickSubscription -> navigate(ProfileSideEffect.NavigateToSubscription)
             is ProfileIntent.ClickDisturbTime -> navigate(ProfileSideEffect.NavigateToDisturbTime)
-            is ProfileIntent.ClickCallTimeManagement -> navigate(ProfileSideEffect.NavigateToCallTimeManagement)
+            is ProfileIntent.ClickCallTimeManagement ->
+                navigate(ProfileSideEffect.NavigateToCallTimeManagement)
             is ProfileIntent.ToggleAllNotification -> toggleAllNotification(intent.enabled)
             is ProfileIntent.ToggleLateNightCall -> toggleLateNightCall(intent.enabled)
         }
@@ -35,7 +40,11 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadProfile() = intent {
         reduce { state.copy(loadStatus = LoadStatus.Loading) }
-        myPageRepository.getMyProfile()
+
+        val profileResult = myPageRepository.getMyProfile()
+        val settingResult = myPageRepository.getNotificationSetting()
+
+        profileResult
             .onSuccess { profile ->
                 reduce {
                     state.copy(
@@ -45,25 +54,72 @@ class ProfileViewModel @Inject constructor(
                     )
                 }
             }
-            .onFailure { e ->
-                if (e is CancellationException) throw e
+            .onFailure { error ->
+                if (error is CancellationException) throw error
                 reduce {
-                    state.copy(loadStatus = LoadStatus.Error(e.message ?: "프로필 불러오기 실패"))
+                    state.copy(
+                        loadStatus = LoadStatus.Error(
+                            error.toUserMessage(default = "프로필 불러오기 실패"),
+                        ),
+                    )
                 }
+            }
+
+        settingResult
+            .onSuccess { setting ->
+                reduce { state.applyNotificationSetting(setting) }
+            }
+            .onFailure { error ->
+                if (error is CancellationException) throw error
             }
     }
 
     private fun toggleAllNotification(enabled: Boolean) = intent {
+        val previous = state.isAllNotificationEnabled
+        if (previous == enabled) return@intent
+
         reduce { state.copy(isAllNotificationEnabled = enabled) }
-        // TODO: 서버에 알림 설정 반영
+
+        myPageRepository.updateNotificationToggles(
+            allNotificationEnabled = enabled,
+            nightCallAllowed = null,
+        ).onSuccess { setting ->
+            reduce { state.applyNotificationSetting(setting) }
+        }.onFailure { error ->
+            if (error is CancellationException) throw error
+            reduce { state.copy(isAllNotificationEnabled = previous) }
+        }
     }
 
     private fun toggleLateNightCall(enabled: Boolean) = intent {
+        val previous = state.isLateNightCallAllowed
+        if (previous == enabled) return@intent
+
         reduce { state.copy(isLateNightCallAllowed = enabled) }
-        // TODO: 서버에 심야 통화 허용 설정 반영
+
+        myPageRepository.updateNotificationToggles(
+            allNotificationEnabled = null,
+            nightCallAllowed = enabled,
+        ).onSuccess { setting ->
+            reduce { state.applyNotificationSetting(setting) }
+        }.onFailure { error ->
+            if (error is CancellationException) throw error
+            reduce { state.copy(isLateNightCallAllowed = previous) }
+        }
     }
 
     private fun navigate(effect: ProfileSideEffect) = intent {
         postSideEffect(effect)
     }
 }
+
+private fun ProfileState.applyNotificationSetting(setting: NotificationSetting): ProfileState =
+    copy(
+        isAllNotificationEnabled = setting.allNotificationEnabled,
+        isLateNightCallAllowed = setting.nightCallAllowed,
+        disturbTimeText = formatDisturbRangeText(
+            start = parseApiLocalTime(setting.doNotDisturbStart),
+            end = parseApiLocalTime(setting.doNotDisturbEnd),
+        ),
+    )
+

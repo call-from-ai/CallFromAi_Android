@@ -2,14 +2,14 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.concurrent.CancellationException
+import javax.inject.Inject
 import kr.co.call.domain.model.mypage.AiCharacter
 import kr.co.call.domain.repository.AICharacterRepository
 import kr.co.call.domain.util.LoadStatus
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-import java.util.concurrent.CancellationException
-import javax.inject.Inject
 
 @HiltViewModel
 class CharacterManagementViewModel @Inject constructor(
@@ -17,7 +17,7 @@ class CharacterManagementViewModel @Inject constructor(
 ) : ViewModel(), ContainerHost<CharacterManagementState, CharacterManagementSideEffect> {
 
     override val container: Container<CharacterManagementState, CharacterManagementSideEffect> = container(
-        initialState = CharacterManagementState()
+        initialState = CharacterManagementState(),
     ) {
         loadCharacters()
     }
@@ -46,7 +46,40 @@ class CharacterManagementViewModel @Inject constructor(
     }
 
     private fun showChatHistory(aiCharacter: AiCharacter) = intent {
-        postSideEffect(CharacterManagementSideEffect.ShowChatHistorySummary(aiCharacter))
+        val characterId = aiCharacter.id.toLongOrNull()
+        if (characterId == null) {
+            postSideEffect(
+                CharacterManagementSideEffect.ShowMessage("잘못된 캐릭터입니다."),
+            )
+            return@intent
+        }
+
+        aiCharacterRepository.getChatSummary(characterId)
+            .onSuccess { summary ->
+                postSideEffect(
+                    CharacterManagementSideEffect.ShowChatHistorySummary(
+                        aiCharacter.copy(
+                            summary = summary.ifBlank { FALLBACK_EMPTY_CHAT_SUMMARY },
+                        ),
+                    ),
+                )
+            }
+            .onFailure { error ->
+                if (error is CancellationException) throw error
+                postSideEffect(
+                    CharacterManagementSideEffect.ShowChatHistorySummary(
+                        aiCharacter.copy(
+                            summary = FALLBACK_UNAVAILABLE_CHAT_SUMMARY,
+                        ),
+                    ),
+                )
+            }
+    }
+
+    private companion object {
+        const val FALLBACK_EMPTY_CHAT_SUMMARY = "아직 대화 요약이 없어요."
+        const val FALLBACK_UNAVAILABLE_CHAT_SUMMARY =
+            "대화 요약을 불러오지 못했어요.\n잠시 후 다시 시도해 주세요."
     }
 
     private fun navigateToEdit(aiCharacter: AiCharacter) = intent {

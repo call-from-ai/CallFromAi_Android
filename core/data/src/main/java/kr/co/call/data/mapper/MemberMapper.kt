@@ -2,7 +2,9 @@ package kr.co.call.data.mapper
 
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
+import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.network.dto.mypage.MemberResponseDto
+import kr.co.call.network.dto.mypage.NotificationSettingDto
 import kr.co.call.network.dto.onboarding.UpdateMemberRequestDto
 
 internal fun MemberResponseDto.toDomain(
@@ -35,3 +37,12 @@ internal fun MemberProfileUpdate.toRequestDto(): UpdateMemberRequestDto =
         mbti = mbti,
         job = job,
     )
+
+internal fun NotificationSettingDto.toDomain(): NotificationSetting =
+    NotificationSetting(
+        allNotificationEnabled = allNotificationEnabled,
+        nightCallAllowed = nightCallAllowed,
+        doNotDisturbStart = doNotDisturbStart,
+        doNotDisturbEnd = doNotDisturbEnd,
+    )
+

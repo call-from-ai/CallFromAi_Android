@@ -17,4 +17,6 @@ interface AICharacterRepository {
     suspend fun deleteCharacter(characterId: String): Result<Unit>
 
     suspend fun canAddCharacter(): Result<Boolean>
+
+    suspend fun getChatSummary(characterId: Long): Result<String>
 }
