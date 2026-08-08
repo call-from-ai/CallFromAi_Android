@@ -50,6 +50,7 @@ import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.ui.MainBottomBar
@@ -258,7 +259,9 @@ private fun MainAppContent(
 
                     onboardingEntry(
                         onOnboarding1Next = {
-                            appNavigator.navigate(Onboarding2NavKey)
+                            appNavigator.navigate(
+                                Onboarding2NavKey(mode = OnboardingFlowMode.FIRST_ONBOARDING),
+                            )
                         },
                         onBackFromOnboarding1 = {
                             viewModel.handleIntent(AppIntent.LogoutSucceeded)
@@ -287,6 +290,10 @@ private fun MainAppContent(
                         },
                         onOnboarding5Next = {
                             appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onAdditionalCharacterCreated = {
+                            // 캐릭터 추가 완료 -> 전화 화면 스킵, 홈으로
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         onOnboarding6CallNow = {
                             //나중에 전화화면으로 바꾸기
@@ -370,6 +377,15 @@ private fun MainAppContent(
                         },
                         navigateToEditCharacter = { characterId ->
                             appNavigator.navigate(EditCharacterNavKey(characterId))
+                        },
+                        navigateToAddCharacter = {
+                            // 온보딩 2로 바로 진입
+                            appNavigator.navigate(
+                                Onboarding2NavKey(
+                                    mode = OnboardingFlowMode.ADD_CHARACTER,
+                                    resetToken = System.currentTimeMillis(),
+                                ),
+                            )
                         },
                         onBack = {
                             appNavigator.popBackStack()

@@ -7,6 +7,6 @@ data class ProfileState(
     val nickname: String = "",
     val isAllNotificationEnabled: Boolean = true,
     val isLateNightCallAllowed: Boolean = true,
-    val disturbTimeText: String = "09-12시", // <- 연동 전 임시로만!
+    val disturbTimeText: String = "",
     val loadStatus: LoadStatus = LoadStatus.Idle,
 )
