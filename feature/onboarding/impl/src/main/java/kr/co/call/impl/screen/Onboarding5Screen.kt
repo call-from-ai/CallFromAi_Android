@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -59,11 +61,16 @@ fun Onboarding5Screen(
                 .background(SubGray2)
         ) {
             Column(
-                modifier = Modifier.padding(
-                    start = 27.dp,
-                    end = 27.dp,
-                    top = 26.dp,
-                ),
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        start = 27.dp,
+                        end = 27.dp,
+                        top = 26.dp,
+                        bottom = 26.dp
+                    ),
                 verticalArrangement = Arrangement.spacedBy(22.dp),
             ) {
                 PreferTime.entries
@@ -76,14 +83,14 @@ fun Onboarding5Screen(
                 }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
             SecondaryButton(
-                modifier = Modifier.padding(
-                    start = 27.dp,
-                    end = 27.dp,
-                    bottom = 10.dp,
-                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 27.dp,
+                        end = 27.dp,
+                        bottom = 10.dp,
+                    ),
                 text = "다음",
                 enabled = selectedPreferTime != null && !isLoading,
                 onClick = { selectedPreferTime?.let(onNextClick) },

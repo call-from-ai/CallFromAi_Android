@@ -1,11 +1,12 @@
 package kr.co.call.impl.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -71,91 +72,67 @@ fun Onboarding4Screen(
         Spacer(modifier = Modifier.height(5.dp))
 
         Column(
-            modifier=Modifier
+            modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .background(SubGray2),
         ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 23.dp,
-                ),
-            verticalArrangement = Arrangement.spacedBy(22.dp),
-        ) {
-            traitRows.forEach { rowTraits ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(14.dp),
-                ) {
-                    rowTraits.forEach { trait ->
-                        val selectedOrder = selectedKeywords
-                            .indexOf(trait.keyword)
-                            .takeIf { it >= 0 }
-                            ?.plus(1)
+            FlowRow(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 23.dp,
+                        bottom = 23.dp,
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(22.dp),
+            ) {
+                traitRows.flatten().forEach { trait ->
+                    val selectedOrder = selectedKeywords
+                        .indexOf(trait.keyword)
+                        .takeIf { it >= 0 }
+                        ?.plus(1)
 
-                        KeywordChoice(
-                            emoji = trait.emoji,
-                            text = trait.label,
-                            selectedOrder = selectedOrder,
-                            onClick = {
-                                selectedKeywords = when {
-                                    trait.keyword in selectedKeywords ->
-                                        selectedKeywords - trait.keyword
+                    KeywordChoice(
+                        emoji = trait.emoji,
+                        text = trait.label,
+                        selectedOrder = selectedOrder,
+                        onClick = {
+                            selectedKeywords = when {
+                                trait.keyword in selectedKeywords ->
+                                    selectedKeywords - trait.keyword
 
-                                    selectedKeywords.size < 5 ->
-                                        selectedKeywords + trait.keyword
+                                selectedKeywords.size < 5 ->
+                                    selectedKeywords + trait.keyword
 
-                                    else -> selectedKeywords
-                                }
-                            },
-                        )
-                    }
+                                else -> selectedKeywords
+                            }
+                        },
+                    )
                 }
             }
-        }
-                Spacer(modifier = Modifier.weight(1f))
-                SecondaryButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = 27.dp,
-                            end = 27.dp,
-                            bottom = 10.dp,
-                        ),
-                    text = "다음",
-                    enabled = selectedTraits.isNotEmpty(),
-                    onClick = {
-                        if (selectedTraits.isNotEmpty()) {
-                            onNextClick(selectedTraits)
-                        }
-                    },
-                )
-            }
+
+            SecondaryButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 27.dp,
+                        end = 27.dp,
+                        bottom = 10.dp,
+                    ),
+                text = "다음",
+                enabled = selectedTraits.isNotEmpty(),
+                onClick = {
+                    if (selectedTraits.isNotEmpty()) {
+                        onNextClick(selectedTraits)
+                    }
+                },
+            )
         }
     }
 
-@Preview(
-    name = "Onboarding4 키워드 선택",
-    showBackground = true,
-    showSystemUi = true,
-    widthDp = 375,
-    heightDp = 812,
-)
-@Composable
-private fun Onboarding4ScreenSelectedPreview() {
-    CallFromAiTheme {
-        Onboarding4Screen(
-            onBackClick = {},
-            onNextClick = {},
-            initialSelectedKeywords = listOf(
-                Trait.HUMOROUS.keyword,
-                Trait.PLAYFUL.keyword,
-                Trait.AFFECTIONATE.keyword,
-            ),
-        )
-    }
 }
