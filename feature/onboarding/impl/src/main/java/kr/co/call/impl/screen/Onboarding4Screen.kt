@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,9 +25,15 @@ import kr.co.call.designsystem.component.button.SecondaryButton
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.SubGray2
 import kr.co.call.designsystem.theme.White
+import kr.co.call.domain.model.onboarding.CharacterOnboardingInput
+import kr.co.call.domain.model.onboarding.CreatedCharacter
+import kr.co.call.domain.model.onboarding.MemberOnboardingInput
+import kr.co.call.domain.model.onboarding.PresetImage
+import kr.co.call.domain.repository.OnboardingRepository
 import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.KeywordChoice
 import kr.co.call.impl.component.TopTitle
+import kr.co.call.impl.viewmodel.OnboardingViewModel
 import kr.co.call.impl.viewmodel.model.Trait
 
 private val traitRows=listOf(
@@ -134,5 +141,50 @@ fun Onboarding4Screen(
             )
         }
     }
+}
 
+@Preview(
+    showBackground = true,
+    backgroundColor = 0xFFFFFFFF,
+    widthDp = 360,
+    heightDp = 800,
+)
+@Composable
+private fun Onboarding2ScreenPreview() {
+    val previewViewModel = remember {
+        OnboardingViewModel(
+            onboardingRepository = object : OnboardingRepository {
+                override suspend fun submitMemberOnboarding(
+                    submission: MemberOnboardingInput,
+                ): Result<Unit> {
+                    return Result.success(Unit)
+                }
+
+                override suspend fun submitCharacterOnboarding(
+                    submission: CharacterOnboardingInput,
+                ): Result<CreatedCharacter> {
+                    return Result.success(
+                        CreatedCharacter(
+                            id = 1L,
+                            name = "미리보기",
+                        ),
+                    )
+                }
+
+                override suspend fun getPresetImages(
+                    gender: String,
+                ): Result<List<PresetImage>> {
+                    return Result.success(emptyList())
+                }
+            },
+        )
+    }
+
+    CallFromAiTheme {
+        Onboarding2Screen(
+            viewModel = previewViewModel,
+            onBackClick = {},
+            onNext = {},
+        )
+    }
 }

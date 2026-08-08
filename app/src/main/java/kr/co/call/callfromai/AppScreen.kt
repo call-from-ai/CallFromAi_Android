@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -94,19 +95,17 @@ fun AppScreen(
         is AppAuthState.Authenticated -> {
             MainAppContent(
                 startKey = when {
-                    authState.needsTermsAgreement -> {
-                        AgreementNavKey(
-                            needsOnboarding = authState.needsOnboarding,
-                        )
-                    }
-
-                    authState.needsOnboarding -> {
-                        Onboarding1NavKey
-                    }
-
-                    else -> {
-                        HomeNavKey
-                    }
+                    authState.needsTermsAgreement -> LoginNavKey
+                    authState.needsOnboarding-> Onboarding1NavKey
+                    else -> HomeNavKey
+                    },
+                agreementKey=if(authState.needsTermsAgreement){
+                    AgreementNavKey(
+                        needsOnboarding=authState.needsOnboarding,
+                    )
+                }
+                    else {
+                        null
                 },
                 viewModel=viewModel,
                 modifier=modifier,
@@ -126,6 +125,7 @@ fun AppScreen(
 @Composable
 private fun MainAppContent(
     startKey: NavKey,
+    agreementKey: AgreementNavKey? = null,
     viewModel: AppViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -133,6 +133,14 @@ private fun MainAppContent(
 
     val appNavigator = remember(backStack) {
         AppNavigator(backStack)
+    }
+    LaunchedEffect(agreementKey) {
+        if (
+            agreementKey != null &&
+            backStack.lastOrNull() != agreementKey
+        ) {
+            appNavigator.navigate(agreementKey)
+        }
     }
     val currentKey = backStack.lastOrNull()
     viewModel.collectSideEffect { sideEffect ->

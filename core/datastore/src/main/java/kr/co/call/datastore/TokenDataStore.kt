@@ -10,7 +10,8 @@ import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
 
 /**
- * DataStore에 저장된 Access Token과 Refresh Token을 함께 표현한다.
+ * DataStore에 저장된 Access Token, Refresh Token,로그인 진행상태를 함께 표현한다.
+ * 로그인 진행 상태는 온보딩 및 약관 동의 필요 여부를 나타낸다.
  * TokenAuthenticator에서 두 토큰을 한 번에 읽을 때 사용한다.
  */
 data class StoredTokens(
