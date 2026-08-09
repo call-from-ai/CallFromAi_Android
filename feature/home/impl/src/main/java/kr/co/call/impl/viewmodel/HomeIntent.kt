@@ -22,6 +22,7 @@ sealed interface HomeIntent {
         data object ClickMain : Call
 
         data class ClickNotification(
+            val characterId: Long,
             val characterName: String,
         ) : Call
 
@@ -43,4 +44,7 @@ sealed interface HomeIntent {
     }
 
     data object DismissDialog : HomeIntent
+
+    // 홈 화면 (재)진입 시 최신 데이터로 갱신
+    data object OnResume : HomeIntent
 }

@@ -311,7 +311,8 @@ class ChatRoomViewModel @AssistedInject constructor(
 
     // 통화 화면 이동 이벤트 처리
     private fun emitNavigateToCall(characterId: Long) = intent {
-        //TODO: 통화 화면으로 이동
+        reduce { state.copy(showCallDialog = false) }
+        postSideEffect(ChatRoomSideEffect.Call(characterId))
     }
 
     // 카메라 실행 이벤트 전달

@@ -1,9 +1,9 @@
 package kr.co.call.callfromai
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
@@ -20,8 +20,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -29,6 +31,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kr.co.call.api.AgreementDetailNavKey
 import kr.co.call.api.AgreementNavKey
+import kr.co.call.api.CallActiveNavKey
 import kr.co.call.api.CallRecordNavKey
 import kr.co.call.api.CallSendingNavKey
 import kr.co.call.api.CallTimeManagementNavKey
@@ -47,19 +50,20 @@ import kr.co.call.api.ProfileNavKey
 import kr.co.call.api.SubscriptionNavKey
 import kr.co.call.api.Onboarding1NavKey
 import kr.co.call.api.Onboarding2NavKey
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
-import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.intent.AppIntent
+import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.ui.MainBottomBar
 import kr.co.call.callfromai.ui.MainTab
 import kr.co.call.callfromai.util.toMainTab
-import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppAuthState
 import kr.co.call.designsystem.component.LocalBottomBarPadding
+import kr.co.call.domain.model.call.IncomingCall
 import kr.co.call.impl.entry.chattingEntry
 import kr.co.call.impl.entry.callEntry
 import kr.co.call.impl.entry.homeEntry
@@ -69,6 +73,7 @@ import kr.co.call.impl.entry.onboardingEntry
 import kr.co.call.impl.screen.LandingScreen
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
+import kr.co.call.impl.screen.IncomingCallDialogRoute
 
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
@@ -76,11 +81,15 @@ import org.orbitmvi.orbit.compose.collectSideEffect
  * 단일 백스택으로 로그인/온보딩/탭 화면을 모두 관리하며,
  * 현재 백스택 최상단 키를 기준으로 BottomBar 표시 여부를 결정합니다.
  *
+ * @param incomingCall 현재 앱 내부에 표시할 착신 정보
+ * @param onClearIncomingCall 처리가 끝난 착신 상태를 제거하는 콜백
  * @param modifier 루트 [Box]에 적용할 [Modifier]
  */
 @Composable
 fun AppScreen(
     viewModel: AppViewModel,
+    incomingCall: IncomingCall?,
+    onClearIncomingCall: (callId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.collectAsState()
@@ -107,8 +116,10 @@ fun AppScreen(
                     else {
                         null
                 },
-                viewModel=viewModel,
-                modifier=modifier,
+                viewModel = viewModel,
+                incomingCall = incomingCall,
+                onClearIncomingCall = onClearIncomingCall,
+                modifier = modifier,
             )
         }
 
@@ -116,6 +127,8 @@ fun AppScreen(
             MainAppContent(
                 startKey = LoginNavKey,
                 viewModel = viewModel,
+                incomingCall = incomingCall,
+                onClearIncomingCall = onClearIncomingCall,
                 modifier = modifier,
             )
         }
@@ -127,6 +140,8 @@ private fun MainAppContent(
     startKey: NavKey,
     agreementKey: AgreementNavKey? = null,
     viewModel: AppViewModel,
+    incomingCall: IncomingCall?,
+    onClearIncomingCall: (callId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val backStack = rememberNavBackStack(startKey)
@@ -143,6 +158,9 @@ private fun MainAppContent(
         }
     }
     val currentKey = backStack.lastOrNull()
+    // API 실패 메시지 표시에 사용할 현재 화면 Context
+    val context = LocalContext.current
+
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
             AppSideEffect.NavigateToLogin -> {
@@ -150,6 +168,9 @@ private fun MainAppContent(
             }
             is AppSideEffect.NavigateToChatRoom -> {
                 appNavigator.navigateToChatRoom(sideEffect.chatRoomId)
+            }
+            AppSideEffect.NavigateToHome -> {
+                appNavigator.replaceAll(HomeNavKey)
             }
         }
     }
@@ -306,9 +327,17 @@ private fun MainAppContent(
                             // 캐릭터 추가 완료 -> 전화 화면 스킵, 홈으로
                             appNavigator.replaceAll(HomeNavKey)
                         },
-                        onOnboarding6CallNow = {
-                            //나중에 전화화면으로 바꾸기
+                        onOnboarding6CallNow = { characterId, characterName, characterImageUrl ->
+                            // 온보딩 백스택은 정리하고 홈을 기반으로 통화 화면을 쌓아,
+                            // 통화 종료 시 popBackStack()이 홈으로 돌아가도록 함
                             appNavigator.replaceAll(HomeNavKey)
+                            appNavigator.navigate(
+                                CallSendingNavKey(
+                                    characterId = characterId,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
+                                ),
+                            )
                         },
                         onOnboarding6CallLater = {
                             appNavigator.replaceAll(HomeNavKey)
@@ -316,10 +345,12 @@ private fun MainAppContent(
                     )
 
                     homeEntry(
-                        navigateToCall = { characterId ->
+                        navigateToCall = { characterId, characterName, characterImageUrl ->
                             appNavigator.navigate(
                                 CallSendingNavKey(
                                     characterId = characterId,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
                                 ),
                             )
                         },
@@ -330,14 +361,43 @@ private fun MainAppContent(
                                 ),
                             )
                         },
+                        navigateToCharacterOnboarding = {
+                            appNavigator.navigate(
+                                Onboarding2NavKey(
+                                    mode = OnboardingFlowMode.ADD_CHARACTER,
+                                    resetToken = System.currentTimeMillis(),
+                                ),
+                            )
+                        },
                         onCallRecordBack = {
                             appNavigator.popBackStack()
                         },
                     )
 
                     callEntry(
+                        onIncomingAccepted = { callId, characterId, characterName, characterImageUrl ->
+                            appNavigator.replaceTop(
+                                CallActiveNavKey(
+                                    callId = callId,
+                                    characterId = characterId,
+                                    isIncoming = true,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
+                                ),
+                            )
+                        },
+                        onIncomingFinished = {
+                            appNavigator.popBackStack()
+                        },
                         onCallFinished = {
                             appNavigator.popBackStack()
+                        },
+                        onShowMessage = { message ->
+                            Toast.makeText(
+                                context,
+                                message,
+                                Toast.LENGTH_SHORT,
+                            ).show()
                         },
                     )
 
@@ -351,6 +411,15 @@ private fun MainAppContent(
                         },
                         navigateToManagerChatRoom = {
                             appNavigator.navigate(ManagerChatRoomNayKey)
+                        },
+                        navigateToCall = { characterId, characterName, characterImageUrl ->
+                            appNavigator.navigate(
+                                CallSendingNavKey(
+                                    characterId = characterId,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
+                                ),
+                            )
                         },
                         onBack = {
                             appNavigator.popBackStack()
@@ -405,5 +474,45 @@ private fun MainAppContent(
                 },
             )
         }
+    }
+
+    /**
+     * 통화 걸려왔을 때의 이동 처리
+     */
+    incomingCall?.let { call ->
+        IncomingCallDialogRoute(
+            call = call,
+            onNavigateToChatRoom = { roomId ->
+                // 채팅방 식별자가 있을 때만 이동
+                roomId?.let { id ->
+                    appNavigator.navigate(
+                        ChatRoomNavKey(roomId = id),
+                    )
+                }
+                onClearIncomingCall(call.callId)
+            },
+            onAccepted = { callId, characterId, characterName, characterImageUrl ->
+                appNavigator.navigate(
+                    CallActiveNavKey(
+                        callId = callId,
+                        characterId = characterId,
+                        isIncoming = true,
+                        characterName = characterName,
+                        characterImageUrl = characterImageUrl,
+                    ),
+                )
+                onClearIncomingCall(callId)
+            },
+            onRejected = { callId ->
+                onClearIncomingCall(callId)
+            },
+            onShowMessage = { message ->
+                Toast.makeText(
+                    context,
+                    message,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            },
+        )
     }
 }

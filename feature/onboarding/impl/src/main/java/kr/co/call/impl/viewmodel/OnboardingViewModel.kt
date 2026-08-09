@@ -59,7 +59,9 @@ class OnboardingViewModel @Inject constructor(
                 // 이전 온보딩의 회원 제출 플래그가 남지 않도록 초기화
                 isMemberSubmitted = false,
                 createdAiId = null,
-                createdAiName = "",
+                createdAiName = null,
+                createdAiImageUrl = null,
+                isCallDialogVisible = false,
             )
         }
     }
@@ -247,6 +249,7 @@ class OnboardingViewModel @Inject constructor(
                     state.copy(
                         createdAiId = character.id,
                         createdAiName = character.name,
+                        createdAiImageUrl = character.imageUrl,
                         submitStatus = LoadStatus.Idle,
                     )
                 }
@@ -332,5 +335,19 @@ class OnboardingViewModel @Inject constructor(
                     )
                 }
             }
+    }
+
+    // 캐릭터 생성 완료 화면에서 바로 전화 연결 시 다이얼로그 표시
+    fun showCallDialog() = intent {
+        reduce {
+            state.copy(isCallDialogVisible = true)
+        }
+    }
+
+    // 다이얼로그 취소 시 다이얼로그 닫기
+    fun hideCallDialog() = intent {
+        reduce {
+            state.copy(isCallDialogVisible = false)
+        }
     }
 }

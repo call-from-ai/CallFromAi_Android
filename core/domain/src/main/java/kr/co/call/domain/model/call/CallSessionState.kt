@@ -1,5 +1,6 @@
 package kr.co.call.domain.model.call
 
+// 통화 세션 상태
 data class CallSessionState(
     val isMicrophoneEnabled: Boolean = true,
     val isSpeakerEnabled: Boolean = false,

@@ -1,4 +1,4 @@
-package kr.co.call.data.repositoryImpl
+package kr.co.call.impl.session
 
 import android.content.Context
 import android.media.AudioAttributes
@@ -12,26 +12,33 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kr.co.call.domain.model.call.CallAudioFocusState
 import kr.co.call.domain.model.call.CallSessionState
-import kr.co.call.domain.repository.CallSessionRepository
+import kr.co.call.domain.model.call.CallStreamingEvent
 import kr.co.call.domain.repository.CallStreamingRepository
 
 /**
- * 전역 오디오 세션 관리
- * - 해당 부분은 소켓 연결 시 수정 진행하겠습니다
+ * Android의 오디오 포커스와 통화 출력 장치를 관리합니다.
  */
 @Singleton
-class AndroidCallSessionRepository @Inject constructor(
+class AndroidCallSessionManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val streamingRepository: CallStreamingRepository,
-) : CallSessionRepository {
+) : CallSessionManager {
 
     private val audioManager = context.getSystemService(AudioManager::class.java)
     private val sessionMutex = Mutex()
@@ -46,6 +53,13 @@ class AndroidCallSessionRepository @Inject constructor(
 
     private var isSessionActive = false
     private var isCommunicationDeviceListenerRegistered = false
+
+    // 세션 수명 동안만 통화 소켓을 구독하는 스코프
+    private val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var streamingJob: Job? = null
+
+    private val _streamingEvents = MutableSharedFlow<CallStreamingEvent>(extraBufferCapacity = 8)
+    override val streamingEvents: Flow<CallStreamingEvent> = _streamingEvents.asSharedFlow()
 
     // 시스템 오디오 포커스 변화 반영
     private val audioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -83,7 +97,9 @@ class AndroidCallSessionRepository @Inject constructor(
             }
         }
 
-    override suspend fun startSession(): Boolean = sessionMutex.withLock {
+    override suspend fun startSession(
+        wsTicket: String,
+    ): Boolean = sessionMutex.withLock {
         // 중복 세션 시작 방지
         if (isSessionActive) return@withLock true
 
@@ -100,6 +116,13 @@ class AndroidCallSessionRepository @Inject constructor(
         isSessionActive = true
         _sessionState.value = CallSessionState()
         _audioFocusState.value = CallAudioFocusState.GAINED
+
+        // 통화 소켓 연결과 이벤트 구독 시작
+        streamingJob = sessionScope.launch {
+            streamingRepository.connect(wsTicket).collect { event ->
+                _streamingEvents.emit(event)
+            }
+        }
         true
     }
 
@@ -128,6 +151,10 @@ class AndroidCallSessionRepository @Inject constructor(
 
     override suspend fun endSession() = sessionMutex.withLock {
         try {
+            // 통화 소켓 구독 종료
+            streamingJob?.cancel()
+            streamingJob = null
+
             // 통화 출력 장치와 리스너 해제
             unregisterCommunicationDeviceListener()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {

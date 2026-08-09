@@ -17,10 +17,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import java.time.LocalDateTime
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.impl.component.dialog.CallConnectDialog
 import kr.co.call.impl.component.dialog.CharacterChangeConfirmDialog
@@ -50,13 +51,17 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onNavigateToCharacterOnboarding: () -> Unit = {},
-    onNavigateToCall: (Long) -> Unit = {},
+    onNavigateToCall: (characterId: Long, characterName: String, characterImageUrl: String?) -> Unit = { _, _, _ -> },
     onNavigateToCallRecord: (Long) -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.collectAsState()
-    val notifications = remember { createHomeNotificationMockData() }
     val context = LocalContext.current
+
+    // 다른 화면에서 돌아올 때 최신 데이터로 갱신
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.handleIntent(HomeIntent.OnResume)
+    }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
@@ -65,7 +70,11 @@ fun HomeScreen(
             }
 
             is HomeSideEffect.NavigateToCall -> {
-                onNavigateToCall(sideEffect.characterId)
+                onNavigateToCall(
+                    sideEffect.characterId,
+                    sideEffect.characterName,
+                    sideEffect.characterImageUrl,
+                )
             }
 
             is HomeSideEffect.NavigateToCallRecord -> {
@@ -80,7 +89,6 @@ fun HomeScreen(
 
     HomeScreenContent(
         state = state,
-        notifications = notifications,
         onIntent = viewModel::handleIntent,
         modifier = modifier,
     )
@@ -94,13 +102,11 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeState,
-    notifications: List<HomeNotification>,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     HomeContent(
         state = state,
-        notifications = notifications,
         onIntent = onIntent,
         modifier = modifier,
     )
@@ -114,7 +120,6 @@ private fun HomeScreenContent(
 @Composable
 private fun HomeContent(
     state: HomeState,
-    notifications: List<HomeNotification>,
     onIntent: (HomeIntent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -163,9 +168,14 @@ private fun HomeContent(
                     NotificationListHeader()
                 }
                 notificationItems(
-                    notifications = notifications,
-                    onCallClick = { characterName ->
-                        onIntent(HomeIntent.Call.ClickNotification(characterName))
+                    notifications = state.notifications,
+                    onCallClick = { characterId, characterName ->
+                        onIntent(
+                            HomeIntent.Call.ClickNotification(
+                                characterId = characterId,
+                                characterName = characterName,
+                            ),
+                        )
                     },
                 )
             }
@@ -287,6 +297,7 @@ private fun HomeScreenPreview() {
                     totalCallCount = 24,
                     callStreakDays = 12,
                 ),
+                notifications = notifications,
                 hasUnreadNotification = notifications.any { notification ->
                     !notification.isRead
                 },
@@ -298,7 +309,6 @@ private fun HomeScreenPreview() {
     CallFromAiTheme {
         HomeScreenContent(
             state = state,
-            notifications = notifications,
             onIntent = { intent ->
                 if (intent is HomeIntent.History.SelectTab) {
                     state = state.copy(selectedHistoryTab = intent.tab)

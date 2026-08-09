@@ -15,11 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
-import kr.co.call.impl.viewmodel.model.CallDirection
 
 @Composable
 fun CallHeader(
-    direction: CallDirection,
+    isIncoming: Boolean,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -40,10 +39,7 @@ fun CallHeader(
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = when (direction) {
-                CallDirection.INCOMING -> "수신전화"
-                CallDirection.OUTGOING -> "발신전화"
-            },
+            text = if (isIncoming) "수신전화" else "발신전화",
             color = CallTheme.colors.gray400,
             style = CallTheme.typography.bodyLarge,
         )
@@ -55,9 +51,9 @@ fun CallHeader(
 private fun CallHeaderPreview() {
     CallFromAiTheme {
         Column {
-            CallHeader(direction = CallDirection.INCOMING)
+            CallHeader(isIncoming = true)
             Spacer(modifier = Modifier.height(12.dp))
-            CallHeader(direction = CallDirection.OUTGOING)
+            CallHeader(isIncoming = false)
         }
     }
 }

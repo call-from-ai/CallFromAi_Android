@@ -8,4 +8,5 @@ data class CallIncomingState(
     val characterId: Long = 0L,
     val character: CallCharacterUiModel = CallCharacterUiModel(),
     val loadStatus: LoadStatus = LoadStatus.Idle,
+    val isResolved: Boolean = false, // 이미 처리된 착신인지
 )

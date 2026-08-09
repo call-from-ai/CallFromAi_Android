@@ -65,6 +65,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun ChatRoomScreen(
     modifier: Modifier = Modifier,
     viewModel: ChatRoomViewModel,
+    onNavigateToCall: (characterId: Long, characterName: String, characterImageUrl: String?) -> Unit,
     onBack: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -106,7 +107,9 @@ fun ChatRoomScreen(
             is ChatRoomSideEffect.ShowToast -> {
                 Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
             }
-            is ChatRoomSideEffect.Call -> {}
+            is ChatRoomSideEffect.Call -> {
+                onNavigateToCall(sideEffect.characterId, state.topHeader.name, state.topHeader.imgUrl)
+            }
 
             ChatRoomSideEffect.GoToCamera -> {
                 val uri = context.createImageUri()

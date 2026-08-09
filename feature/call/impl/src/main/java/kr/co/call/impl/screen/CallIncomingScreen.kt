@@ -35,7 +35,6 @@ import kr.co.call.impl.viewmodel.CallIncomingIntent
 import kr.co.call.impl.viewmodel.CallIncomingSideEffect
 import kr.co.call.impl.viewmodel.CallIncomingViewModel
 import kr.co.call.impl.viewmodel.model.CallCharacterUiModel
-import kr.co.call.impl.viewmodel.model.CallDirection
 import kr.co.call.impl.viewmodel.state.CallIncomingState
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
@@ -48,9 +47,12 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 fun CallIncomingScreen(
     callId: Long,
     characterId: Long,
-    onNavigateToCall: (Long, Long) -> Unit,
+    onNavigateToCall: (callId: Long, characterId: Long, characterName: String, characterImageUrl: String?) -> Unit,
     onFinished: () -> Unit,
+    characterName: String = "",
+    characterImageUrl: String? = null,
     modifier: Modifier = Modifier,
+    autoAcceptOnLaunch: Boolean = false,
     onShowMessage: (String) -> Unit = {},
     viewModel: CallIncomingViewModel = hiltViewModel(),
 ) {
@@ -64,13 +66,18 @@ fun CallIncomingScreen(
         },
     )
 
-    LaunchedEffect(callId, characterId) {
+    LaunchedEffect(callId, characterId, autoAcceptOnLaunch) {
         viewModel.handleIntent(
             CallIncomingIntent.Initialize(
                 callId = callId,
                 characterId = characterId,
+                characterName = characterName,
+                characterImageUrl = characterImageUrl,
             ),
         )
+        if (autoAcceptOnLaunch) {
+            viewModel.handleIntent(CallIncomingIntent.AcceptCall)
+        }
     }
 
     viewModel.collectSideEffect { sideEffect ->
@@ -83,6 +90,8 @@ fun CallIncomingScreen(
                 onNavigateToCall(
                     sideEffect.callId,
                     sideEffect.characterId,
+                    characterName,
+                    characterImageUrl,
                 )
             }
 
@@ -124,7 +133,7 @@ private fun CallIncomingContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Spacer(modifier = Modifier.height(if (isCompact) 20.dp else 55.dp))
-                CallHeader(direction = CallDirection.INCOMING)
+                CallHeader(isIncoming = true)
                 Spacer(modifier = Modifier.height(if (isCompact) 10.dp else 18.dp))
                 Text(
                     text = state.character.name,

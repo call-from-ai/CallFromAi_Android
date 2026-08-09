@@ -26,6 +26,7 @@ data class CallHistory(
     val isMissed: Boolean,
 )
 
+// 알림 리스트
 data class HomeNotification(
     val notificationId: Long,
     val type: NotificationType,
@@ -33,6 +34,7 @@ data class HomeNotification(
     val content: String,
     val isRead: Boolean,
     val createdAt: LocalDateTime,
+    val characterId: Long?,
     val characterName: String?,
     val profileImageUrl: String?,
 )

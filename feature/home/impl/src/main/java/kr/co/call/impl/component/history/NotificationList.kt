@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalDateTime
+import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.designsystem.R
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
@@ -41,8 +42,6 @@ import kr.co.call.designsystem.component.ProfileImage
 import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.NotificationType
 import kr.co.call.impl.component.UnreadIndicator
-import kr.co.call.impl.mapper.toUiModel
-import kr.co.call.impl.viewmodel.model.HomeNotificationUiModel
 
 /**
  * 알림 리스트 안내 문구
@@ -68,7 +67,7 @@ fun NotificationListHeader(
  */
 fun LazyListScope.notificationItems(
     notifications: List<HomeNotification>,
-    onCallClick: (characterName: String) -> Unit,
+    onCallClick: (characterId: Long, characterName: String) -> Unit,
 ) {
     if (notifications.isEmpty()) {
         item {
@@ -81,9 +80,13 @@ fun LazyListScope.notificationItems(
         key = { notification -> notification.notificationId },
     ) { notification ->
         NotificationCard(
-            notificationState = notification.toUiModel(),
+            notificationState = notification,
             onCallClick = {
-                notification.characterName?.let(onCallClick)
+                val characterId = notification.characterId
+                val characterName = notification.characterName
+                if (characterId != null && characterName != null) {
+                    onCallClick(characterId, characterName)
+                }
             },
             modifier = Modifier.padding(
                 start = 16.dp,
@@ -118,7 +121,7 @@ private fun NotificationEmptyContent(
  */
 @Composable
 private fun NotificationCard(
-    notificationState: HomeNotificationUiModel,
+    notificationState: HomeNotification,
     onCallClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -228,7 +231,7 @@ private fun NotificationCard(
 
         // n분 전 표시
         Text(
-            text = notificationState.createdAtText,
+            text = TimeUtil.toTimeAgoText(notificationState.createdAt),
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(
@@ -355,9 +358,10 @@ private fun NotificationCardPreview() {
                     content = "민준이에게서 받지 못한 전화가 있어요.",
                     isRead = false,
                     createdAt = now.minusMinutes(30),
+                    characterId = 12L,
                     characterName = "민준",
                     profileImageUrl = null,
-                ).toUiModel(),
+                ),
                 onCallClick = {},
             )
 
@@ -369,9 +373,10 @@ private fun NotificationCardPreview() {
                     content = "오늘은 민준이와 함께한지 30일 째!\n작은 기념일을 함께 축하해요 💗",
                     isRead = true,
                     createdAt = now.minusHours(1),
+                    characterId = 12L,
                     characterName = "민준",
                     profileImageUrl = null,
-                ).toUiModel(),
+                ),
                 onCallClick = {},
             )
         }

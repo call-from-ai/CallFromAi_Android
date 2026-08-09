@@ -56,8 +56,9 @@ private fun CharacterTraitInput.toRequestDto(): CharacterTraitRequestDto =
 
 internal fun CreateCharacterResponseDto.toDomain(): CreatedCharacter =
     CreatedCharacter(
-        id = characterId,
+        id = id,
         name = name,
+        imageUrl = characterImageUrl,
     )
 
 internal fun PresetImageResponseDto.toDomain(): PresetImage =
