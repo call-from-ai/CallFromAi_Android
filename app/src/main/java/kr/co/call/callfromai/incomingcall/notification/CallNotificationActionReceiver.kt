@@ -7,7 +7,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import kr.co.call.common.di.ApplicationScope
 import kr.co.call.domain.repository.CallControlRepository
 import timber.log.Timber
@@ -45,7 +47,11 @@ class CallNotificationActionReceiver : BroadcastReceiver() {
 
         applicationScope.launch {
             try {
-                callControlRepository.rejectCall(callId)
+                withTimeout(REJECT_CALL_TIMEOUT_MILLIS) {
+                    callControlRepository.rejectCall(callId)
+                }
+            } catch (timeoutException: TimeoutCancellationException) {
+                Timber.e(timeoutException, "착신 통화 거절 타임아웃: callId=%d", callId)
             } catch (cancellationException: CancellationException) {
                 throw cancellationException
             } catch (throwable: Throwable) {
@@ -62,6 +68,9 @@ class CallNotificationActionReceiver : BroadcastReceiver() {
         private const val EXTRA_CALL_ID =
             "kr.co.call.callfromai.extra.CALL_ID"
         private const val INVALID_CALL_ID = -1L
+
+        // goAsync()의 시스템 완료 유예 시간(안드로이드 프레임워크상 약 10초)보다 짧게 설정
+        private const val REJECT_CALL_TIMEOUT_MILLIS = 5_000L
 
         fun createDeclineIntent(
             context: Context,
