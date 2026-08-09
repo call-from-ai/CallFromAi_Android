@@ -54,13 +54,18 @@ class CallAudioRecorder @Inject constructor(
         }
 
         // 이전 캡처가 남아있으면 방어적으로 정리, isReady는 여기서 체크하지 않음
-        captureJob?.cancel()
-        audioRecord?.stop()
-        audioRecord?.release()
+        val previousJob = captureJob
+        val previousRecord = audioRecord
         audioRecord = null
         pendingBuffer.clear()
 
         captureJob = recorderScope.launch {
+            // 이전 read() 블로킹 해제(record.stop()) → job 종료 대기 → release 순서로 정리
+            previousRecord?.stop()
+            previousJob?.cancel()
+            previousJob?.join()
+            previousRecord?.release()
+
             val record = createAndStartRecording()
             if (record == null) {
                 Timber.tag(TAG).e("AudioRecord 시작 실패 - %d회 재시도 후 포기", MAX_START_ATTEMPTS)
@@ -185,15 +190,20 @@ class CallAudioRecorder @Inject constructor(
     // 마이크 캡처 루프 종료 + AudioRecord 해제
     fun stop() {
         Timber.tag(TAG).d("recorder stop() 호출: audioRecord=%s, captureJob=%s", audioRecord, captureJob)
-        captureJob?.cancel()
+        val previousJob = captureJob
+        val previousRecord = audioRecord
         captureJob = null
-
-        audioRecord?.stop()
-        audioRecord?.release()
         audioRecord = null
-
         isReady = false
         pendingBuffer.clear()
+
+        recorderScope.launch {
+            // record.stop()으로 블로킹 중인 read()를 먼저 깨운 뒤 job이 끝나길 기다리고 release
+            previousRecord?.stop()
+            previousJob?.cancel()
+            previousJob?.join()
+            previousRecord?.release()
+        }
     }
 
     private companion object {
