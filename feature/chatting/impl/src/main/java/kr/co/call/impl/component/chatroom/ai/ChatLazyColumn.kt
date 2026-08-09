@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -94,7 +95,16 @@ fun ChatLazyColumn(
         }
 
         // 페이징된 메시지와 실시간 메시지 사이의 날짜 경계를 계산
-        val boundaryDate = boundaryDateSeparatorText(visibleRealtimeMessages, pagingItems)
+        val boundaryDate =
+            if (pagingItems.loadState.refresh is LoadState.NotLoading) {
+                boundaryDateSeparatorText(
+                    visibleRealtimeMessages,
+                    pagingItems,
+                )
+            } else {
+                null
+            }
+
 
         if (boundaryDate != null) {
             // 날짜가 변경되는 지점에 날짜 구분선을 표시
