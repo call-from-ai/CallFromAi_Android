@@ -98,7 +98,7 @@ fun ChatLazyColumn(
 
         if (boundaryDate != null) {
             // 날짜가 변경되는 지점에 날짜 구분선을 표시
-            item(key = "boundary_date_separator") {
+            item(key = "boundary_date_separator_$boundaryDate") {
                 DateSeparator(
                     text = boundaryDate,
                     modifier = Modifier.padding(top = 11.dp, bottom = 10.dp),
