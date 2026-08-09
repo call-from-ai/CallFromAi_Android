@@ -78,7 +78,14 @@ class ChatListViewModel @Inject constructor(
                 val currentMap = state.chatList.associateBy { it.chatRoomId }
 
                 // 변경되지 않은 항목은 기존 객체를 유지하고, 변경된 항목만 새 데이터로 교체
-                val merged = newList.map { new -> currentMap[new.chatRoomId]?.takeIf { it == new } ?: new }
+                // 현재 진입해 있는 방은 readChats와의 race condition 방지를 위해 unread count를 0으로 고정
+                val merged = newList.map { new ->
+                    if (new.chatRoomId == state.currentViewingRoomId) {
+                        new.copy(unReadMessageCount = "0")
+                    } else {
+                        currentMap[new.chatRoomId]?.takeIf { it == new } ?: new
+                    }
+                }
 
                 // 실제 변경이 있는 경우에만 상태를 갱신
                 if (merged != state.chatList) {
@@ -96,14 +103,16 @@ class ChatListViewModel @Inject constructor(
             is ChatListIntent.UpdateAlarmSetting -> updateAlarmSetting(intent.roomId, intent.isMuted)
             is ChatListIntent.ClickDeleteChatRoom -> showDeleteDialog(intent.roomId)
             ChatListIntent.DismissDeleteDialog -> dismissDeleteDialog()
-            ChatListIntent.OnResume -> refreshChatList()
+            ChatListIntent.OnResume -> onResume()
         }
     }
 
     private fun emitNavigateToChatRoom(roomId: Long) = intent {
-        // 채팅방 진입 시 해당 방의 읽지 않은 메시지 수를 즉시 0으로 반영
+        // 채팅방 진입 시 해당 방의 읽지 않은 메시지 수를 즉시 0으로 반영하고,
+        // SSE refresh와의 race condition 방지를 위해 현재 진입 중인 방 ID를 기록
         reduce {
             state.copy(
+                currentViewingRoomId = roomId,
                 chatList = state.chatList.map { chat ->
                     if (chat.chatRoomId == roomId) chat.copy(unReadMessageCount = "0")
                     else chat
@@ -111,6 +120,13 @@ class ChatListViewModel @Inject constructor(
             )
         }
         postSideEffect(ChatListSideEffect.NavigateToChatRoom(roomId))
+    }
+
+    private fun onResume() = intent {
+        // 채팅방에서 돌아왔으므로 현재 진입 중인 방 초기화 후 목록 갱신
+        // 이 시점엔 readChats가 이미 완료됐으므로 서버에서 정확한 unread count를 받아올 수 있음
+        reduce { state.copy(currentViewingRoomId = null) }
+        refreshChatList()
     }
 
     private fun emitNavigateToManagerChatRoom() = intent {

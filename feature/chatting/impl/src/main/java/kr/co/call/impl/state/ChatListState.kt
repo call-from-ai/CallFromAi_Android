@@ -7,5 +7,6 @@ data class ChatListState(
     val chatList: List<ChatSummary> = emptyList(),
     val showDeleteChatRoomDialog: Boolean = false,
     val deleteTargetRoomId: Long = -1,
-    val status: LoadStatus = LoadStatus.Idle
+    val status: LoadStatus = LoadStatus.Idle,
+    val currentViewingRoomId: Long? = null
 )
