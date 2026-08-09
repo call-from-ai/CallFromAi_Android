@@ -6,6 +6,7 @@ import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -39,6 +40,7 @@ fun buildOptimisticMessage(
         messageType = messageType,
         photoUrl = imageUri?.toString() ?: "",
         time = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm")),
+        createdDate = LocalDate.now(),
         loadStatus = LoadStatus.Loading,
     )
 }

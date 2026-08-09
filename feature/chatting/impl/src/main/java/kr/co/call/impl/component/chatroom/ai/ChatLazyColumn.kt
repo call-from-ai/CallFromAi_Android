@@ -24,6 +24,7 @@ import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.DateSeparator
 import kr.co.call.impl.model.ChatItemUiModel
+import kr.co.call.impl.util.boundaryDateSeparatorText
 import kr.co.call.impl.util.shouldShowDateSeparator
 
 @Composable
@@ -89,6 +90,19 @@ fun ChatLazyColumn(
                         popupOffsetY = popupOffsetY,
                     )
                 }
+            }
+        }
+
+        // 페이징된 메시지와 실시간 메시지 사이의 날짜 경계를 계산
+        val boundaryDate = boundaryDateSeparatorText(visibleRealtimeMessages, pagingItems)
+
+        if (boundaryDate != null) {
+            // 날짜가 변경되는 지점에 날짜 구분선을 표시
+            item(key = "boundary_date_separator") {
+                DateSeparator(
+                    text = boundaryDate,
+                    modifier = Modifier.padding(top = 11.dp, bottom = 10.dp),
+                )
             }
         }
 

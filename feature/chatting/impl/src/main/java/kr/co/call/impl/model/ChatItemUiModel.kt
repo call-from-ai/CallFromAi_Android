@@ -5,6 +5,7 @@ import kr.co.call.domain.model.chatting.ManagerChatItem
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
+import java.time.LocalDate
 import java.util.UUID
 
 /**
@@ -24,6 +25,7 @@ sealed interface ChatItemUiModel {
         val messageType: MessageType,
         val photoUrl: String = "",
         val time: String = "",
+        val createdDate: LocalDate? = null, // 날짜 구분선 삽입 때문에 추가
         val loadStatus: LoadStatus = LoadStatus.Idle,
         val isDeleted: Boolean = false
     ) : ChatItemUiModel
