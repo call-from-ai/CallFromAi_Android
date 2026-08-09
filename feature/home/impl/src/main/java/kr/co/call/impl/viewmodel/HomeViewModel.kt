@@ -11,6 +11,7 @@ import kr.co.call.impl.viewmodel.state.HomeState
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,6 @@ class HomeViewModel @Inject constructor(
         loadCallHistories()
         loadCharacters()
         loadNotifications()
-        readAllNotifications()
     }
 
     fun handleIntent(intent: HomeIntent) {
@@ -274,6 +274,9 @@ class HomeViewModel @Inject constructor(
 
     // 지난 알림 목록 조회
     private fun loadNotifications() = intent {
+        // 안 읽은 알림 읽음처리 후 조회
+        homeRepository.readAllNotifications()
+            .onFailure { Timber.e(it, "알림 읽음 처리 실패") }
         homeRepository.getNotifications()
             .onSuccess { notifications ->
                 reduce {
@@ -286,11 +289,6 @@ class HomeViewModel @Inject constructor(
             .onFailure {
                 postSideEffect(HomeSideEffect.ShowMessage("알림을 불러오지 못했습니다."))
             }
-    }
-
-    // 안 읽은 알림 전체 읽음 처리 (홈 화면 진입 시 1회 호출)
-    private fun readAllNotifications() = intent {
-        homeRepository.readAllNotifications()
     }
 
     private companion object {
