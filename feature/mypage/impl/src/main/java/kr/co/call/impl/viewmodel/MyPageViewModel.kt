@@ -51,7 +51,7 @@ class MyPageViewModel @Inject constructor(
                         nickname = profile.nickname,
                         tier = profile.tier,
                         remainingTicketCount = profile.remainingTicketCount,
-                        appVersion = profile.appVersion,
+                        appVersion = "1.0.0",
                         loadStatus = LoadStatus.Idle,
                     )
                 }

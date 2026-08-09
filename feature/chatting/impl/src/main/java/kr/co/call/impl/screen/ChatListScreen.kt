@@ -171,19 +171,19 @@ fun ChatListScreenContent(
                             }
                         )
                     }
-
-                    // 매니저는 맨 아래 고정
-                    item {
-                        FrontRow(
-                            isManager = true,
-                            chatSummary = ChatSummary(
-                                name = "전화왔어 매니저",
-                                content = "안녕하세요, 전화왔어 매니저입니다!",
-                            ),
-                            onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
-                        )
-                    }
                 }
+            }
+
+            // 매니저는 항상 맨 아래 고정 (정적 콘텐츠라 리컴포지션 없음)
+            item(key = "manager") {
+                FrontRow(
+                    isManager = true,
+                    chatSummary = ChatSummary(
+                        name = "전화왔어 매니저",
+                        content = "안녕하세요, 전화왔어 매니저입니다!",
+                    ),
+                    onClick = { onIntent(ChatListIntent.ClickManagerChatRoom) }
+                )
             }
         }
     }

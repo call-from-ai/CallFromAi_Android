@@ -15,8 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.chatting.MessageType
 import kr.co.call.domain.model.chatting.SenderType
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.chatroom.ChatGrayBubble
 import kr.co.call.impl.component.chatroom.ChatPinkBubble
 import kr.co.call.impl.model.ChatItemUiModel
@@ -53,6 +56,7 @@ fun ChatMessageRow(
             ChatGrayBubble(
                 text = AnnotatedString(item.content),
                 time = item.time,
+                isLoading = item.loadStatus is LoadStatus.Loading,
             )
             if (isSelected) {
                 ChatBubblePopUp(
@@ -66,8 +70,7 @@ fun ChatMessageRow(
 
         SenderType.USER -> Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 18.dp),
+                .fillMaxWidth(),
             horizontalArrangement = Arrangement.End,
         ) {
             Box(
@@ -110,5 +113,73 @@ fun ChatMessageRow(
         }
 
         SenderType.UNKNOWN -> {}
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatMessageRowAiPreview() {
+    CallFromAiTheme {
+        ChatMessageRow(
+            item = ChatItemUiModel.Message(
+                chatMessageId = 1L,
+                senderType = SenderType.AI,
+                content = "오늘 하루 어땠어?",
+                messageType = MessageType.TEXT,
+                time = "13:00",
+            ),
+            isSelected = false,
+            onLongPress = {},
+            onCopy = {},
+            onDelete = {},
+            onDismiss = {},
+            popupOffsetY = 0,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatMessageRowUserPreview() {
+    CallFromAiTheme {
+        ChatMessageRow(
+            item = ChatItemUiModel.Message(
+                chatMessageId = 2L,
+                senderType = SenderType.USER,
+                content = "좋았어!",
+                messageType = MessageType.TEXT,
+                time = "13:01",
+            ),
+            isSelected = false,
+            onLongPress = {},
+            onCopy = {},
+            onDelete = {},
+            onDismiss = {},
+            popupOffsetY = 0,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatMessageRowSelectedPreview() {
+    CallFromAiTheme {
+        Box(modifier = Modifier.height(200.dp)) {
+            ChatMessageRow(
+                item = ChatItemUiModel.Message(
+                    chatMessageId = 2L,
+                    senderType = SenderType.USER,
+                    content = "이 메시지는 선택되었습니다.",
+                    messageType = MessageType.TEXT,
+                    time = "13:01",
+                ),
+                isSelected = true,
+                onLongPress = {},
+                onCopy = {},
+                onDelete = {},
+                onDismiss = {},
+                popupOffsetY = 60,
+            )
+        }
     }
 }

@@ -20,10 +20,12 @@ import kr.co.call.domain.repository.ChatRepository
 import kr.co.call.data.repositoryImpl.HomeRepositoryImpl
 import kr.co.call.data.repositoryImpl.LoginRepositoryImpl
 import kr.co.call.data.repositoryImpl.MyPageRepositoryImpl
+import kr.co.call.data.repositoryImpl.ChatSseRepositoryImpl
 import kr.co.call.data.repositoryImpl.PushTokenRepositoryImpl
 import kr.co.call.domain.repository.AgreementRepository
 import kr.co.call.domain.repository.CallControlRepository
 import kr.co.call.domain.repository.CallStreamingRepository
+import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.domain.repository.FaqRepository
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.domain.repository.LoginRepository
@@ -102,4 +104,10 @@ abstract class RepositoryModule {
     abstract fun bindPushTokenRepository(
         impl: PushTokenRepositoryImpl,
     ): PushTokenRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindChatSseRepository(
+        impl: ChatSseRepositoryImpl,
+    ): ChatSseRepository
 }

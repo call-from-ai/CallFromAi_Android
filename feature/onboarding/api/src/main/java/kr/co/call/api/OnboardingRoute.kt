@@ -5,7 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class OnboardingFlowMode {
+    /** 최초 가입: 1 -> 2~5 -> 6 */
     FIRST_ONBOARDING,
+
+    /** 마이페이지 캐릭터 추가: 2~5 -> 홈 (전화 화면 스킵) */
     ADD_CHARACTER,
 }
 
@@ -23,14 +26,13 @@ data class Onboarding2NavKey(
 ) : NavKey
 
 @Serializable
-data object Onboarding3NavKey: NavKey
+data object Onboarding3NavKey : NavKey
 
 @Serializable
-data object Onboarding4NavKey: NavKey
+data object Onboarding4NavKey : NavKey
 
 @Serializable
-data object Onboarding5NavKey: NavKey
+data object Onboarding5NavKey : NavKey
 
 @Serializable
-data object Onboarding6NavKey: NavKey
-
+data object Onboarding6NavKey : NavKey

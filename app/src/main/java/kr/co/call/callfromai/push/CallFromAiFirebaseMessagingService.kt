@@ -46,17 +46,54 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
+        Timber.d(
+            """
+        ========== FCM RECEIVED ==========
+        messageId: ${message.messageId}
+        from: ${message.from}
+        sentTime: ${message.sentTime}
+        priority: ${message.priority}
+        originalPriority: ${message.originalPriority}
+        notification:
+          title=${message.notification?.title}
+          body=${message.notification?.body}
+        data: ${message.data}
+        ==================================
+        """.trimIndent()
+        )
+
+        val type = message.data["type"]
+
+        if (type == "CHAT") {
+            Timber.d(
+                """
+            ========== FCM CHAT ==========
+            messageId: ${message.messageId}
+            chatRoomId: ${message.data["chatRoomId"]}
+            title: ${message.notification?.title}
+            body: ${message.notification?.body}
+            data: ${message.data}
+            ==============================
+            """.trimIndent()
+            )
+        }
+
         val payload = PushPayloadParser.parse(
             data = message.data,
             notificationTitle = message.notification?.title,
             notificationBody = message.notification?.body,
         )
         when (payload) {
-            // Chat 알림
+            // Chat 알림 — SSE 연결 중(채팅 화면)이면 이미 실시간 수신 중이므로 스킵 -> 서버에 로직이 반영되어 있음
+            // 그에 따라 주석 처리
             is PushPayload.Chat -> {
                 Timber.d("FCM CHAT roomId=%s", payload.chatRoomId)
+//                if (chatSseRepository.isConnected) {
+//                    Timber.d("FCM CHAT 스킵: SSE 연결 중(사용자가 채팅 관련 화면에 있음)")
+//                    return
+//                }
                 PushNotificationHelper.showChat(
-                    context = this,
+                    context = this@CallFromAiFirebaseMessagingService,
                     title = payload.title,
                     body = payload.body,
                     chatRoomId = payload.chatRoomId,
@@ -66,7 +103,7 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
             is PushPayload.Notice -> {
                 Timber.d("FCM NOTICE title=%s", payload.title)
                 PushNotificationHelper.showNotice(
-                    context = this,
+                    context = this@CallFromAiFirebaseMessagingService,
                     title = payload.title,
                     body = payload.body,
                 )
@@ -81,7 +118,19 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
                 )
                 incomingCallRouter.route(payload.toIncomingCall())
             }
-            null -> Timber.w("Unknown push data=%s", message.data)
+            null -> {
+                Timber.w("Unknown push data=%s", message.data)
+                // type 없이 notification 필드만 있는 경우 (예: 콘솔 테스트) 폴백 표시
+                val title = message.notification?.title
+                val body = message.notification?.body
+                if (!title.isNullOrBlank() || !body.isNullOrBlank()) {
+                    PushNotificationHelper.showNotice(
+                        context = this@CallFromAiFirebaseMessagingService,
+                        title = title.orEmpty(),
+                        body = body.orEmpty(),
+                    )
+                }
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -102,10 +103,18 @@ fun AppScreen(
 
         is AppAuthState.Authenticated -> {
             MainAppContent(
-                startKey = if (authState.needsOnboarding) {
-                    Onboarding1NavKey
-                }else {
-                    HomeNavKey
+                startKey = when {
+                    authState.needsTermsAgreement -> LoginNavKey
+                    authState.needsOnboarding-> Onboarding1NavKey
+                    else -> HomeNavKey
+                    },
+                agreementKey=if(authState.needsTermsAgreement){
+                    AgreementNavKey(
+                        needsOnboarding=authState.needsOnboarding,
+                    )
+                }
+                    else {
+                        null
                 },
                 viewModel = viewModel,
                 incomingCall = incomingCall,
@@ -129,6 +138,7 @@ fun AppScreen(
 @Composable
 private fun MainAppContent(
     startKey: NavKey,
+    agreementKey: AgreementNavKey? = null,
     viewModel: AppViewModel,
     incomingCall: IncomingCall?,
     onClearIncomingCall: (callId: Long) -> Unit,
@@ -139,6 +149,14 @@ private fun MainAppContent(
     val appNavigator = remember(backStack) {
         AppNavigator(backStack)
     }
+    LaunchedEffect(agreementKey) {
+        if (
+            agreementKey != null &&
+            backStack.lastOrNull() != agreementKey
+        ) {
+            appNavigator.navigate(agreementKey)
+        }
+    }
     val currentKey = backStack.lastOrNull()
     // API 실패 메시지 표시에 사용할 현재 화면 Context
     val context = LocalContext.current
@@ -147,6 +165,9 @@ private fun MainAppContent(
         when (sideEffect) {
             AppSideEffect.NavigateToLogin -> {
                 appNavigator.replaceAll(LoginNavKey)
+            }
+            is AppSideEffect.NavigateToChatRoom -> {
+                appNavigator.navigateToChatRoom(sideEffect.chatRoomId)
             }
         }
     }
@@ -232,7 +253,7 @@ private fun MainAppContent(
                             appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement = {needsOnboarding ->
-                            appNavigator.replaceAll(
+                            appNavigator.navigate(
                                 AgreementNavKey(
                                     needsOnboarding = needsOnboarding,
                                 ),
@@ -267,7 +288,13 @@ private fun MainAppContent(
 
                     onboardingEntry(
                         onOnboarding1Next = {
-                            appNavigator.navigate(Onboarding2NavKey())
+                            appNavigator.navigate(
+                                Onboarding2NavKey(mode = OnboardingFlowMode.FIRST_ONBOARDING),
+                            )
+                        },
+                        onBackFromOnboarding1 = {
+                            viewModel.handleIntent(AppIntent.LogoutSucceeded)
+                            appNavigator.replaceAll(LoginNavKey)
                         },
                         onBackFromOnboarding2 = {
                             appNavigator.popBackStack()
@@ -292,6 +319,10 @@ private fun MainAppContent(
                         },
                         onOnboarding5Next = {
                             appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onAdditionalCharacterCreated = {
+                            // 캐릭터 추가 완료 -> 전화 화면 스킵, 홈으로
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         onOnboarding6CallNow = { characterId, characterName ->
                             // 온보딩 백스택은 정리하고 홈을 기반으로 통화 화면을 쌓아,
@@ -413,6 +444,15 @@ private fun MainAppContent(
                         },
                         navigateToEditCharacter = { characterId ->
                             appNavigator.navigate(EditCharacterNavKey(characterId))
+                        },
+                        navigateToAddCharacter = {
+                            // 온보딩 2로 바로 진입
+                            appNavigator.navigate(
+                                Onboarding2NavKey(
+                                    mode = OnboardingFlowMode.ADD_CHARACTER,
+                                    resetToken = System.currentTimeMillis(),
+                                ),
+                            )
                         },
                         onBack = {
                             appNavigator.popBackStack()

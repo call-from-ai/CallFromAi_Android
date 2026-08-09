@@ -1,5 +1,6 @@
 package kr.co.call.callfromai
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
@@ -13,9 +14,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import kr.co.call.callfromai.incomingcall.IncomingCallStore
+import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.lifecycle.AppVisibilityTracker
 import kr.co.call.callfromai.notification.NotificationPermission
 import kr.co.call.designsystem.theme.CallFromAiTheme
+import kr.co.call.domain.model.push.PushDataKeys
+import kr.co.call.domain.model.push.PushType
 import timber.log.Timber
 
 @AndroidEntryPoint
@@ -46,14 +50,15 @@ class MainActivity : ComponentActivity() {
             savedInstanceState?.getBoolean(STATE_NOTIFICATION_PERMISSION_IN_FLIGHT) == true
 
         enableEdgeToEdge()
-        // 시스템의 창 resize를 끄고, 키보드 대응은 Compose imePadding()에 맡긴다
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
+        // 시스템의 창 resize를 끄고, 키보드 대응은 Compose imePadding()에 맡긴다고 되어있었는데 제가 NOTHING->RESIZE로 수정했습니다
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             window.isNavigationBarContrastEnforced = false
         }
 
         requestNotificationPermissionIfNeeded()
+        handlePushIntent(intent)
 
         setContent {
             CallFromAiTheme {
@@ -69,6 +74,23 @@ class MainActivity : ComponentActivity() {
                     onClearIncomingCall = incomingCallStore::clear, // 통화 상태 초기화
                 )
             }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handlePushIntent(intent)
+    }
+
+    private fun handlePushIntent(intent: Intent) {
+
+        val type = PushType.fromDataValue(intent.getStringExtra(PushDataKeys.TYPE))
+
+        if (type == PushType.CHAT) {
+            val chatRoomId = intent.getStringExtra(PushDataKeys.CHAT_ROOM_ID)?.toLongOrNull()
+                ?: return
+            Timber.d("Push 딥링크: CHAT chatRoomId=%d", chatRoomId)
+            appViewModel.handleIntent(AppIntent.OnChatPushTapped(chatRoomId))
         }
     }
 

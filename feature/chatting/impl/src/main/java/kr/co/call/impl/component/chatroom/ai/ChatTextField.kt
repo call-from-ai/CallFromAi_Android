@@ -110,7 +110,7 @@ fun ChatTextField(
             CircleIcon(
                 painter = painterResource(R.drawable.ic_chat_camera),
                 contentDescription = "카메라",
-                enabled = if (hasImage) canSend else true,
+                enabled = !hasImage,
                 onClick = if (hasImage) onSendClick else onCameraClick,
             )
 

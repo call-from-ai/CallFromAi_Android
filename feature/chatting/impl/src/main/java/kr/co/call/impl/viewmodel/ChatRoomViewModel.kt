@@ -9,10 +9,14 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kr.co.call.api.ChatRoomNavKey
+import kr.co.call.domain.model.chatting.ChatSseEvent
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.impl.intent.ChatRoomIntent
+import kr.co.call.impl.mapper.UiModelMapper.sseLoadingBubble
 import kr.co.call.impl.mapper.UiModelMapper.toUiItem
 import kr.co.call.impl.model.ChatItemUiModel
 import kr.co.call.impl.sideeffect.ChatRoomSideEffect
@@ -26,6 +30,7 @@ import org.orbitmvi.orbit.viewmodel.container
 @HiltViewModel(assistedFactory = ChatRoomViewModel.Factory::class)
 class ChatRoomViewModel @AssistedInject constructor(
     private val chatRepository: ChatRepository,
+    private val chatSseRepository: ChatSseRepository,
     @Assisted val navKey: ChatRoomNavKey,
 ): ViewModel(), ContainerHost<ChatRoomUiState, ChatRoomSideEffect> {
 
@@ -37,8 +42,15 @@ class ChatRoomViewModel @AssistedInject constructor(
     override val container: Container<ChatRoomUiState, ChatRoomSideEffect> = container(
         initialState = ChatRoomUiState()
     ) {
-        loadHeader()
-        readChats(navKey.roomId)
+        chatSseRepository.connect()
+        loadHeader() // 헤더 정보 조회
+        readChats(navKey.roomId) // 읽음 처리
+        observeSseEvents() // sse 이벤트 수신
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatSseRepository.disconnect()
     }
 
     // 채팅 메시지 목록을 PagingData로 불러오고, 날짜 구분선을 삽입한 뒤 UI 모델로 변환
@@ -67,6 +79,57 @@ class ChatRoomViewModel @AssistedInject constructor(
     // 실패처리는 하지 않음. 읽음 api에 실패처리를 하는 것이 오히려 부자연스러울 수 있다는 판단.
     private fun readChats(roomId: Long) = intent {
         chatRepository.readChats(roomId)
+    }
+
+    // SSE Loading 이벤트 수신 시 현재 채팅방 ID에 해당하는 로딩 버블을 추가하고,
+    // Message 이벤트 수신 시 해당 로딩 버블을 실제 메시지로 교체
+    private fun observeSseEvents() = intent {
+        chatSseRepository.sseFlow
+            .filter { event ->
+                when (event) {
+                    is ChatSseEvent.Loading -> event.chatRoomId == navKey.roomId
+                    is ChatSseEvent.Message -> event.message.chatRoomId == navKey.roomId
+                    is ChatSseEvent.Failed -> event.chatRoomId == navKey.roomId
+                    else -> false
+                }
+            }
+            .collect { event ->
+                when (event) {
+                    is ChatSseEvent.Loading -> {
+                        reduce {
+                            state.copy(chatItems = listOf(sseLoadingBubble(SSE_LOADING_CLIENT_ID)) + state.chatItems)
+                        }
+                    }
+                    is ChatSseEvent.Message -> {
+                        // 읽음 처리
+                        chatRepository.readChats(navKey.roomId)
+
+                        // 받은 메세지를 UI모델로 변환
+                        val receivedItem = event.message.toUiItem()
+
+                        reduce {
+                            // 로딩 버블을 제거하고 수신 메시지를 항상 index 0(최하단)에 추가
+                            // 제자리 교체 시 msg2 전송 후 reply가 오면 msg1~msg2 사이에 끼는 문제 방지
+                            val withoutBubble = state.chatItems.filter {
+                                it !is ChatItemUiModel.Message || it.clientId != SSE_LOADING_CLIENT_ID
+                            }
+                            state.copy(chatItems = listOf(receivedItem) + withoutBubble)
+                        }
+                    }
+                    is ChatSseEvent.Failed -> {
+                        // 로딩 버블 제거 후 오류 토스트
+                        reduce {
+                            state.copy(
+                                chatItems = state.chatItems.filter {
+                                    it !is ChatItemUiModel.Message || it.clientId != SSE_LOADING_CLIENT_ID
+                                }
+                            )
+                        }
+                        postSideEffect(ChatRoomSideEffect.ShowToast("오류로 인해 답장을 받지 못했어요"))
+                    }
+                    else -> Unit
+                }
+            }
     }
 
     // UI에 노출할 함수
@@ -261,4 +324,7 @@ class ChatRoomViewModel @AssistedInject constructor(
         postSideEffect(ChatRoomSideEffect.GoToGallery)
     }
 
+    private companion object {
+        const val SSE_LOADING_CLIENT_ID = "sse_loading"
+    }
 }

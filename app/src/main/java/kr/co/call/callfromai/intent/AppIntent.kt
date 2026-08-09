@@ -24,4 +24,8 @@ sealed interface AppIntent {
     ): AppIntent
 
     data object LogoutSucceeded: AppIntent
+
+    data class OnChatPushTapped(
+        val chatRoomId: Long,
+    ) : AppIntent
 }

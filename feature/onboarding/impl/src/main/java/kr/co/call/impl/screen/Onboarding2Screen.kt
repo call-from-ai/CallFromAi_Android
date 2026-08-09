@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -276,9 +275,13 @@ fun Onboarding2Screen(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .navigationBarsPadding()
                     .imePadding()
-                    .padding(horizontal = 27.dp, vertical = 18.dp),
+                    .padding(
+                        start = 27.dp,
+                        end = 27.dp,
+                        top = 18.dp,
+                        bottom = 10.dp,
+                    ),
             ) {
                 Text(
                     text = "상세 정보는 나중에 다시 수정할 수 있어요!",

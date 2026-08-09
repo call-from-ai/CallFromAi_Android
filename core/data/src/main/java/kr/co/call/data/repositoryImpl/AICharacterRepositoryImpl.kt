@@ -26,13 +26,8 @@ class AICharacterRepositoryImpl @Inject constructor(
 
     override suspend fun getCharacterDetail(characterId: Long): Result<CharacterDetail> =
         safeApiResult(errorResponseParser) {
-            characterApi.getActiveCharacter()
-        }.mapCatching { active ->
-            if (active.characterId != characterId) {
-                // TODO: GET /characters/{id} 필요할듯 : 비메인 상세 조회
-            }
-            active.toCharacterDetail()
-        }
+            characterApi.getCharacter(characterId)
+        }.map { dto -> dto.toCharacterDetail() }
 
     override suspend fun updateCharacter(
         characterId: Long,
@@ -62,4 +57,10 @@ class AICharacterRepositoryImpl @Inject constructor(
         // TODO: 마지막 캐릭터 생성 시각 기준 24시간 경과 여부 (백엔드)
         return runCatching { true }
     }
+
+    override suspend fun getChatSummary(characterId: Long): Result<String> =
+        safeApiResult(errorResponseParser) {
+            characterApi.getChatSummary(characterId)
+        }.map { dto -> dto.summary }
 }
+

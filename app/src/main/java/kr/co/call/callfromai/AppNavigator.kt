@@ -2,6 +2,7 @@ package kr.co.call.callfromai
 
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import kr.co.call.api.ChatRoomNavKey
 import kr.co.call.api.ChattingNavKey
 import kr.co.call.api.HomeNavKey
 import kr.co.call.api.MyPageNavKey
@@ -103,6 +104,11 @@ class AppNavigator(
     fun replaceAll(key: NavKey) {
         backStack.clear()
         backStack += key
+    }
+
+    fun navigateToChatRoom(chatRoomId: Long) {
+        navigateToTab(MainTab.CHATTING)
+        backStack += ChatRoomNavKey(chatRoomId)
     }
 
     // TODO: 내비게이션 이동이 필요할 때 메서드를 작성

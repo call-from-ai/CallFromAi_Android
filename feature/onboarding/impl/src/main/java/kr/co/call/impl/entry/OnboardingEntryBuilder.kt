@@ -6,6 +6,8 @@ import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -16,21 +18,20 @@ import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.screen.Onboarding1Screen
 import kr.co.call.impl.screen.Onboarding2Screen
 import kr.co.call.impl.screen.Onboarding3Screen
 import kr.co.call.impl.screen.Onboarding4Screen
 import kr.co.call.impl.screen.Onboarding5Screen
 import kr.co.call.impl.screen.Onboarding6Screen
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.platform.LocalContext
-import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.viewmodel.OnboardingSideEffect
 import kr.co.call.impl.viewmodel.OnboardingViewModel
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding1Next: () -> Unit,
+    onBackFromOnboarding1: () -> Unit,
     onBackFromOnboarding2: () -> Unit,
     onOnboarding2Next: () -> Unit,
     onBackFromOnboarding3: () -> Unit,
@@ -39,14 +40,21 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     onOnboarding4Next: () -> Unit,
     onBackFromOnboarding5: () -> Unit,
     onOnboarding5Next: () -> Unit,
+    onAdditionalCharacterCreated: () -> Unit,
     onOnboarding6CallNow: (characterId: Long, characterName: String) -> Unit,
     onOnboarding6CallLater: () -> Unit,
 ) {
     entry<Onboarding1NavKey> {
         val onboardingViewModel = sharedOnboardingViewModel()
+
+        LaunchedEffect(Unit) {
+            onboardingViewModel.prepareFlow(OnboardingFlowMode.FIRST_ONBOARDING)
+        }
+
         Onboarding1Screen(
             viewModel = onboardingViewModel,
             onNext = onOnboarding1Next,
+            onBackClick = onBackFromOnboarding1,
         )
     }
 
@@ -55,6 +63,8 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
 
+        // resetToken: 마이페이지 -> 추가 진입 시에만 draft 초기화
+        // 2<->3 뒤로가기 복귀는 동일 key라 prepareFlow를 다시 타지 않음
         LaunchedEffect(key.mode, key.resetToken) {
             if (key.mode == OnboardingFlowMode.ADD_CHARACTER) {
                 onboardingViewModel.prepareFlow(OnboardingFlowMode.ADD_CHARACTER)
@@ -104,6 +114,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         onboardingViewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 OnboardingSideEffect.OnboardingSubmitted -> onOnboarding5Next()
+                OnboardingSideEffect.AdditionalCharacterCreated -> onAdditionalCharacterCreated()
                 is OnboardingSideEffect.ShowMessage -> {
                     Toast.makeText(
                         context,
@@ -151,6 +162,6 @@ private fun sharedOnboardingViewModel(): OnboardingViewModel {
     val activity = checkNotNull(LocalActivity.current as? ComponentActivity)
 
     return hiltViewModel(
-        viewModelStoreOwner =activity,
+        viewModelStoreOwner = activity,
     )
 }

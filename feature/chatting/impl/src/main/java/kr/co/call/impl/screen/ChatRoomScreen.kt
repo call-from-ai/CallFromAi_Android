@@ -153,11 +153,12 @@ fun ChatRoomScreenContent(
     val imeBottom = WindowInsets.ime.getBottom(density)
 
     // 키보드 올라올 때 최신 메시지로 자연스럽게 따라 스크롤
-    LaunchedEffect(imeBottom) {
-        if (imeBottom > 0) {
-            listState.scrollToItem(0)
-        }
-    }
+    // UX를 고려해 주석처리
+//    LaunchedEffect(imeBottom) {
+//        if (imeBottom > 0) {
+//            listState.scrollToItem(0)
+//        }
+//    }
 
     // 메시지 추가 시 맨 아래로 스크롤
     var prevChatItemsSize by remember { mutableIntStateOf(state.chatItems.size) }
