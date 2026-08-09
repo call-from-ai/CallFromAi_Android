@@ -38,10 +38,6 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 import timber.log.Timber
 
-// 통화 종료 후 홈 이동 지연 시간
-private const val CALL_ENDED_HOME_DELAY_MILLIS = 3000L
-private const val DURATION_UPDATE_INTERVAL_MILLIS = 1000L
-
 @HiltViewModel
 class CallViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
@@ -428,5 +424,11 @@ class CallViewModel @Inject constructor(
             .coerceAtLeast(0L)
             .coerceAtMost(Int.MAX_VALUE.toLong())
             .toInt()
+    }
+
+    private companion object {
+        // 통화 종료 후 홈 이동 지연 시간
+        const val CALL_ENDED_HOME_DELAY_MILLIS = 3000L
+        const val DURATION_UPDATE_INTERVAL_MILLIS = 1000L
     }
 }
