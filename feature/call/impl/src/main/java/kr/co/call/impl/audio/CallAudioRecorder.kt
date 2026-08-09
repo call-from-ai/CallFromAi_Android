@@ -22,8 +22,9 @@ import timber.log.Timber
 /**
  * 마이크를 캡처해 서버로 전송합니다.
  *
- * CALL_READY 전까지 캡처한 PCM은 버퍼에 보관하며,
- * [onCallReady] 호출 시점에 버퍼를 순서대로 flush한 뒤 실시간 전송으로 전환합니다.
+ * AudioRecord는 지연 없이 바로 스트리밍을 시작할 수 있도록 통화 시작 시점에 미리 켜두지만,
+ * CALL_READY 전까지 캡처한 PCM(대부분 잡음)은 전송하지 않고 버립니다.(서버가 사용자 끼어들기로 오인하여 음성 중단되기 때문)
+ * [onCallReady] 호출 시점부터 캡처되는 프레임만 실시간 전송합니다.
  */
 @Singleton
 class CallAudioRecorder @Inject constructor(
@@ -40,9 +41,6 @@ class CallAudioRecorder @Inject constructor(
     @Volatile
     private var isReady = false
 
-    // CALL_READY 전 캡처분 임시 보관
-    private val pendingBuffer = mutableListOf<ByteArray>()
-
     // 권한 확인 + AudioRecord 생성 + 캡처 루프 시작
     fun start() {
         Timber.tag(TAG).d("recorder start() 호출: 기존 audioRecord=%s, captureJob=%s", audioRecord, captureJob)
@@ -57,7 +55,6 @@ class CallAudioRecorder @Inject constructor(
         val previousJob = captureJob
         val previousRecord = audioRecord
         audioRecord = null
-        pendingBuffer.clear()
 
         captureJob = recorderScope.launch {
             // 이전 read() 블로킹 해제(record.stop()) → job 종료 대기 → release 순서로 정리
@@ -74,7 +71,6 @@ class CallAudioRecorder @Inject constructor(
             audioRecord = record
 
             val chunk = ByteArray(CHUNK_SIZE_BYTES)
-            var hasFlushedPending = false
             var frameCount = 0
             var consecutiveErrorCount = 0
 
@@ -109,17 +105,8 @@ class CallAudioRecorder @Inject constructor(
                 }
 
                 if (!isReady) {
-                    // CALL_READY 전이면 버퍼링만
-                    pendingBuffer.add(pcm)
+                    // CALL_READY 전이면 전송하지 않고 버림 (대부분 잡음, 끼어들기 오탐 방지)
                     continue
-                }
-
-                if (!hasFlushedPending) {
-                    // CALL_READY 직후 1회: 버퍼링해둔 것부터 순서대로 전송
-                    Timber.tag(TAG).d("pendingBuffer flush: 버퍼링된 %d개 프레임 전송", pendingBuffer.size)
-                    pendingBuffer.forEach { buffered -> streamingRepository.sendAudio(buffered) }
-                    pendingBuffer.clear()
-                    hasFlushedPending = true
                 }
 
                 streamingRepository.sendAudio(pcm)
@@ -181,9 +168,9 @@ class CallAudioRecorder @Inject constructor(
         return null
     }
 
-    // CALL_READY 수신, 캡처 루프가 다음 청크부터 버퍼를 flush하도록 플래그만 전환
+    // CALL_READY 수신, 캡처 루프가 다음 청크부터 실시간 전송을 시작하도록 플래그만 전환
     fun onCallReady() {
-        Timber.tag(TAG).d("recorder onCallReady() 호출: pendingBuffer=%d", pendingBuffer.size)
+        Timber.tag(TAG).d("recorder onCallReady() 호출")
         isReady = true
     }
 
@@ -195,7 +182,6 @@ class CallAudioRecorder @Inject constructor(
         captureJob = null
         audioRecord = null
         isReady = false
-        pendingBuffer.clear()
 
         recorderScope.launch {
             // record.stop()으로 블로킹 중인 read()를 먼저 깨운 뒤 job이 끝나길 기다리고 release
