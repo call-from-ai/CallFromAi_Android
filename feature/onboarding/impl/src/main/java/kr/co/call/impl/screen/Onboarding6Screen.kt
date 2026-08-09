@@ -23,7 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -53,13 +52,15 @@ import kr.co.call.onboarding.impl.R
 fun Onboarding6Screen(
     characterName: String,
     isLoading: Boolean,
+    isCallDialogVisible: Boolean,
+    onShowCallDialog:()->Unit,
+    onDismissCallDialog:()->Unit,
     onCallNowClick:()->Unit,
     onCallLaterClick:()->Unit,
     modifier: Modifier =Modifier,
 ){
     var isCallNowPressed by remember {mutableStateOf(false)}
     var isCallLaterPressed by remember {mutableStateOf(false)}
-    var isCallDialogVisible by rememberSaveable {mutableStateOf(false)}
 
     Column(
         modifier=modifier
@@ -96,7 +97,7 @@ fun Onboarding6Screen(
                 },
             text="지금 전화할래",
             onClick= { if (!isLoading){
-                     isCallDialogVisible=true}
+                     onShowCallDialog()}
                      },
             containerColor=CallTheme.colors.mainVariant3,
             contentColor=if(isCallNowPressed){
@@ -171,18 +172,18 @@ fun Onboarding6Screen(
             negativeText = "취소",
             onPositiveClick = {
                 if (!isLoading) {
-                    isCallDialogVisible = false
+                    onDismissCallDialog()
                     onCallNowClick()
                 }
             },
             onNegativeClick = {
                 if (!isLoading) {
-                    isCallDialogVisible = false
+                    onDismissCallDialog()
                 }
             },
             onDismissRequest = {
                 if (!isLoading){
-                    isCallDialogVisible=false
+                    onDismissCallDialog()
                 }
             },
         )

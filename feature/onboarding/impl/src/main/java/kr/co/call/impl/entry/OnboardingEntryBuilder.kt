@@ -13,11 +13,11 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kr.co.call.api.Onboarding1NavKey
 import kr.co.call.api.Onboarding2NavKey
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
-import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.screen.Onboarding1Screen
 import kr.co.call.impl.screen.Onboarding2Screen
@@ -41,7 +41,11 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     onBackFromOnboarding5: () -> Unit,
     onOnboarding5Next: () -> Unit,
     onAdditionalCharacterCreated: () -> Unit,
-    onOnboarding6CallNow: () -> Unit,
+    onOnboarding6CallNow: (
+        characterId: Long,
+        characterName: String,
+        characterImageUrl: String?,
+    ) -> Unit,
     onOnboarding6CallLater: () -> Unit,
 ) {
     entry<Onboarding1NavKey> {
@@ -138,9 +142,24 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding6Screen(
-            characterName = uiState.createdAiName,
+            characterName = uiState.createdAiName.orEmpty(),
             isLoading = false,
-            onCallNowClick = onOnboarding6CallNow,
+            isCallDialogVisible = uiState.isCallDialogVisible,
+            onShowCallDialog = onboardingViewModel::showCallDialog,
+            onDismissCallDialog = onboardingViewModel::hideCallDialog,
+            onCallNowClick = {
+                val characterId = uiState.createdAiId
+                if (characterId != null) {
+                    onOnboarding6CallNow(
+                        characterId,
+                        uiState.createdAiName.orEmpty(),
+                        uiState.createdAiImageUrl,
+                    )
+                } else {
+                    // 캐릭터 생성 결과가 없으면 통화로 보낼 수 없어 홈으로 대체
+                    onOnboarding6CallLater()
+                }
+            },
             onCallLaterClick = onOnboarding6CallLater,
         )
     }

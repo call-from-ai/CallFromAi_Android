@@ -25,6 +25,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.core.common.util.TimeUtil
 import kr.co.call.domain.model.home.CallInfo
+import kr.co.call.domain.model.home.CallRecordStatus
 import java.time.LocalDateTime
 
 /**
@@ -128,6 +129,8 @@ private fun CallRecordSummaryPreview() {
                 characterName = "민준",
                 recordingUrl = null,
                 durationMillis = 0L,
+                summaryStatus = CallRecordStatus.READY,
+                recordingStatus = CallRecordStatus.READY,
             ),
         )
     }

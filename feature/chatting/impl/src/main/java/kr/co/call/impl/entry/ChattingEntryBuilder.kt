@@ -15,6 +15,7 @@ import kr.co.call.impl.viewmodel.ChatRoomViewModel
 fun EntryProviderScope<NavKey>.chattingEntry(
     navigateToChatRoom: (Long) -> Unit,
     navigateToManagerChatRoom: () -> Unit,
+    navigateToCall: (characterId: Long, characterName: String, characterImageUrl: String?) -> Unit,
     onBack: () -> Unit = {}
 ) {
     entry<ChattingNavKey> {
@@ -30,7 +31,8 @@ fun EntryProviderScope<NavKey>.chattingEntry(
         )
         ChatRoomScreen(
             viewModel = viewModel,
-            onBack = onBack
+            onBack = onBack,
+            onNavigateToCall = navigateToCall,
         )
     }
 
@@ -39,4 +41,5 @@ fun EntryProviderScope<NavKey>.chattingEntry(
             onBack = onBack
         )
     }
+
 }

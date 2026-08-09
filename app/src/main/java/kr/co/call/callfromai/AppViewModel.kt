@@ -6,6 +6,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import kr.co.call.callfromai.incomingcall.IncomingCallRouter
+import kr.co.call.callfromai.incomingcall.IncomingCallStore
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppAuthState
@@ -13,6 +15,7 @@ import kr.co.call.callfromai.state.AppState
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.AuthSessionManager
 import kr.co.call.datastore.TokenDataStore
+import kr.co.call.domain.repository.CallControlRepository
 import kr.co.call.domain.repository.MyPageRepository
 import org.orbitmvi.orbit.Container
 import org.orbitmvi.orbit.ContainerHost
@@ -26,6 +29,9 @@ class AppViewModel @Inject constructor(
     private val myPageRepository: MyPageRepository,
     private val authSessionManager: AuthSessionManager,
     private val pushTokenManager: PushTokenManager,
+    private val incomingCallStore: IncomingCallStore,
+    private val incomingCallRouter: IncomingCallRouter,
+    private val callControlRepository: CallControlRepository,
 ) : ViewModel(), ContainerHost<AppState, AppSideEffect> {
 
     override val container: Container<AppState, AppSideEffect> = container(
@@ -35,7 +41,9 @@ class AppViewModel @Inject constructor(
     init {
         checkAuthState()
         observeSessionExpiration()
+        observeIncomingCall()
         registerPushTokenIfLoggedIn()
+        checkPendingIncomingCall()
     }
 
     private fun checkAuthState() = intent {
@@ -115,6 +123,30 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    private fun observeIncomingCall() = intent {
+        incomingCallStore.incomingCall.collect { call ->
+            reduce { state.copy(incomingCall = call) }
+        }
+    }
+
+    // 전화 push 유실되었을 경우 방지용 착신 대기중인 전화 1회성 조회 (콜드 스타트 + onResume에서 호출)
+    fun checkPendingIncomingCall() {
+        viewModelScope.launch {
+            if (tokenDataStore.getTokens().accessToken.isNullOrBlank()) {
+                return@launch
+            }
+            try {
+                callControlRepository.getIncomingCall()?.let { call ->
+                    incomingCallRouter.route(call)
+                }
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                Timber.e(exception, "대기 중인 착신 조회 실패")
+            }
+        }
+    }
+
     // cold start 시 auth 확인 전에 push가 들어올 수 있어 pending으로 보관
     // 다른 분들과 충돌날까봐 이렇게 했서용..
     private var pendingChatRoomId: Long? = null
@@ -127,6 +159,7 @@ class AppViewModel @Inject constructor(
             )
             AppIntent.LogoutSucceeded -> onLogoutSucceeded()
             is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
+            AppIntent.OnNoticePushTapped -> onNoticePushTapped()
         }
     }
 
@@ -136,6 +169,12 @@ class AppViewModel @Inject constructor(
         } else {
             // auth 확인 중(Loading)이거나 미인증이면 보관
             pendingChatRoomId = chatRoomId
+        }
+    }
+
+    private fun onNoticePushTapped() = intent {
+        if (state.authState is AppAuthState.Authenticated) {
+            postSideEffect(AppSideEffect.NavigateToHome)
         }
     }
     private fun onLoginSucceeded(

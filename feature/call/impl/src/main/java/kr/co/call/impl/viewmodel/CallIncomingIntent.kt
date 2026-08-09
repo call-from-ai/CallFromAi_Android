@@ -4,6 +4,8 @@ sealed interface CallIncomingIntent {
     data class Initialize(
         val callId: Long,
         val characterId: Long,
+        val characterName: String,
+        val characterImageUrl: String?,
     ) : CallIncomingIntent
 
     data object AcceptCall : CallIncomingIntent

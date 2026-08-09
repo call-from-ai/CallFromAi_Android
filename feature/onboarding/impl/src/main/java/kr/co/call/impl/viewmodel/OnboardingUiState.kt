@@ -15,7 +15,7 @@ data class OnboardingUiState(
     // 사용자 정보
     val userLastName: String = "",
     val userFirstName: String = "",
-    val userBirthday: LocalDate =LocalDate.now(),
+    val userBirthday: LocalDate = LocalDate.now(),
     val userJob: String = "",
     val userMbti: String = "",
     val userGender: String = "",
@@ -50,5 +50,9 @@ data class OnboardingUiState(
 
     // 온보딩6 / 생성 결과
     val createdAiId: Long? = null,
-    val createdAiName: String = "",
+    val createdAiName: String? = null,
+    val createdAiImageUrl: String? = null,
+
+    //온보딩6스크린 통화 연결 확인 다이얼로그
+    val isCallDialogVisible: Boolean = false,
 )

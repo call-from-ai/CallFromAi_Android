@@ -9,8 +9,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kr.co.call.callfromai.incomingcall.IncomingCallStore
 import kr.co.call.callfromai.intent.AppIntent
+import kr.co.call.callfromai.lifecycle.AppVisibilityTracker
 import kr.co.call.callfromai.notification.NotificationPermission
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.domain.model.push.PushDataKeys
@@ -31,6 +36,14 @@ class MainActivity : ComponentActivity() {
             Timber.d("POST_NOTIFICATIONS granted=%s", granted)
         }
 
+    // 사용자에게 MainActivity가 보이는지 기록
+    @Inject
+    lateinit var appVisibilityTracker: AppVisibilityTracker
+
+    // 앱 내부 표시 착신 정보 보관
+    @Inject
+    lateinit var incomingCallStore: IncomingCallStore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         notificationPermissionLaunchInFlight =
@@ -49,7 +62,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CallFromAiTheme {
-                AppScreen(appViewModel)
+                // 활성 생명주기에 있는 동안 새로운 incomingCall을 저장하면 값이 변경되면 안전하게 수집
+                // 통화 상태는 StateFlow이기 때문에 생명주기에 맞게 수집
+                val incomingCall by incomingCallStore
+                    .incomingCall
+                    .collectAsStateWithLifecycle()
+                // 현재 표시할 통화 목록을 전달받음
+                AppScreen(
+                    viewModel = appViewModel,
+                    incomingCall = incomingCall,
+                    onClearIncomingCall = incomingCallStore::clear, // 통화 상태 초기화
+                )
             }
         }
     }
@@ -68,6 +91,9 @@ class MainActivity : ComponentActivity() {
                 ?: return
             Timber.d("Push 딥링크: CHAT chatRoomId=%d", chatRoomId)
             appViewModel.handleIntent(AppIntent.OnChatPushTapped(chatRoomId))
+        } else if (type == PushType.NOTICE) {
+            Timber.d("Push 딥링크: NOTICE")
+            appViewModel.handleIntent(AppIntent.OnNoticePushTapped)
         }
     }
 
@@ -90,6 +116,20 @@ class MainActivity : ComponentActivity() {
         if (notificationPermissionLaunchInFlight) return
         notificationPermissionLaunchInFlight = true
         notificationPermissionLauncher.launch(NotificationPermission.permission)
+    }
+
+    // 사용자가 MainActivity를 보고 있을 때 통화가 오면 시스템 알림 대신 앱 내부 모달 표시
+    override fun onResume() {
+        super.onResume()
+        appVisibilityTracker.onResumed()
+        // push가 지연·유실됐을 수 있어 포그라운드 복귀 시마다 대기 중인 착신을 보완 조회
+        appViewModel.checkPendingIncomingCall()
+    }
+
+    // MainActivity로 상호작용 불가능할 때 먼저 기록하고 알림 표시
+    override fun onPause() {
+        appVisibilityTracker.onPaused()
+        super.onPause()
     }
 
     private companion object {

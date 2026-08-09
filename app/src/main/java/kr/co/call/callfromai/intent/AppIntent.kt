@@ -29,4 +29,6 @@ sealed interface AppIntent {
     data class OnChatPushTapped(
         val chatRoomId: Long,
     ) : AppIntent
+
+    data object OnNoticePushTapped : AppIntent
 }

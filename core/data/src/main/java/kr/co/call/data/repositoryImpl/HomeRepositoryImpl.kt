@@ -7,6 +7,7 @@ import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.domain.model.home.CallHistory
 import kr.co.call.domain.model.home.HomeCharacter
+import kr.co.call.domain.model.home.HomeNotification
 import kr.co.call.domain.model.home.HomeSummary
 import kr.co.call.domain.repository.HomeRepository
 import kr.co.call.network.api.CharacterApi
@@ -82,6 +83,28 @@ class HomeRepositoryImpl @Inject constructor(
                     "활성 캐릭터 response: characterId=%d, success=true",
                     characterId,
                 )
+            }
+
+    override suspend fun getNotifications(): Result<List<HomeNotification>> =
+        safeApiResult(errorResponseParser) {
+            homeApi.getNotifications()
+        }
+            .map { notifications ->
+                notifications.map { notification -> notification.toDomain() }
+            }
+            .onSuccess { notifications ->
+                Timber.tag(TAG).d(
+                    "지난 알림 목록 조회 response: count=%d",
+                    notifications.size,
+                )
+            }
+
+    override suspend fun readAllNotifications(): Result<Unit> =
+        safeApiResultUnit(errorResponseParser) {
+            homeApi.readAllNotifications()
+        }
+            .onSuccess {
+                Timber.tag(TAG).d("전체 알림 읽음 처리 response: success=true")
             }
 
     private companion object {
