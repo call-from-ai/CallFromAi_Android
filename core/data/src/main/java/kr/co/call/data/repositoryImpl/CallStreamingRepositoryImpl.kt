@@ -29,7 +29,6 @@ import timber.log.Timber
 
 /**
  * 여러 스레드에서 발생한 WebSocket 콜백을 직렬화합니다.
- * -
  */
 private sealed interface SocketSignal {
 
@@ -391,7 +390,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
             .addQueryParameter("ticket", wsTicket)
             .build()
 
-        Timber.tag(TAG).d("WebSocket 요청 URL: %s", webSocketUrl)
+        Timber.tag(TAG).d("WebSocket 요청 URL: %s%s", webSocketUrl.host, webSocketUrl.encodedPath)
         return Request.Builder()
             .url(webSocketUrl)
             .build()
