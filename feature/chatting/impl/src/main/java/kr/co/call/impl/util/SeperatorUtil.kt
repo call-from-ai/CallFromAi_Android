@@ -5,6 +5,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.insertSeparators
 import kr.co.call.domain.model.chatting.ChatItem
 import kr.co.call.impl.model.ChatItemUiModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 /**
  * DateSeparator(index k) 아래쪽(낮은 인덱스 방향 = 화면 하단)에 보이는 메시지가 있는지 확인.
@@ -80,3 +82,43 @@ fun PagingData<ChatItem>.insertDateSeparators(): PagingData<ChatItem> {
         }
     }
 }
+
+/**
+ * realtimeMessages와 pagingItems 경계에서 표시할 날짜 문자열을 반환합니다.
+ *
+ * - 페이징 데이터가 없는 경우(첫 채팅): 오늘 날짜를 반환합니다.
+ * - 페이징 데이터가 있고 경계 날짜가 다른 경우: 실시간 메시지의 날짜를 반환합니다.
+ * - 날짜가 같거나 실시간 메시지가 없으면 null을 반환합니다.
+ *
+ * @param visibleRealtimeMessages 화면에 표시 중인 실시간 메시지 목록
+ * @param pagingItems 페이징 아이템 목록
+ */
+fun boundaryDateSeparatorText(
+    visibleRealtimeMessages: List<ChatItemUiModel>,
+    pagingItems: LazyPagingItems<ChatItemUiModel>,
+): String? {
+    // 실시간 메시지 중 가장 마지막 메시지의 날짜를 확인
+    val lastRealtimeDate = visibleRealtimeMessages
+        .filterIsInstance<ChatItemUiModel.Message>()
+        .lastOrNull()
+        ?.createdDate
+
+    // 페이징 메시지 중 가장 첫 번째 메시지의 날짜를 확인
+    val firstPagingDate = pagingItems.itemSnapshotList.items
+        .filterIsInstance<ChatItemUiModel.Message>()
+        .firstOrNull()
+        ?.createdDate
+
+    // 두 목록의 경계에서 날짜가 달라지는 경우에만 구분선을 표시
+    return when {
+        // 페이징 데이터가 없으면 실시간 메시지와 오늘 사이의 경계를 표시
+        lastRealtimeDate != null && firstPagingDate == null ->
+            LocalDate.now().format(dateSeparatorFormatter)
+
+        // 두 목록의 날짜가 다르면 실시간 메시지의 날짜를 경계 날짜로 표시
+        lastRealtimeDate != null && firstPagingDate != null && lastRealtimeDate != firstPagingDate ->
+            lastRealtimeDate.format(dateSeparatorFormatter)
+        else -> null
+    }
+}
+private val dateSeparatorFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일")

@@ -44,6 +44,7 @@ object UiModelMapper {
             messageType = this.messageType,
             photoUrl = this.photoUrl,
             time = this.createdTime.format(timeFormatter),
+            createdDate = this.createdTime.toLocalDate(),
             loadStatus = loadStatus,
         )
 
@@ -68,6 +69,9 @@ object UiModelMapper {
         time = runCatching {
             LocalDateTime.parse(this.createdAt).format(timeFormatter)
         }.getOrDefault(""),
+        createdDate = runCatching {
+            LocalDateTime.parse(this.createdAt).toLocalDate()
+        }.getOrNull(),
         loadStatus = LoadStatus.Idle,
     )
 
