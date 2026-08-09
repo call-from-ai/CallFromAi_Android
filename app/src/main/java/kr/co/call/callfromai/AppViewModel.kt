@@ -52,9 +52,9 @@ class AppViewModel @Inject constructor(
 
         val hasAccessToken=
             storedTokens?.accessToken.isNullOrBlank().not()
-        val serverNeedsOnboarding=
+        val serverRequirements=
             if(hasAccessToken){
-                myPageRepository.getNeedsOnboarding()
+                myPageRepository.getAuthRequirements()
                     .onFailure{error ->
                         if (error is CancellationException){
                             throw error
@@ -85,9 +85,12 @@ class AppViewModel @Inject constructor(
                 AppAuthState.Unauthenticated
             } else {
                 AppAuthState.Authenticated(
-                    needsOnboarding = serverNeedsOnboarding
-                        ?: storedTokens.needsOnboarding,
-                    needsTermsAgreement = storedTokens.needsTermsAgreement,
+                    needsOnboarding =
+                        serverRequirements?.needsOnboarding
+                            ?: storedTokens.needsOnboarding,
+                    needsTermsAgreement =
+                        serverRequirements?.needsTermsAgreement
+                            ?: storedTokens.needsTermsAgreement,
                 )
             }
 

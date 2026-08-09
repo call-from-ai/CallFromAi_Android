@@ -9,6 +9,7 @@ import kr.co.call.data.util.safeApiResult
 import kr.co.call.data.util.safeApiResultUnit
 import kr.co.call.data.util.toAppResult
 import kr.co.call.datastore.TokenDataStore
+import kr.co.call.domain.model.login.AuthRequirements
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.model.mypage.NotificationSetting
@@ -54,11 +55,14 @@ class MyPageRepositoryImpl @Inject constructor(
             )
         }
 
-    override suspend fun getNeedsOnboarding(): Result<Boolean> =
-        safeApiResult(errorResponseParser){
+    override suspend fun getAuthRequirements(): Result<AuthRequirements> =
+        safeApiResult(errorResponseParser) {
             myPageApi.getMyInfo()
-        }.map{response->
-            response.needsOnboarding
+        }.map { response ->
+            AuthRequirements(
+                needsOnboarding = response.needsOnboarding,
+                needsTermsAgreement = response.needsTermsAgreement,
+            )
         }
 
     override suspend fun getNotificationSetting(): Result<NotificationSetting> =

@@ -11,5 +11,6 @@ data class MemberResponseDto(
     val job: String? = null,
     val socialType: String? = null,
     val callTicketBalance: Int = 0,
-    val needsOnboarding: Boolean = false,
+    val needsOnboarding: Boolean,
+    val needsTermsAgreement:Boolean,
 )
