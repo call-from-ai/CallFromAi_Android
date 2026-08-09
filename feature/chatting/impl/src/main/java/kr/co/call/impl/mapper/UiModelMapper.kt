@@ -2,7 +2,10 @@ package kr.co.call.impl.mapper
 
 import kr.co.call.domain.model.chatting.ChatHeader
 import kr.co.call.domain.model.chatting.ChatItem
+import kr.co.call.domain.model.chatting.ChatSseMessage
 import kr.co.call.domain.model.chatting.ManagerChatItem
+import kr.co.call.domain.model.chatting.MessageType
+import kr.co.call.domain.model.chatting.SenderType
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.model.ChatItemUiModel
 import kr.co.call.impl.model.ManagerChatUiItem
@@ -55,6 +58,27 @@ object UiModelMapper {
         is ChatItem.Message -> toUiItem()
         is ChatItem.DateSeparator -> toUiItem()
     }
+
+    // SSE로 수신한 메시지를 UI 모델로 변환 (createdAt 문자열을 HH:mm 포맷으로 파싱)
+    fun ChatSseMessage.toUiItem(): ChatItemUiModel.Message = ChatItemUiModel.Message(
+        chatMessageId = this.chatMessageId,
+        senderType = this.senderType,
+        content = this.content,
+        messageType = this.messageType,
+        time = runCatching {
+            LocalDateTime.parse(this.createdAt).format(timeFormatter)
+        }.getOrDefault(""),
+        loadStatus = LoadStatus.Idle,
+    )
+
+    // SSE Loading 이벤트에 대응하는 로딩 버블 생성
+    fun sseLoadingBubble(clientId: String): ChatItemUiModel.Message = ChatItemUiModel.Message(
+        chatMessageId = -1L,
+        clientId = clientId,
+        senderType = SenderType.AI,
+        messageType = MessageType.TEXT,
+        loadStatus = LoadStatus.Loading,
+    )
 
     // 채팅방 상단 정보를 UI 모델로 변환
     fun ChatHeader.toUiItem(): TopHeader = TopHeader(

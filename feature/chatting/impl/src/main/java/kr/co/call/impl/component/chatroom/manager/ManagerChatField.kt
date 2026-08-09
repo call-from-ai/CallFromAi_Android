@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.shadow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.theme.CallColors
@@ -32,7 +33,8 @@ fun ManagerChatField(
                 color = CallTheme.colors.subGray,
                 shape = RoundedCornerShape(50)
             )
-            .padding(start = 50.dp, top = 12.dp, end = 12.dp)
+            .padding(start = 50.dp, end = 12.dp),
+        contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = "메시지를 입력할 수 없습니다.",

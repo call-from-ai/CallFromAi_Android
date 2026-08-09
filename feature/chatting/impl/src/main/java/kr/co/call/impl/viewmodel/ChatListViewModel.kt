@@ -2,7 +2,10 @@ package kr.co.call.impl.viewmodel
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filterIsInstance
+import kr.co.call.domain.model.chatting.ChatSseEvent
 import kr.co.call.domain.repository.ChatRepository
+import kr.co.call.domain.repository.ChatSseRepository
 import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.intent.ChatListIntent
 import kr.co.call.impl.sideeffect.ChatListSideEffect
@@ -14,12 +17,29 @@ import javax.inject.Inject
 @HiltViewModel
 class ChatListViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
+    private val chatSseRepository: ChatSseRepository
 ) : ViewModel(), ContainerHost<ChatListState, ChatListSideEffect> {
 
     override val container: Container<ChatListState, ChatListSideEffect> = container(
         initialState = ChatListState()
     ) {
+        chatSseRepository.connect()
         loadChatList()
+        observeSseEvents()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        chatSseRepository.disconnect()
+    }
+
+    // SSE로 새 메시지 이벤트가 수신될 때마다
+    // 목록 조회 api를 호출하여
+    // 채팅 목록을 조용히 갱신
+    private fun observeSseEvents() = intent {
+        chatSseRepository.sseFlow
+            .filterIsInstance<ChatSseEvent.Message>()
+            .collect { refreshChatList() }
     }
 
     // 초기 로딩
@@ -50,7 +70,7 @@ class ChatListViewModel @Inject constructor(
         )
     }
 
-    // onResume 시 로딩 없이 조용히 목록 갱신 — 변경된 항목만 교체
+    // 조용히 목록 갱신 — 변경된 항목만 교체
     private fun refreshChatList() = intent {
         chatRepository.getChatList()
             .onSuccess { newList ->

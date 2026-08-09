@@ -77,23 +77,32 @@ class AppViewModel @Inject constructor(
             delay(remainingTime)
         }
 
+        val authState =
+            if (
+                storedTokens == null ||
+                storedTokens.accessToken.isNullOrBlank()
+            ) {
+                AppAuthState.Unauthenticated
+            } else {
+                AppAuthState.Authenticated(
+                    needsOnboarding = serverNeedsOnboarding
+                        ?: storedTokens.needsOnboarding,
+                    needsTermsAgreement = storedTokens.needsTermsAgreement,
+                )
+            }
+
         reduce {
-            val authState=
-                if(
-                    storedTokens == null ||
-                    storedTokens.accessToken.isNullOrBlank()
-                ){
-                    AppAuthState.Unauthenticated
-                } else {
-                    AppAuthState.Authenticated(
-                        needsOnboarding=
-                            serverNeedsOnboarding ?: storedTokens.needsOnboarding,
-                        needsTermsAgreement = storedTokens.needsTermsAgreement,
-                    )
-                }
             state.copy(
-                authState=authState,
+                authState = authState,
             )
+        }
+
+        // cold start 시 push로 진입한 경우 인증 확인 후 채팅방으로 이동
+        if (authState is AppAuthState.Authenticated) {
+            pendingChatRoomId?.let { roomId ->
+                pendingChatRoomId = null
+                postSideEffect(AppSideEffect.NavigateToChatRoom(roomId))
+            }
         }
     }
 
@@ -103,12 +112,26 @@ class AppViewModel @Inject constructor(
         }
     }
 
+    // cold start 시 auth 확인 전에 push가 들어올 수 있어 pending으로 보관
+    // 다른 분들과 충돌날까봐 이렇게 했서용..
+    private var pendingChatRoomId: Long? = null
+
     fun handleIntent(appIntent: AppIntent) {
         when (appIntent) {
             is AppIntent.LoginSucceeded -> onLoginSucceeded(
                 needsOnboarding=appIntent.needsOnboarding,
             )
-            AppIntent.LogoutSucceeded ->onLogoutSucceeded()
+            AppIntent.LogoutSucceeded -> onLogoutSucceeded()
+            is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
+        }
+    }
+
+    private fun onChatPushTapped(chatRoomId: Long) = intent {
+        if (state.authState is AppAuthState.Authenticated) {
+            postSideEffect(AppSideEffect.NavigateToChatRoom(chatRoomId))
+        } else {
+            // auth 확인 중(Loading)이거나 미인증이면 보관
+            pendingChatRoomId = chatRoomId
         }
     }
     private fun onLoginSucceeded(
@@ -127,6 +150,13 @@ class AppViewModel @Inject constructor(
                     needsTermsAgreement = false,
                 ),
             )
+        }
+
+        // 인증이 완료되기 전에 푸시를 눌렀다면 pending으로 저장해 둔 채팅방으로 이동
+        // 한 번만 처리되도록 pending 값을 먼저 비운 뒤 네비게이션 SideEffect를 발생시킨다.
+        pendingChatRoomId?.let { roomId ->
+            pendingChatRoomId = null
+            postSideEffect(AppSideEffect.NavigateToChatRoom(roomId))
         }
     }
 

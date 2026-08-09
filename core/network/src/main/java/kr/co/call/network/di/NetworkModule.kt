@@ -23,6 +23,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -123,6 +124,19 @@ object NetworkModule {
             .build()
     }
 
+    // SSE 전용 OkHttpClient: read timeout을 0으로 설정해 long-lived connection을 유지
+    @Provides
+    @Singleton
+    @Named("sseOkHttpClient")
+    fun provideSseOkHttpClient(
+        authInterceptor: AuthInterceptor,
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .readTimeout(0, TimeUnit.SECONDS)
+            .build()
+    }
+
     @Provides
     @Singleton
     fun provideLoginApi(
@@ -197,4 +211,5 @@ object NetworkModule {
         retrofit: Retrofit,
     ): PushTokenApi =
         retrofit.create(PushTokenApi::class.java)
+
 }
