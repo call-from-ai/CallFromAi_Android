@@ -91,6 +91,9 @@ class MainActivity : ComponentActivity() {
                 ?: return
             Timber.d("Push 딥링크: CHAT chatRoomId=%d", chatRoomId)
             appViewModel.handleIntent(AppIntent.OnChatPushTapped(chatRoomId))
+        } else if (type == PushType.NOTICE) {
+            Timber.d("Push 딥링크: NOTICE")
+            appViewModel.handleIntent(AppIntent.OnNoticePushTapped)
         }
     }
 

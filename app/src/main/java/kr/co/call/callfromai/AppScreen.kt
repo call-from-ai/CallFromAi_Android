@@ -169,6 +169,9 @@ private fun MainAppContent(
             is AppSideEffect.NavigateToChatRoom -> {
                 appNavigator.navigateToChatRoom(sideEffect.chatRoomId)
             }
+            AppSideEffect.NavigateToHome -> {
+                appNavigator.replaceAll(HomeNavKey)
+            }
         }
     }
 

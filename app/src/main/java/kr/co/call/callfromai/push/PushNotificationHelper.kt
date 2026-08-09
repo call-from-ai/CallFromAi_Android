@@ -79,12 +79,31 @@ object PushNotificationHelper {
         title: String,
         body: String,
     ) {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(PushDataKeys.TYPE, "NOTICE")
+        }
+
+        val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            NOTICE_NOTIFICATION_ID,
+            intent,
+            pendingFlags,
+        )
+
         notify(
             context = context,
             notificationId = NOTICE_NOTIFICATION_ID,
             title = title.ifBlank { "알림" },
             body = body,
             priority = NotificationCompat.PRIORITY_HIGH,
+            contentIntent = pendingIntent,
         )
     }
 

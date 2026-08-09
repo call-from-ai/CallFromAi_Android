@@ -155,6 +155,7 @@ class AppViewModel @Inject constructor(
             )
             AppIntent.LogoutSucceeded -> onLogoutSucceeded()
             is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
+            AppIntent.OnNoticePushTapped -> onNoticePushTapped()
         }
     }
 
@@ -164,6 +165,12 @@ class AppViewModel @Inject constructor(
         } else {
             // auth 확인 중(Loading)이거나 미인증이면 보관
             pendingChatRoomId = chatRoomId
+        }
+    }
+
+    private fun onNoticePushTapped() = intent {
+        if (state.authState is AppAuthState.Authenticated) {
+            postSideEffect(AppSideEffect.NavigateToHome)
         }
     }
     private fun onLoginSucceeded(
