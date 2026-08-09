@@ -7,7 +7,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import kr.co.call.callfromai.MainActivity
-import kr.co.call.designsystem.R
+import kr.co.call.callfromai.R
 import kr.co.call.domain.model.push.PushChannels
 import kr.co.call.domain.model.push.PushDataKeys
 import timber.log.Timber
@@ -116,7 +116,7 @@ object PushNotificationHelper {
         category: String? = null,
     ) {
         val builder = NotificationCompat.Builder(context, PushChannels.GENERAL)
-            .setSmallIcon(R.drawable.ic_home_alarm)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
