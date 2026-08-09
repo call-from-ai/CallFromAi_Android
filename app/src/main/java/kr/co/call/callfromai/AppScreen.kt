@@ -408,6 +408,15 @@ private fun MainAppContent(
                         navigateToManagerChatRoom = {
                             appNavigator.navigate(ManagerChatRoomNayKey)
                         },
+                        navigateToCall = { characterId, characterName, characterImageUrl ->
+                            appNavigator.navigate(
+                                CallSendingNavKey(
+                                    characterId = characterId,
+                                    characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
+                                ),
+                            )
+                        },
                         onBack = {
                             appNavigator.popBackStack()
                         },
