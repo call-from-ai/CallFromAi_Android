@@ -57,8 +57,8 @@ private fun CharacterTraitInput.toRequestDto(): CharacterTraitRequestDto =
 internal fun CreateCharacterResponseDto.toDomain(): CreatedCharacter =
     CreatedCharacter(
         id = id,
-        // 서버가 아직 캐릭터 이름을 내려주지 않아 임시로 하드코딩
-        name = name ?: "민준",
+        name = name,
+        imageUrl = characterImageUrl,
     )
 
 internal fun PresetImageResponseDto.toDomain(): PresetImage =

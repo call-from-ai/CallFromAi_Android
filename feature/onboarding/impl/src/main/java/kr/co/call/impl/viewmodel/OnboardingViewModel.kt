@@ -59,7 +59,8 @@ class OnboardingViewModel @Inject constructor(
                 // 이전 온보딩의 회원 제출 플래그가 남지 않도록 초기화
                 isMemberSubmitted = false,
                 createdAiId = null,
-                createdAiName = "",
+                createdAiName = null,
+                createdAiImageUrl = null,
                 isCallDialogVisible = false,
             )
         }
@@ -248,6 +249,7 @@ class OnboardingViewModel @Inject constructor(
                     state.copy(
                         createdAiId = character.id,
                         createdAiName = character.name,
+                        createdAiImageUrl = character.imageUrl,
                         submitStatus = LoadStatus.Idle,
                     )
                 }

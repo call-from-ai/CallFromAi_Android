@@ -327,7 +327,7 @@ private fun MainAppContent(
                             // 캐릭터 추가 완료 -> 전화 화면 스킵, 홈으로
                             appNavigator.replaceAll(HomeNavKey)
                         },
-                        onOnboarding6CallNow = { characterId, characterName ->
+                        onOnboarding6CallNow = { characterId, characterName, characterImageUrl ->
                             // 온보딩 백스택은 정리하고 홈을 기반으로 통화 화면을 쌓아,
                             // 통화 종료 시 popBackStack()이 홈으로 돌아가도록 함
                             appNavigator.replaceAll(HomeNavKey)
@@ -335,6 +335,7 @@ private fun MainAppContent(
                                 CallSendingNavKey(
                                     characterId = characterId,
                                     characterName = characterName,
+                                    characterImageUrl = characterImageUrl,
                                 ),
                             )
                         },

@@ -41,7 +41,11 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
     onBackFromOnboarding5: () -> Unit,
     onOnboarding5Next: () -> Unit,
     onAdditionalCharacterCreated: () -> Unit,
-    onOnboarding6CallNow: (characterId: Long, characterName: String) -> Unit,
+    onOnboarding6CallNow: (
+        characterId: Long,
+        characterName: String,
+        characterImageUrl: String?,
+    ) -> Unit,
     onOnboarding6CallLater: () -> Unit,
 ) {
     entry<Onboarding1NavKey> {
@@ -138,7 +142,7 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
         val uiState by onboardingViewModel.container.stateFlow
             .collectAsStateWithLifecycle()
         Onboarding6Screen(
-            characterName = uiState.createdAiName,
+            characterName = uiState.createdAiName.orEmpty(),
             isLoading = false,
             isCallDialogVisible = uiState.isCallDialogVisible,
             onShowCallDialog = onboardingViewModel::showCallDialog,
@@ -146,7 +150,11 @@ fun EntryProviderScope<NavKey>.onboardingEntry(
             onCallNowClick = {
                 val characterId = uiState.createdAiId
                 if (characterId != null) {
-                    onOnboarding6CallNow(characterId, uiState.createdAiName)
+                    onOnboarding6CallNow(
+                        characterId,
+                        uiState.createdAiName.orEmpty(),
+                        uiState.createdAiImageUrl,
+                    )
                 } else {
                     // 캐릭터 생성 결과가 없으면 통화로 보낼 수 없어 홈으로 대체
                     onOnboarding6CallLater()
