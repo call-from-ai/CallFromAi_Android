@@ -52,4 +52,7 @@ data class OnboardingUiState(
     //온보딩6스크린 ai캐릭터이름 받아오기
     val createdAiId: Long? = null,
     val createdAiName: String = "",
+
+    //온보딩6스크린 통화 연결 확인 다이얼로그
+    val isCallDialogVisible: Boolean = false,
 )

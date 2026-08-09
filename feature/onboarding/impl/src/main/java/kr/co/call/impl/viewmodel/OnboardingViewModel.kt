@@ -312,5 +312,19 @@ class OnboardingViewModel @Inject constructor(
                 }
             }
     }
+
+    // 캐릭터 생성 완료 화면에서 바로 전화 연결 시 다이얼로그 표시
+    fun showCallDialog() = intent {
+        reduce {
+            state.copy(isCallDialogVisible = true)
+        }
+    }
+
+    // 다이얼로그 취소 시 다이얼로그 닫기
+    fun hideCallDialog() = intent {
+        reduce {
+            state.copy(isCallDialogVisible = false)
+        }
+    }
 }
 
