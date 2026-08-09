@@ -10,13 +10,17 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kr.co.call.common.CallFromAiDispatchers
+import kr.co.call.common.Dispatcher
+import kr.co.call.common.di.ApplicationScope
 import kr.co.call.domain.exception.toUserMessage
 import kr.co.call.domain.model.call.CallStreamingEvent
 import kr.co.call.domain.model.home.CallInfo
@@ -47,6 +51,8 @@ class CallViewModel @Inject constructor(
     private val pendingCallConnectionStore: PendingCallConnectionStore,
     private val callAudioPlayer: CallAudioPlayer,
     private val callAudioRecorder: CallAudioRecorder,
+    @ApplicationScope private val applicationScope: CoroutineScope,
+    @Dispatcher(CallFromAiDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) :
     ViewModel(),
     ContainerHost<CallState, CallSideEffect> {
@@ -84,8 +90,8 @@ class CallViewModel @Inject constructor(
         Timber.w("CallViewModel onCleared: 정상 종료 경로 없이 화면 이탈 - 방어적으로 자원 정리")
         runCatching { callAudioPlayer.stop() }
         runCatching { callAudioRecorder.stop() }
-        // viewModelScope 취소 이후라 runBlocking으로 로컬 정리
-        runBlocking {
+        // viewModelScope 취소 이후라 메인 스레드 차단 없이 앱 수명 스코프에서 비동기 정리
+        applicationScope.launch(ioDispatcher) {
             runCatching { callSessionManager.endSession() }
         }
     }

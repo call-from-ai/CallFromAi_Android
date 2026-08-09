@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":feature:call:api"))
 
     // core 모듈
+    implementation(project(":core:common"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:domain"))
 
