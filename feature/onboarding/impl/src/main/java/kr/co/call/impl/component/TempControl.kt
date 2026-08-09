@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.DragGradient
@@ -104,15 +105,25 @@ private fun TempDrag(
         modifier = modifier
             .fillMaxWidth()
             .height(151.dp),
+
     ) {
+        val cardWidth = (maxWidth * 0.28f)
+            .coerceIn(
+                minimumValue = 82.dp,
+                maximumValue = 98.dp,
+            )
+
+        val thumbSize = 47.dp
+        val thumbRadius = thumbSize / 2
+
         val density=LocalDensity.current
         // 버튼 중심이 왼쪽 카드의 오른쪽 끝에 위치하는 지점
         val minimumOffsetPx=with(density){
-            (98.dp-24.dp).toPx()
+            (cardWidth-thumbRadius).toPx()
         }
         // 버튼 중심이 오른쪽 카드의 왼쪽 끝에 위치하는 지점
         val maximumOffsetPx=constraints.maxWidth.toFloat()-with(density){
-            (98.dp+24.dp).toPx()
+            (cardWidth+thumbRadius).toPx()
         }
         val dragDistancePx=maximumOffsetPx-minimumOffsetPx
         var thumbOffsetPx by remember(
@@ -144,13 +155,14 @@ private fun TempDrag(
         Box(
             modifier= Modifier
                 .align(Alignment.Center)
-                .padding(horizontal = 98.dp)
+                .padding(horizontal=cardWidth)
                 .fillMaxWidth()
                 .height(13.dp)
                 .background(brush= DragGradient),
         )
         TempCard(
             isHot=false,
+            cardWidth=cardWidth,
             modifier= Modifier.align(
                 Alignment.CenterStart,
             ),
@@ -158,6 +170,7 @@ private fun TempDrag(
 
         TempCard(
             isHot=true,
+            cardWidth=cardWidth,
             modifier=Modifier.align(
                 Alignment.CenterEnd,
             ),
@@ -171,7 +184,7 @@ private fun TempDrag(
                         y=0,
                     )
                 }
-                .size(47.dp)
+                .size(thumbSize)
                 .draggable(
                     state=draggableState,
                     orientation=Orientation.Horizontal,
@@ -221,11 +234,12 @@ private fun TempDrag(
 @Composable
 private fun TempCard(
     isHot: Boolean, //어떤 카드인지 구분하는 용(T: 불닭맛)
+    cardWidth: Dp,
     modifier: Modifier=Modifier,
 ){
     Surface(
         modifier=modifier
-            .width(98.dp)
+            .width(cardWidth)
             .height(151.dp),
         shape=RoundedCornerShape(20.dp),
         color=White,

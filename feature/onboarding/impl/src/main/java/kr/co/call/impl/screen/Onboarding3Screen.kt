@@ -1,7 +1,6 @@
 package kr.co.call.impl.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,9 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kr.co.call.designsystem.component.button.SecondaryButton
@@ -63,8 +61,7 @@ fun Onboarding3Screen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(White)
-            .navigationBarsPadding(),
+            .background(White),
     ) {
         BackStepBar(
             onBackClick = onBackClick,
@@ -88,6 +85,7 @@ fun Onboarding3Screen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                     .padding(horizontal = 27.dp),
             ) {
                 Spacer(modifier = Modifier.height(26.dp))
@@ -132,12 +130,10 @@ fun Onboarding3Screen(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        space=11.dp,
-                        alignment=Alignment.CenterHorizontally
-                    ),
+                    horizontalArrangement = Arrangement.spacedBy(11.dp),
                 ) {
                     RelationshipChoiceCard(
+                        modifier=Modifier.weight(1f),
                         imageRes = R.drawable.relationship_some,
                         title = "썸",
                         description = "설레는 시작",
@@ -145,6 +141,7 @@ fun Onboarding3Screen(
                         onClick = { selectedRelationship = Relationship.SOME },
                     )
                     RelationshipChoiceCard(
+                        modifier=Modifier.weight(1f),
                         imageRes = R.drawable.relationship_first,
                         title = "연애 초기",
                         description = "달달한 사이",
@@ -152,6 +149,7 @@ fun Onboarding3Screen(
                         onClick = { selectedRelationship = Relationship.EARLY_DATING },
                     )
                     RelationshipChoiceCard(
+                        modifier=Modifier.weight(1f),
                         imageRes = R.drawable.relationship_old,
                         title = "오래된 연인",
                         description = "편안한 관계",
@@ -166,6 +164,7 @@ fun Onboarding3Screen(
                     modifier = Modifier.fillMaxWidth(),
                     onTemperatureChange = { temperature = it },
                 )
+                Spacer(modifier = Modifier.height(24.dp))
             }
             SecondaryButton(
                 modifier = Modifier
@@ -176,7 +175,7 @@ fun Onboarding3Screen(
                     .padding(
                         start = 27.dp,
                         end = 27.dp,
-                        bottom = 18.dp,
+                        bottom = 10.dp,
                     ),
                 text = "다음",
                 enabled = canMoveNext,

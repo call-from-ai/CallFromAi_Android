@@ -24,19 +24,29 @@ internal fun MemberOnboardingInput.toRequestDto(): UpdateMemberRequestDto =
 
 internal fun CharacterOnboardingInput.toRequestDto(): CreateCharacterRequestDto =
     CreateCharacterRequestDto(
-        lastName = lastName,
-        firstName = firstName,
+        lastName = lastName.trim().take(2),
+        firstName = firstName.trim().take(5),
         gender = gender,
         age = age,
-        job = job,
-        imageUrl = imageUrl,
+        job = job.toCharacterJobApiCode(),
+        // BE : 빈 문자열은 400, null만 허용
+        imageUrl = imageUrl.trim().takeIf { it.isNotEmpty() },
         spiceLevel = spiceLevel,
         preferTime = preferTime,
-        mbti = mbti,
+        mbti = mbti.trim().takeIf { it.isNotEmpty() },
         speechStyle = speechStyle,
         relationshipStage = relationshipStage,
         traits = traits.map { it.toRequestDto() },
     )
+
+/** 레거시 code -> BE Job enum */
+private fun String.toCharacterJobApiCode(): String =
+    when (trim().uppercase()) {
+        "STUDENT", "UNIVERSITY_STUDENT" -> "UNIVERSITY_STUDENT"
+        "EMPLOYED", "EMPLOYEE" -> "EMPLOYEE"
+        "UMEMPLOYED", "OTHER" -> "OTHER"
+        else -> trim().uppercase()
+    }
 
 private fun CharacterTraitInput.toRequestDto(): CharacterTraitRequestDto =
     CharacterTraitRequestDto(
@@ -46,7 +56,7 @@ private fun CharacterTraitInput.toRequestDto(): CharacterTraitRequestDto =
 
 internal fun CreateCharacterResponseDto.toDomain(): CreatedCharacter =
     CreatedCharacter(
-        id = id,
+        id = characterId,
         name = name,
     )
 

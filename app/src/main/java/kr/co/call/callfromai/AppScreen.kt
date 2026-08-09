@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import kr.co.call.api.Onboarding3NavKey
 import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
+import kr.co.call.api.OnboardingFlowMode
 import kr.co.call.api.TermNavKey
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.ui.MainBottomBar
@@ -92,13 +94,21 @@ fun AppScreen(
 
         is AppAuthState.Authenticated -> {
             MainAppContent(
-                startKey = if (authState.needsOnboarding) {
-                    Onboarding1NavKey
-                }else {
-                    HomeNavKey
+                startKey = when {
+                    authState.needsTermsAgreement -> LoginNavKey
+                    authState.needsOnboarding-> Onboarding1NavKey
+                    else -> HomeNavKey
+                    },
+                agreementKey=if(authState.needsTermsAgreement){
+                    AgreementNavKey(
+                        needsOnboarding=authState.needsOnboarding,
+                    )
+                }
+                    else {
+                        null
                 },
-                viewModel = viewModel,
-                modifier = modifier,
+                viewModel=viewModel,
+                modifier=modifier,
             )
         }
 
@@ -115,6 +125,7 @@ fun AppScreen(
 @Composable
 private fun MainAppContent(
     startKey: NavKey,
+    agreementKey: AgreementNavKey? = null,
     viewModel: AppViewModel,
     modifier: Modifier = Modifier,
 ) {
@@ -122,6 +133,14 @@ private fun MainAppContent(
 
     val appNavigator = remember(backStack) {
         AppNavigator(backStack)
+    }
+    LaunchedEffect(agreementKey) {
+        if (
+            agreementKey != null &&
+            backStack.lastOrNull() != agreementKey
+        ) {
+            appNavigator.navigate(agreementKey)
+        }
     }
     val currentKey = backStack.lastOrNull()
     viewModel.collectSideEffect { sideEffect ->
@@ -216,7 +235,7 @@ private fun MainAppContent(
                             appNavigator.replaceAll(HomeNavKey)
                         },
                         navigateToAgreement = {needsOnboarding ->
-                            appNavigator.replaceAll(
+                            appNavigator.navigate(
                                 AgreementNavKey(
                                     needsOnboarding = needsOnboarding,
                                 ),
@@ -251,7 +270,13 @@ private fun MainAppContent(
 
                     onboardingEntry(
                         onOnboarding1Next = {
-                            appNavigator.navigate(Onboarding2NavKey)
+                            appNavigator.navigate(
+                                Onboarding2NavKey(mode = OnboardingFlowMode.FIRST_ONBOARDING),
+                            )
+                        },
+                        onBackFromOnboarding1 = {
+                            viewModel.handleIntent(AppIntent.LogoutSucceeded)
+                            appNavigator.replaceAll(LoginNavKey)
                         },
                         onBackFromOnboarding2 = {
                             appNavigator.popBackStack()
@@ -276,6 +301,10 @@ private fun MainAppContent(
                         },
                         onOnboarding5Next = {
                             appNavigator.navigate(Onboarding6NavKey)
+                        },
+                        onAdditionalCharacterCreated = {
+                            // 캐릭터 추가 완료 -> 전화 화면 스킵, 홈으로
+                            appNavigator.replaceAll(HomeNavKey)
                         },
                         onOnboarding6CallNow = {
                             //나중에 전화화면으로 바꾸기
@@ -359,6 +388,15 @@ private fun MainAppContent(
                         },
                         navigateToEditCharacter = { characterId ->
                             appNavigator.navigate(EditCharacterNavKey(characterId))
+                        },
+                        navigateToAddCharacter = {
+                            // 온보딩 2로 바로 진입
+                            appNavigator.navigate(
+                                Onboarding2NavKey(
+                                    mode = OnboardingFlowMode.ADD_CHARACTER,
+                                    resetToken = System.currentTimeMillis(),
+                                ),
+                            )
                         },
                         onBack = {
                             appNavigator.popBackStack()

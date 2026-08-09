@@ -9,4 +9,5 @@ sealed interface DisturbTimeIntent {
     data object ConfirmSheet : DisturbTimeIntent
     data object DismissSheet : DisturbTimeIntent
     data object ClickComplete : DisturbTimeIntent
+    data object ClickDelete : DisturbTimeIntent
 }

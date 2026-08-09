@@ -2,7 +2,6 @@ package kr.co.call.domain.model.mypage
 
 /**
  * 이상형 정보 수정용 캐릭터 상세
- * GET /characters/{id} 추가 전: 메인 캐릭터만 active API로 채움
  */
 data class CharacterDetail(
     val characterId: Long,

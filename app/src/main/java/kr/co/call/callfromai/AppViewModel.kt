@@ -87,6 +87,7 @@ class AppViewModel @Inject constructor(
                 AppAuthState.Authenticated(
                     needsOnboarding = serverNeedsOnboarding
                         ?: storedTokens.needsOnboarding,
+                    needsTermsAgreement = storedTokens.needsTermsAgreement,
                 )
             }
 
@@ -136,6 +137,7 @@ class AppViewModel @Inject constructor(
     private fun onLoginSucceeded(
         needsOnboarding: Boolean,
     ) = intent {
+        tokenDataStore.setNeedsTermsAgreement(false)
         Timber.d(
             "인증 상태 변경: Unauthenticated -> Authenticated, needsOnboarding=%s",
             needsOnboarding,
@@ -145,6 +147,7 @@ class AppViewModel @Inject constructor(
             state.copy(
                 authState = AppAuthState.Authenticated(
                     needsOnboarding = needsOnboarding,
+                    needsTermsAgreement = false,
                 ),
             )
         }
@@ -158,6 +161,7 @@ class AppViewModel @Inject constructor(
     }
 
     private fun onLogoutSucceeded() = intent {
+        tokenDataStore.clearTokens()
         Timber.d(
             "로그아웃 분기: %s -> Unauthenticated",
             state.authState,

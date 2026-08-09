@@ -116,12 +116,12 @@ fun MyPageScreen(
     if (showLogoutDialog) {
         MyPageLogoutDialog(
             onConfirm = {
-            if (state.authStatus != LoadStatus.Loading) {
-                viewModel.handleIntent(MyPageIntent.ConfirmLogout)
-            }
+                if (state.authStatus != LoadStatus.Loading) {
+                    viewModel.handleIntent(MyPageIntent.ConfirmLogout)
+                }
             },
             onDismiss = {if (state.authStatus != LoadStatus.Loading){
-            showLogoutDialog=false
+                showLogoutDialog=false
             }
             },
         )
@@ -135,7 +135,7 @@ fun MyPageScreen(
                 if(state.authStatus != LoadStatus.Loading){
                     showDeleteAccountDialog = false
                 }
-                        },
+            },
         )
     }
 
@@ -156,10 +156,10 @@ private fun MyPageScreenContent(
 ) {
     Column(
         modifier = modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .background(CallTheme.colors.background),
-        ) {
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .background(CallTheme.colors.background),
+    ) {
         Box{
             // 배경 핑크 박스
             Box(
@@ -343,19 +343,19 @@ private fun MyPageScreenLoadingPreview() {
 @Composable
 private fun MyPageScreenLogoutDialogPreview() {
     CallFromAiTheme {
-            MyPageScreenContent(
-                state = previewMyPageState,
-                onIntent = {},
-            )
-            TwoButtonPopup(
-                label = "로그아웃",
-                title = "로그아웃 하시겠습니까?",
-                positiveText = "확인",
-                negativeText = "취소",
-                onPositiveClick = {},
-                onNegativeClick = {},
-                onDismissRequest = {},
-            )
+        MyPageScreenContent(
+            state = previewMyPageState,
+            onIntent = {},
+        )
+        TwoButtonPopup(
+            label = "로그아웃",
+            title = "로그아웃 하시겠습니까?",
+            positiveText = "확인",
+            negativeText = "취소",
+            onPositiveClick = {},
+            onNegativeClick = {},
+            onDismissRequest = {},
+        )
     }
 }
 
@@ -363,21 +363,21 @@ private fun MyPageScreenLogoutDialogPreview() {
 @Composable
 private fun MyPageScreenDeleteAccountDialogPreview() {
     CallFromAiTheme {
-            MyPageScreenContent(
-                state = previewMyPageState,
-                onIntent = {}
-            )
-            TwoButtonPopup(
-                label = "",
-                title = "잠시만요 🖐️",
-                description = buildAnnotatedString {
-                    append("탈퇴 시 계정 및 이용 기록은 모두 삭제되며,\n삭제된 데이터는 복구가 불가능합니다.\n\n탈퇴를 진행할까요?")
-                },
-                positiveText = "탈퇴할게요",
-                negativeText = "취소",
-                onPositiveClick = {},
-                onNegativeClick = {},
-                onDismissRequest = {}
-            )
+        MyPageScreenContent(
+            state = previewMyPageState,
+            onIntent = {}
+        )
+        TwoButtonPopup(
+            label = "",
+            title = "잠시만요 🖐️",
+            description = buildAnnotatedString {
+                append("탈퇴 시 계정 및 이용 기록은 모두 삭제되며,\n삭제된 데이터는 복구가 불가능합니다.\n\n탈퇴를 진행할까요?")
+            },
+            positiveText = "탈퇴할게요",
+            negativeText = "취소",
+            onPositiveClick = {},
+            onNegativeClick = {},
+            onDismissRequest = {}
+        )
     }
 }
