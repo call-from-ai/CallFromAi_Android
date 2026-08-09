@@ -122,9 +122,27 @@ class CallAudioPlayer @Inject constructor() {
         audioTrack = null
     }
 
-    // WAV 헤더에서 data 청크를 찾아 PCM만 추출
-    fun extractPcmFromWav(wav: ByteArray): ByteArray {
-        return wav.copyOfRange(44, wav.size) // 44~끝부분까지 data 청크
+    // WAV RIFF 청크를 순회하며 data 청크를 찾아 PCM만 추출
+    private fun extractPcmFromWav(wav: ByteArray): ByteArray {
+        if (wav.size < RIFF_HEADER_SIZE) return ByteArray(0)
+
+        var offset = RIFF_HEADER_SIZE
+        while (offset + CHUNK_HEADER_SIZE <= wav.size) {
+            val chunkId = String(wav, offset, 4, Charsets.US_ASCII)
+            val chunkSize = (wav[offset + 4].toInt() and 0xFF) or
+                ((wav[offset + 5].toInt() and 0xFF) shl 8) or
+                ((wav[offset + 6].toInt() and 0xFF) shl 16) or
+                ((wav[offset + 7].toInt() and 0xFF) shl 24)
+            val dataStart = offset + CHUNK_HEADER_SIZE
+
+            if (chunkId == "data") {
+                val dataEnd = (dataStart + chunkSize).coerceIn(dataStart, wav.size)
+                return wav.copyOfRange(dataStart, dataEnd)
+            }
+
+            offset = dataStart + chunkSize
+        }
+        return ByteArray(0)
     }
 
     private companion object {
@@ -132,5 +150,11 @@ class CallAudioPlayer @Inject constructor() {
 
         // 서버 TTS 재생 샘플레이트
         const val PLAYBACK_SAMPLE_RATE_HZ = 44_100
+
+        // RIFF(4) + size(4) + WAVE(4)
+        const val RIFF_HEADER_SIZE = 12
+
+        // 청크 id(4) + size(4)
+        const val CHUNK_HEADER_SIZE = 8
     }
 }
