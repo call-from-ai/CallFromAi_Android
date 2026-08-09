@@ -123,6 +123,7 @@ class AppViewModel @Inject constructor(
         when (appIntent) {
             is AppIntent.LoginSucceeded -> onLoginSucceeded(
                 needsOnboarding=appIntent.needsOnboarding,
+                needsTermsAgreement=appIntent.needsTermsAgreement,
             )
             AppIntent.LogoutSucceeded -> onLogoutSucceeded()
             is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
@@ -139,18 +140,20 @@ class AppViewModel @Inject constructor(
     }
     private fun onLoginSucceeded(
         needsOnboarding: Boolean,
+        needsTermsAgreement: Boolean,
     ) = intent {
-        tokenDataStore.setNeedsTermsAgreement(false)
+        tokenDataStore.setNeedsTermsAgreement(needsTermsAgreement)
         Timber.d(
-            "인증 상태 변경: Unauthenticated -> Authenticated, needsOnboarding=%s",
+            "인증 상태 변경: needsOnboarding=%s, needsTermsAgreement=%s",
             needsOnboarding,
+            needsTermsAgreement,
         )
 
         reduce {
             state.copy(
                 authState = AppAuthState.Authenticated(
                     needsOnboarding = needsOnboarding,
-                    needsTermsAgreement = false,
+                    needsTermsAgreement =needsTermsAgreement,
                 ),
             )
         }

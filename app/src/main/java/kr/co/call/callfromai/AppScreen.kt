@@ -220,17 +220,21 @@ private fun MainAppContent(
                 ),
                 entryProvider = entryProvider {
                     loginEntry(
-                        navigateToOnboarding = {needsOnboarding ->
+                        navigateToOnboarding = {needsOnboarding,needsTermsAgreement,->
                             viewModel.handleIntent(
                                 AppIntent.LoginSucceeded(
                                     needsOnboarding = needsOnboarding,
+                                    needsTermsAgreement = needsTermsAgreement,
                             ),
                             )
                             appNavigator.replaceAll(Onboarding1NavKey)
                         },
-                        navigateToHome = {needsOnboarding ->
+                        navigateToHome = {needsOnboarding,needsTermsAgreement, ->
                         viewModel.handleIntent(
-                                AppIntent.LoginSucceeded(needsOnboarding = needsOnboarding),
+                                AppIntent.LoginSucceeded(
+                                    needsOnboarding = needsOnboarding,
+                                    needsTermsAgreement = needsTermsAgreement,
+                                    ),
                             )
                             appNavigator.replaceAll(HomeNavKey)
                         },
@@ -254,6 +258,7 @@ private fun MainAppContent(
                             viewModel.handleIntent(
                                 AppIntent.LoginSucceeded(
                                     needsOnboarding = needsOnboarding,
+                                    needsTermsAgreement = false
                                 ),
                             )
 

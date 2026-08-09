@@ -21,6 +21,7 @@ package kr.co.call.callfromai.intent
 sealed interface AppIntent {
     data class LoginSucceeded(
         val needsOnboarding: Boolean,
+        val needsTermsAgreement: Boolean,
     ): AppIntent
 
     data object LogoutSucceeded: AppIntent
