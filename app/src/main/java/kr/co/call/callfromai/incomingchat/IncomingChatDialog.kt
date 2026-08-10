@@ -30,8 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -154,15 +152,12 @@ private fun IncomingChatDialogContent(
             .graphicsLayer {
                 translationX = offsetX.value
                 alpha = (1f - abs(offsetX.value) / (dismissThresholdPx * 2.5f)).coerceIn(0f, 1f)
+                shadowElevation = 15.dp.toPx()
+                shape = RoundedCornerShape(20.dp)
+                clip = false
             }
             .fillMaxWidth()
             .widthIn(max = 380.dp)
-            .shadow(
-                elevation = 15.dp,
-                shape = RoundedCornerShape(20.dp),
-                ambientColor = Color.Black.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.08f),
-            )
             .background(
                 color = CallTheme.colors.background,
                 shape = RoundedCornerShape(20.dp),
