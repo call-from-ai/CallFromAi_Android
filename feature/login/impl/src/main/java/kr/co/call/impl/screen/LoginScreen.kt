@@ -43,6 +43,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import timber.log.Timber
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreen(
@@ -123,15 +124,19 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(37.dp))
             Text(
-                text ="AI가 먼저 전화하고 관계를 이어가는,\n" ,
-                style = typography.titleSmall,
-                color=Black,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier=Modifier.height(2.dp))
-            Text(
-                text="나만의 연애 시뮬레이션\uD83D\uDC9E",
-                style = typography.titleSmallBold,
+                text = buildAnnotatedString {
+                    append("AI가 먼저 전화하고 관계를 이어가는,\n")
+
+                    withStyle(
+                        style = typography.titleSmallBold.toSpanStyle(),
+                    ) {
+                        append("나만의 연애 시뮬레이션 \uD83D\uDC9E")
+                    }
+                },
+                style = typography.titleSmall.copy(
+                    lineHeight = 33.sp,
+                ),
+                color = Black,
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(51.dp))
