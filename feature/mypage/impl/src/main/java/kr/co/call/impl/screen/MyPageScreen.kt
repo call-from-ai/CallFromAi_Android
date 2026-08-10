@@ -10,8 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -19,11 +22,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -128,35 +134,41 @@ fun MyPageScreen(
         }
     }
 
+    val isAuthLoading = state.authStatus is LoadStatus.Loading
+
     MyPageScreenContent(
         state = state,
         onIntent = viewModel::handleIntent,
         modifier = modifier,
     )
 
-    // 로그아웃 다이얼로그
-    if (showLogoutDialog) {
+    // 로그아웃 확인 (처리 중에는 로딩 다이얼로그로 전환)
+    if (showLogoutDialog && !isAuthLoading) {
         MyPageLogoutDialog(
             onConfirm = {
-                if (state.authStatus != LoadStatus.Loading) {
-                    viewModel.handleIntent(MyPageIntent.ConfirmLogout)
-                }
+                viewModel.handleIntent(MyPageIntent.ConfirmLogout)
             },
-            onDismiss = {if (state.authStatus != LoadStatus.Loading){
-                showLogoutDialog=false
-            }
-            },
+            onDismiss = { showLogoutDialog = false },
         )
     }
 
-    // 계정 삭제 다이얼로그
-    if (showDeleteAccountDialog) {
+    // 계정 삭제 확인 (처리 중에는 로딩 다이얼로그로 전환)
+    if (showDeleteAccountDialog && !isAuthLoading) {
         MyPageDeleteAccountDialog(
-            onConfirm ={ if (state.authStatus != LoadStatus.Loading){ viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount)} },
-            onDismiss = {
-                if(state.authStatus != LoadStatus.Loading){
-                    showDeleteAccountDialog = false
-                }
+            onConfirm = {
+                viewModel.handleIntent(MyPageIntent.ConfirmDeleteAccount)
+            },
+            onDismiss = { showDeleteAccountDialog = false },
+        )
+    }
+
+    // 로그아웃/탈퇴 API 대기 중 로딩 인디케이터
+    if (isAuthLoading) {
+        MyPageAuthLoadingDialog(
+            message = when {
+                showDeleteAccountDialog -> "탈퇴 처리 중..."
+                showLogoutDialog -> "로그아웃 중..."
+                else -> "처리 중..."
             },
         )
     }
@@ -284,11 +296,6 @@ private fun MyPageScreenContent(
 
                 Spacer(modifier = Modifier.height(20.dp))
             }
-
-            if (state.loadStatus == LoadStatus.Loading) {
-                // TODO: 로딩 인디케이터 오버레이
-            }
-
         }
     }
 
@@ -329,6 +336,44 @@ private fun MyPageDeleteAccountDialog(
         onNegativeClick = onDismiss,
         onDismissRequest = onDismiss,
     )
+}
+
+/**
+ * 로그아웃/탈퇴 API 대기용 로딩 다이얼로그
+ */
+@Composable
+private fun MyPageAuthLoadingDialog(
+    message: String,
+) {
+    Dialog(
+        onDismissRequest = {},
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = CallTheme.colors.white,
+                    shape = RoundedCornerShape(16.dp),
+                )
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(36.dp),
+                color = CallTheme.colors.mainVariant1,
+            )
+            Text(
+                text = message,
+                style = CallTheme.typography.bodyMedium,
+                color = CallTheme.colors.gray900,
+            )
+        }
+    }
 }
 
 // preview용 state
