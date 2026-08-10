@@ -43,6 +43,7 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import timber.log.Timber
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun LoginScreen(
@@ -119,23 +120,23 @@ fun LoginScreen(
             Text(
                 text = "전화왔어",
                 color = MainVariant1,
-                style = typography.titleExtraLarge,
+                style = typography.titleExtraLargeBold,
             )
             Spacer(modifier = Modifier.height(37.dp))
             Text(
                 text = buildAnnotatedString {
-                    withStyle(
-                        style = typography.titleSmall.toSpanStyle(),
-                    ) {
-                        append("AI가 먼저 전화하고 관계를 이어가는,\n")
-                    }
+                    append("AI가 먼저 전화하고 관계를 이어가는,\n")
+
                     withStyle(
                         style = typography.titleSmallBold.toSpanStyle(),
                     ) {
-                        append("나만의 연애 시뮬레이션")
+                        append("나만의 연애 시뮬레이션 \uD83D\uDC9E")
                     }
-                    append("\uD83D\uDC9E")
                 },
+                style = typography.titleSmall.copy(
+                    lineHeight = 33.sp,
+                ),
+                color = Black,
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(51.dp))
@@ -161,6 +162,7 @@ fun LoginScreen(
                 },
             )
         }
+        //로그인중 표시
         if (isLoading){
             Box(
                 modifier= Modifier
@@ -189,8 +191,10 @@ private fun KakaoLoginButton(
     enabled:Boolean=true,
 ){
     Box(
-        modifier=Modifier
-            .fillMaxWidth(),
+        modifier=Modifier.size(
+            width=329.dp,
+            height=50.dp,
+        )
     ){
         PrimaryButton(
             modifier= Modifier
@@ -213,7 +217,7 @@ private fun KakaoLoginButton(
                 .padding(start=20.dp)
                 .size(
                 width=21.dp,
-                height=20.1.dp
+                height=20.5.dp
             ),
         )
     }
