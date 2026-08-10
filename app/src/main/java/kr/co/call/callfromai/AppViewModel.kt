@@ -194,11 +194,13 @@ class AppViewModel @Inject constructor(
             AppIntent.LogoutSucceeded -> onLogoutSucceeded()
             is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
             AppIntent.OnNoticePushTapped -> onNoticePushTapped()
-            AppIntent.DismissIncomingChat -> intent {
-                // 다이알로그 소비 완료시킴.
-                reduce { state.copy(incomingChat = null) }
-            }
+            AppIntent.DismissIncomingChat -> onDismissIncomingChat()
         }
+    }
+
+    private fun onDismissIncomingChat() = intent {
+        // 다이알로그 소비 완료시킴.
+        reduce { state.copy(incomingChat = null) }
     }
 
     private fun onChatPushTapped(chatRoomId: Long) = intent {
