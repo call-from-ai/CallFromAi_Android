@@ -96,7 +96,7 @@ fun Onboarding4Screen(
                         bottom = 23.dp,
                     ),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalArrangement = Arrangement.spacedBy(22.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 traitRows.flatten().forEach { trait ->
                     val selectedOrder = selectedKeywords
