@@ -1,5 +1,6 @@
 package kr.co.call.callfromai.incomingchat
 
+import android.view.Gravity
 import android.view.WindowManager
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -30,8 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -100,24 +98,26 @@ fun IncomingChatDialog(
     ) {
         val view = LocalView.current
 
-        // 딤 효과 제거
+        // 딤 효과 제거 + 카드 영역 밖 터치가 아래 화면으로 통과되도록 설정
         SideEffect {
             (view.parent as? DialogWindowProvider)?.window?.apply {
                 setDimAmount(0f)
                 clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+                // 윈도우 영역(카드) 밖 터치는 아래 화면으로 통과
+                addFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL)
+                // fillMaxSize 없이도 카드가 상단에 위치하도록
+                setGravity(Gravity.TOP)
             }
         }
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
                 .statusBarsPadding()
                 .padding(
                     start = 16.dp,
                     top = 9.dp,
                     end = 16.dp,
                 ),
-            contentAlignment = Alignment.TopCenter,
         ) {
             IncomingChatDialogContent(
                 characterName = characterName,
@@ -152,15 +152,12 @@ private fun IncomingChatDialogContent(
             .graphicsLayer {
                 translationX = offsetX.value
                 alpha = (1f - abs(offsetX.value) / (dismissThresholdPx * 2.5f)).coerceIn(0f, 1f)
+                shadowElevation = 15.dp.toPx()
+                shape = RoundedCornerShape(20.dp)
+                clip = false
             }
             .fillMaxWidth()
             .widthIn(max = 380.dp)
-            .shadow(
-                elevation = 15.dp,
-                shape = RoundedCornerShape(20.dp),
-                ambientColor = Color.Black.copy(alpha = 0.08f),
-                spotColor = Color.Black.copy(alpha = 0.08f),
-            )
             .background(
                 color = CallTheme.colors.background,
                 shape = RoundedCornerShape(20.dp),
@@ -254,29 +251,16 @@ private fun IncomingChatDialogContent(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun IncomingChatDialogPreview() {
+private fun IncomingChatDialogContentPreview() {
     CallFromAiTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(CallTheme.colors.background)
-                .background(Color.Black.copy(alpha = 0.4f))
-                .padding(
-                    start = 16.dp,
-                    top = 49.dp,
-                    end = 16.dp,
-                ),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            IncomingChatDialogContent(
-                characterName = "민준",
-                message = "뭐해? 보고싶다..",
-                profileImageUrl = null,
-                receivedAtText = "방금 전",
-                onNavigateToChatRoom = {},
-                onDismiss = {},
-                isActionEnabled = true,
-            )
-        }
+        IncomingChatDialogContent(
+            characterName = "AI 캐릭터",
+            message = "오늘 하루는 어땠어? 😊",
+            profileImageUrl = null,
+            receivedAtText = "방금 전",
+            onNavigateToChatRoom = {},
+            onDismiss = {},
+            isActionEnabled = true,
+        )
     }
 }
