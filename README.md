@@ -46,7 +46,8 @@
 
 <p>
   <strong>Realtime / Push / Logging</strong><br />
-  <img src="https://img.shields.io/badge/LiveKit-FF3B5C?style=for-the-badge&logo=webrtc&logoColor=white" />
+  <img src="https://img.shields.io/badge/OkHttp_WebSocket-3E4348?style=for-the-badge&logo=square&logoColor=white" />
+  <img src="https://img.shields.io/badge/AudioRecord_%2F_AudioTrack-3DDC84?style=for-the-badge&logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase_FCM-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
   <img src="https://img.shields.io/badge/Timber-2E7D32?style=for-the-badge&logoColor=white" />
 </p>
@@ -85,6 +86,7 @@ AI 캐릭터가 채팅뿐 아니라 **먼저 전화를 걸어오고, 예약 통�
 | [JiwonLee42](https://github.com/JiwonLee42)<br />**(LEAD)**<br />통화 · 홈화면 | [codebidoof](https://github.com/codebidoof)<br />채팅 · SSE | [WAcAW9](https://github.com/WAcAW9)<br />FCM · 마이페이지 | [dada4679](https://github.com/dada4679)<br />로그인 · 온보딩 |
 
 </div>
+
 ---
 
 ## 🛠 기술 스택 상세
@@ -100,7 +102,7 @@ AI 캐릭터가 채팅뿐 아니라 **먼저 전화를 걸어오고, 예약 통�
 | 네비게이션 | Navigation 3 |
 | 네트워크 | Retrofit, OkHttp, Gson |
 | 실시간 채팅 | OkHttp-SSE (Server-Sent Events, 채팅 응답 스트리밍) |
-| 실시간 통화 | LiveKit Android SDK (WebRTC 기반) |
+| 실시간 통화 | OkHttp WebSocket (PCM 오디오 스트리밍) + AudioRecord/AudioTrack |
 | 페이지네이션 | Paging 3 |
 | 이미지 로딩 | Coil |
 | 푸시 알림 | Firebase Cloud Messaging (FCM) |
