@@ -242,7 +242,7 @@ private fun IncomingChatDialogContent(
                 Text(
                     text = message,
                     color = CallTheme.colors.gray900,
-                    style = CallTheme.typography.bodyMediumMedium,
+                    style = CallTheme.typography.bodyMedium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontSize = 16.sp,
