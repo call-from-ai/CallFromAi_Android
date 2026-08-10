@@ -7,6 +7,7 @@ import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.domain.exception.AppException
 import kr.co.call.domain.exception.toUserMessage
+import kr.co.call.domain.model.NameLimits
 import kr.co.call.domain.model.mypage.CharacterTraitDetail
 import kr.co.call.domain.model.mypage.CharacterUpdateInput
 import kr.co.call.domain.repository.AICharacterRepository
@@ -42,12 +43,20 @@ class EditCharacterViewModel @Inject constructor(
         when (intent) {
             is EditCharacterIntent.ChangeLastName -> intent {
                 reduce {
-                    state.copy(lastName = intent.value.filterNot { it.isWhitespace() }.take(2))
+                    state.copy(
+                        lastName = intent.value
+                            .filterNot { it.isWhitespace() }
+                            .take(NameLimits.LAST_NAME_MAX),
+                    )
                 }
             }
             is EditCharacterIntent.ChangeFirstName -> intent {
                 reduce {
-                    state.copy(firstName = intent.value.filterNot { it.isWhitespace() }.take(5))
+                    state.copy(
+                        firstName = intent.value
+                            .filterNot { it.isWhitespace() }
+                            .take(NameLimits.FIRST_NAME_MAX),
+                    )
                 }
             }
             is EditCharacterIntent.ChangeAge -> intent {

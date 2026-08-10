@@ -1,5 +1,6 @@
 package kr.co.call.data.mapper
 
+import kr.co.call.domain.model.NameLimits
 import kr.co.call.domain.model.mypage.CharacterDetail
 import kr.co.call.domain.model.mypage.CharacterTraitDetail
 import kr.co.call.domain.model.mypage.CharacterUpdateInput
@@ -40,8 +41,8 @@ internal fun ActiveCharacterDto.toCharacterDetail(): CharacterDetail {
 
 internal fun CharacterUpdateInput.toRequestDto(): UpdateCharacterRequestDto =
     UpdateCharacterRequestDto(
-        lastName = lastName,
-        firstName = firstName,
+        lastName = lastName.trim().take(NameLimits.LAST_NAME_MAX),
+        firstName = firstName.trim().take(NameLimits.FIRST_NAME_MAX),
         gender = gender,
         age = age,
         job = job,
