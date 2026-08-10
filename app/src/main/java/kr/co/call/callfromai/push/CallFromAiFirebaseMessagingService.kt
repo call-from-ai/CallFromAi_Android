@@ -7,6 +7,8 @@ import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kr.co.call.callfromai.incomingcall.IncomingCallRouter
+import kr.co.call.callfromai.incomingchat.IncomingChat
+import kr.co.call.callfromai.incomingchat.IncomingChatStore
 import kr.co.call.common.di.ApplicationScope
 import kr.co.call.data.push.PushTokenManager
 import kr.co.call.datastore.TokenDataStore
@@ -33,6 +35,9 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     lateinit var incomingCallRouter: IncomingCallRouter
+
+    @Inject
+    lateinit var incomingChatStore: IncomingChatStore
 
     override fun onNewToken(token: String) {
         Timber.d("FCM onNewToken (length=%d)", token.length)
@@ -92,11 +97,15 @@ class CallFromAiFirebaseMessagingService : FirebaseMessagingService() {
 //                    Timber.d("FCM CHAT 스킵: SSE 연결 중(사용자가 채팅 관련 화면에 있음)")
 //                    return
 //                }
-                PushNotificationHelper.showChat(
-                    context = this@CallFromAiFirebaseMessagingService,
-                    title = payload.title,
-                    body = payload.body,
-                    chatRoomId = payload.chatRoomId,
+                // notification 필드가 있는 CHAT FCM은 백그라운드에서 Android가 자동 처리하므로
+                // onMessageReceived는 포그라운드에서만 호출됨 → 항상 인앱 다이얼로그로 표시
+                // (profileImageUrl은 AppViewModel에서 헤더 API 호출 후 보완)
+                incomingChatStore.show(
+                    IncomingChat(
+                        chatRoomId = payload.chatRoomId,
+                        characterName = payload.title,
+                        message = payload.body,
+                    ),
                 )
             }
             // Notice 알림

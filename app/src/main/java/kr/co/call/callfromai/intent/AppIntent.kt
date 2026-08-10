@@ -30,4 +30,8 @@ sealed interface AppIntent {
     ) : AppIntent
 
     data object OnNoticePushTapped : AppIntent
+
+    data class DismissIncomingChat(
+        val chatRoomId: Long,
+    ) : AppIntent
 }

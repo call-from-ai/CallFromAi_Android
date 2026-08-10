@@ -1,5 +1,6 @@
 package kr.co.call.callfromai.state
 
+import kr.co.call.callfromai.incomingchat.IncomingChat
 import kr.co.call.domain.model.call.IncomingCall
 
 /**
@@ -24,4 +25,5 @@ import kr.co.call.domain.model.call.IncomingCall
 data class AppState(
     val authState: AppAuthState = AppAuthState.Loading,
     val incomingCall: IncomingCall? = null,
+    val incomingChat: IncomingChat? = null,
 )

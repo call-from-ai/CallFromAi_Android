@@ -1,4 +1,4 @@
-package kr.co.call.callfromai.incomingcall
+package kr.co.call.callfromai.incomingchat
 
 import android.view.WindowManager
 import androidx.compose.animation.core.Animatable
