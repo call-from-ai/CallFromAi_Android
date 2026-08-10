@@ -178,8 +178,17 @@ class EditProfileViewModel @Inject constructor(
                 mbti = mbti,
                 job = job.apiValue,
             ),
-        ).onSuccess {
+        ).onSuccess { profile ->
             reduce { state.copy(isSaving = false) }
+            // 저장 결과를 상위 화면에 전달
+            postSideEffect(
+                EditProfileSideEffect.ProfileSaved(
+                    nickname = profile.nickname.ifBlank {
+                        profile.lastName + profile.firstName
+                    },
+                    profileImageUrl = profile.profileImageUrl,
+                ),
+            )
             postSideEffect(EditProfileSideEffect.NavigateBack)
         }.onFailure { error ->
             if (error is CancellationException) throw error

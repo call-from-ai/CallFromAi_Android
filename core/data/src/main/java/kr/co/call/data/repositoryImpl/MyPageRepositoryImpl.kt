@@ -1,7 +1,12 @@
 package kr.co.call.data.repositoryImpl
 
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kr.co.call.data.mapper.toDomain
 import kr.co.call.data.mapper.toRequestDto
 import kr.co.call.data.push.PushTokenManager
@@ -14,7 +19,6 @@ import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.model.mypage.NotificationSetting
 import kr.co.call.domain.repository.MyPageRepository
-import kr.co.call.network.api.AICharacterApi
 import kr.co.call.network.api.CharacterApi
 import kr.co.call.network.api.MyPageApi
 import kr.co.call.network.api.RelationshipApi
@@ -24,6 +28,7 @@ import kr.co.call.network.dto.mypage.NotificationSettingUpdateRequestDto
 import kr.co.call.network.util.ErrorResponseParser
 import timber.log.Timber
 
+@Singleton
 class MyPageRepositoryImpl @Inject constructor(
     private val myPageApi: MyPageApi,
     private val characterApi: CharacterApi,
@@ -32,6 +37,12 @@ class MyPageRepositoryImpl @Inject constructor(
     private val errorResponseParser: ErrorResponseParser,
     private val pushTokenManager: PushTokenManager,
 ) : MyPageRepository {
+
+    private val _profileUpdates = MutableSharedFlow<MyPageProfile>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    override val profileUpdates: SharedFlow<MyPageProfile> = _profileUpdates.asSharedFlow()
 
     override suspend fun getMyProfile(): Result<MyPageProfile> =
         safeApiResult(errorResponseParser) {
@@ -42,6 +53,9 @@ class MyPageRepositoryImpl @Inject constructor(
         safeApiResult(errorResponseParser) {
             myPageApi.updateMember(update.toRequestDto())
         }.map { it.toDomain() }
+            .onSuccess { profile ->
+                _profileUpdates.tryEmit(profile)
+            }
 
     override suspend fun getPreferTime(): Result<String?> =
         safeApiResult(errorResponseParser) {

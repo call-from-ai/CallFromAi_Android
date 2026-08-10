@@ -64,6 +64,7 @@ private val MBTI_OPTIONS = listOf(
 @Composable
 fun EditProfileScreen(
     onBackClick: () -> Unit,
+    onProfileSaved: (nickname: String, profileImageUrl: String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
@@ -72,6 +73,10 @@ fun EditProfileScreen(
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
+            // 저장 직후 상위(프로필/마이페이지)에 즉시 반영
+            is EditProfileSideEffect.ProfileSaved -> {
+                onProfileSaved(sideEffect.nickname, sideEffect.profileImageUrl)
+            }
             is EditProfileSideEffect.NavigateBack -> onBackClick()
             is EditProfileSideEffect.ShowMessage -> {
                 Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()

@@ -1,11 +1,15 @@
 package kr.co.call.domain.repository
 
+import kotlinx.coroutines.flow.SharedFlow
 import kr.co.call.domain.model.login.AuthRequirements
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.model.mypage.NotificationSetting
 
 interface MyPageRepository {
+
+    val profileUpdates: SharedFlow<MyPageProfile>
+
     suspend fun getMyProfile(): Result<MyPageProfile>
     suspend fun getAuthRequirements(): Result<AuthRequirements>
 
