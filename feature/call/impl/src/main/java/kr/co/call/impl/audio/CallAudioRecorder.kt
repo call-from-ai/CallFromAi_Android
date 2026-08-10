@@ -41,6 +41,14 @@ class CallAudioRecorder @Inject constructor(
     @Volatile
     private var isReady = false
 
+    // start()/stop() 세션을 구분하기 위한 세대 값, 오디오 녹음 시작이
+    // 진행 중일 때 stop()이 겹쳐 들어와도 새로 만든 AudioRecord를 놓치지 않도록 사용
+    private var sessionGeneration = 0L
+
+    // "세대 확인 후 audioRecord 등록"과 stop()의 "세대 무효화 후 audioRecord 스냅샷"이
+    // 서로 끼어들지 못하도록 두 구간을 묶어서 잠그는 락
+    private val lock = Any()
+
     // 권한 확인 + AudioRecord 생성 + 캡처 루프 시작
     fun start() {
         Timber.tag(TAG).d("recorder start() 호출: 기존 audioRecord=%s, captureJob=%s", audioRecord, captureJob)
@@ -55,6 +63,9 @@ class CallAudioRecorder @Inject constructor(
         val previousJob = captureJob
         val previousRecord = audioRecord
         audioRecord = null
+        // 이전 세션의 isReady가 새 세션으로 새어 들어가지 않도록 매 start()마다 초기화
+        isReady = false
+        val generation = synchronized(lock) { ++sessionGeneration }
 
         captureJob = recorderScope.launch {
             // 이전 read() 블로킹 해제(record.stop()) → job 종료 대기 → release 순서로 정리
@@ -68,7 +79,25 @@ class CallAudioRecorder @Inject constructor(
                 Timber.tag(TAG).e("AudioRecord 시작 실패 - %d회 재시도 후 포기", MAX_START_ATTEMPTS)
                 return@launch
             }
-            audioRecord = record
+
+            // 세대 확인과 audioRecord 등록 사이에 stop()이 끼어들어 등록 후 방치되는 것을
+            // 막기 위해 stop()의 무효화 구간과 같은 락으로 묶어서 원자적으로 처리
+            val registered = synchronized(lock) {
+                if (generation != sessionGeneration) {
+                    false
+                } else {
+                    audioRecord = record
+                    true
+                }
+            }
+            if (!registered) {
+                // AudioRecord 생성 도중 stop()이 호출돼 세대가 바뀐 경우, 이 레코드는
+                // 이미 종료된 세션 것이므로 필드에 등록하지 않고 즉시 해제
+                Timber.tag(TAG).d("recorder 생성 완료 시점에 이미 stop() 호출됨 - 즉시 해제")
+                record.stop()
+                record.release()
+                return@launch
+            }
 
             val chunk = ByteArray(CHUNK_SIZE_BYTES)
             var frameCount = 0
@@ -178,10 +207,14 @@ class CallAudioRecorder @Inject constructor(
     fun stop() {
         Timber.tag(TAG).d("recorder stop() 호출: audioRecord=%s, captureJob=%s", audioRecord, captureJob)
         val previousJob = captureJob
-        val previousRecord = audioRecord
         captureJob = null
-        audioRecord = null
         isReady = false
+        // 진행 중인 start()의 세대 확인 후 등록 구간과 겹치지 않도록 같은 락 안에서
+        // 세대를 무효화(생성 완료 후 즉시 폐기하도록)하고 audioRecord를 스냅샷
+        val previousRecord = synchronized(lock) {
+            sessionGeneration++
+            audioRecord.also { audioRecord = null }
+        }
 
         recorderScope.launch {
             // record.stop()으로 블로킹 중인 read()를 먼저 깨운 뒤 job이 끝나길 기다리고 release
