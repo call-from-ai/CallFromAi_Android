@@ -209,7 +209,7 @@ class CallAudioRecorder @Inject constructor(
         val previousJob = captureJob
         captureJob = null
         isReady = false
-        // 진행 중인 start()의 "세대 확인 후 등록" 구간과 겹치지 않도록 같은 락 안에서
+        // 진행 중인 start()의 세대 확인 후 등록 구간과 겹치지 않도록 같은 락 안에서
         // 세대를 무효화(생성 완료 후 즉시 폐기하도록)하고 audioRecord를 스냅샷
         val previousRecord = synchronized(lock) {
             sessionGeneration++
