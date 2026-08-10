@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,11 +63,18 @@ fun ProfileScreen(
 ) {
     val state by viewModel.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+    // ViewModel init load와 겹치는 첫 ON_RESUME 1회만 스킵
+    val isFirstResume = remember { booleanArrayOf(true) }
 
+    // 앱 재개 화면 복귀 때 서버 재조회
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.handleIntent(ProfileIntent.Refresh)
+                if (isFirstResume[0]) {
+                    isFirstResume[0] = false
+                } else {
+                    viewModel.handleIntent(ProfileIntent.Refresh)
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

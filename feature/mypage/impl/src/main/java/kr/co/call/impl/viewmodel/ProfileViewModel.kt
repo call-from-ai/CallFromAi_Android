@@ -23,11 +23,16 @@ class ProfileViewModel @Inject constructor(
         initialState = ProfileState(),
     ) {
         loadProfile()
+        observeProfileUpdates()
     }
 
     fun handleIntent(intent: ProfileIntent) {
         when (intent) {
-            is ProfileIntent.Refresh -> loadProfile()
+            is ProfileIntent.Refresh -> loadProfile(showLoading = false)
+            is ProfileIntent.ApplyLocalUpdate -> applyLocalUpdate(
+                nickname = intent.nickname,
+                profileImageUrl = intent.profileImageUrl,
+            )
             is ProfileIntent.ClickEditProfile -> navigate(ProfileSideEffect.NavigateToEditProfile)
             is ProfileIntent.ClickSubscription -> navigate(ProfileSideEffect.NavigateToSubscription)
             is ProfileIntent.ClickDisturbTime -> navigate(ProfileSideEffect.NavigateToDisturbTime)
@@ -38,8 +43,33 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadProfile() = intent {
-        reduce { state.copy(loadStatus = LoadStatus.Loading) }
+    private fun observeProfileUpdates() = intent {
+        myPageRepository.profileUpdates.collect { profile ->
+            reduce {
+                state.copy(
+                    profileImageUrl = profile.profileImageUrl,
+                    nickname = profile.nickname,
+                )
+            }
+        }
+    }
+
+    private fun applyLocalUpdate(
+        nickname: String,
+        profileImageUrl: String,
+    ) = intent {
+        reduce {
+            state.copy(
+                nickname = nickname,
+                profileImageUrl = profileImageUrl,
+            )
+        }
+    }
+
+    private fun loadProfile(showLoading: Boolean = true) = intent {
+        if (showLoading) {
+            reduce { state.copy(loadStatus = LoadStatus.Loading) }
+        }
 
         val profileResult = myPageRepository.getMyProfile()
         val settingResult = myPageRepository.getNotificationSetting()
@@ -56,12 +86,14 @@ class ProfileViewModel @Inject constructor(
             }
             .onFailure { error ->
                 if (error is CancellationException) throw error
-                reduce {
-                    state.copy(
-                        loadStatus = LoadStatus.Error(
-                            error.toUserMessage(default = "프로필 불러오기 실패"),
-                        ),
-                    )
+                if (showLoading || state.nickname.isBlank()) {
+                    reduce {
+                        state.copy(
+                            loadStatus = LoadStatus.Error(
+                                error.toUserMessage(default = "프로필 불러오기 실패"),
+                            ),
+                        )
+                    }
                 }
             }
 
@@ -122,4 +154,3 @@ private fun ProfileState.applyNotificationSetting(setting: NotificationSetting):
             end = parseApiLocalTime(setting.doNotDisturbEnd),
         ),
     )
-

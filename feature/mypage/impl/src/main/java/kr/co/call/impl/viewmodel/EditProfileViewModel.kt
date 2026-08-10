@@ -8,6 +8,7 @@ import javax.inject.Inject
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.domain.exception.toUserMessage
+import kr.co.call.domain.model.NameLimits
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.repository.MyPageRepository
 import kr.co.call.domain.repository.OnboardingRepository
@@ -81,11 +82,19 @@ class EditProfileViewModel @Inject constructor(
     }
 
     private fun changeLastName(value: String) = intent {
-        reduce { state.copy(lastName = value) }
+        reduce {
+            state.copy(
+                lastName = value.filterNot { it.isWhitespace() }.take(NameLimits.LAST_NAME_MAX),
+            )
+        }
     }
 
     private fun changeFirstName(value: String) = intent {
-        reduce { state.copy(firstName = value) }
+        reduce {
+            state.copy(
+                firstName = value.filterNot { it.isWhitespace() }.take(NameLimits.FIRST_NAME_MAX),
+            )
+        }
     }
 
     private fun selectBirth(date: LocalDate) = intent {
@@ -178,8 +187,17 @@ class EditProfileViewModel @Inject constructor(
                 mbti = mbti,
                 job = job.apiValue,
             ),
-        ).onSuccess {
+        ).onSuccess { profile ->
             reduce { state.copy(isSaving = false) }
+            // 저장 결과를 상위 화면에 전달
+            postSideEffect(
+                EditProfileSideEffect.ProfileSaved(
+                    nickname = profile.nickname.ifBlank {
+                        profile.lastName + profile.firstName
+                    },
+                    profileImageUrl = profile.profileImageUrl,
+                ),
+            )
             postSideEffect(EditProfileSideEffect.NavigateBack)
         }.onFailure { error ->
             if (error is CancellationException) throw error

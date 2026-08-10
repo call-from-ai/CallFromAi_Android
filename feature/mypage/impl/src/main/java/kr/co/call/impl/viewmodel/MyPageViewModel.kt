@@ -22,10 +22,17 @@ class MyPageViewModel @Inject constructor(
         initialState = MyPageState()
     ) {
         loadMyProfile()
+        observeProfileUpdates()
     }
 
     fun handleIntent(intent: MyPageIntent) {
         when (intent) {
+            // 재진입 시에는 이미 그려진 UI를 유지한 채 조용히 동기화
+            is MyPageIntent.Refresh -> loadMyProfile(showLoading = false)
+            is MyPageIntent.ApplyLocalUpdate -> applyLocalUpdate(
+                nickname = intent.nickname,
+                profileImageUrl = intent.profileImageUrl,
+            )
             is MyPageIntent.ClickProfile -> navigate(MyPageSideEffect.NavigateToProfileDetail)
             is MyPageIntent.ClickChargeTicket -> navigate(MyPageSideEffect.NavigateToChargeTicket)
             is MyPageIntent.ClickPurchaseTicket -> navigate(MyPageSideEffect.NavigateToPurchaseTicket)
@@ -41,8 +48,35 @@ class MyPageViewModel @Inject constructor(
         }
     }
 
-    private fun loadMyProfile() = intent {
-        reduce { state.copy(loadStatus = LoadStatus.Loading) }
+    private fun observeProfileUpdates() = intent {
+        myPageRepository.profileUpdates.collect { profile ->
+            reduce {
+                state.copy(
+                    profileImageUrl = profile.profileImageUrl,
+                    nickname = profile.nickname,
+                    remainingTicketCount = profile.remainingTicketCount,
+                    tier = profile.tier.ifBlank { state.tier },
+                )
+            }
+        }
+    }
+
+    private fun applyLocalUpdate(
+        nickname: String,
+        profileImageUrl: String,
+    ) = intent {
+        reduce {
+            state.copy(
+                nickname = nickname,
+                profileImageUrl = profileImageUrl,
+            )
+        }
+    }
+
+    private fun loadMyProfile(showLoading: Boolean = true) = intent {
+        if (showLoading) {
+            reduce { state.copy(loadStatus = LoadStatus.Loading) }
+        }
         myPageRepository.getMyProfile()
             .onSuccess { profile ->
                 reduce {
@@ -58,7 +92,11 @@ class MyPageViewModel @Inject constructor(
             }
             .onFailure { e ->
                 if (e is CancellationException) throw e
-                reduce { state.copy(loadStatus = LoadStatus.Error(e.message ?: "내 프로필 불러오기 실패")) }
+                if (showLoading || state.nickname.isBlank()) {
+                    reduce {
+                        state.copy(loadStatus = LoadStatus.Error(e.message ?: "내 프로필 불러오기 실패"))
+                    }
+                }
             }
     }
 

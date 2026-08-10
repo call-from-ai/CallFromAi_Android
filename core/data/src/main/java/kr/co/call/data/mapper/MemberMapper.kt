@@ -1,5 +1,6 @@
 package kr.co.call.data.mapper
 
+import kr.co.call.domain.model.NameLimits
 import kr.co.call.domain.model.mypage.MemberProfileUpdate
 import kr.co.call.domain.model.mypage.MyPageProfile
 import kr.co.call.domain.model.mypage.NotificationSetting
@@ -29,8 +30,8 @@ internal fun MemberResponseDto.toDomain(
 
 internal fun MemberProfileUpdate.toRequestDto(): UpdateMemberRequestDto =
     UpdateMemberRequestDto(
-        lastName = lastName,
-        firstName = firstName,
+        lastName = lastName?.trim()?.take(NameLimits.LAST_NAME_MAX),
+        firstName = firstName?.trim()?.take(NameLimits.FIRST_NAME_MAX),
         imageUrl = imageUrl,
         gender = gender,
         birth = birth,
