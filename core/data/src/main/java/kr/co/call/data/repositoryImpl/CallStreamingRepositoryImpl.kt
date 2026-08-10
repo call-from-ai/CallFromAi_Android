@@ -71,12 +71,12 @@ class CallStreamingRepositoryImpl @Inject constructor(
     @Volatile
     private var activeWebSocket: WebSocket? = null
 
-    // CALL_READY 이후에만 true. sendAudio()가 recorder 쪽 게이트와 별개로
-    // 소켓 계층에서 한 번 더 pre-READY 전송을 막는 최종 방어선 역할
+    // CALL_READY 이후에만 true로 설정
+    // sendAudio()가 recorder 쪽과 별개로 소켓 계층에서 한 번 더 READY되면 시작하도록 막음
     @Volatile
     private var isCallReady = false
 
-    // connect() 세션을 구분하는 세대 값. 이전 세션의 소켓 콜백이 늦게 도착해
+    // connect() 세션을 구분하는 세대 값, 이전 세션의 소켓 콜백이 늦게 도착해
     // activeWebSocket을 새 세션 값으로 되돌리는 것을 방지
     @Volatile
     private var activeGeneration = 0L
@@ -104,7 +104,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
         var activeCallId: Long? = null
         var readyTimeoutJob: Job? = null
         var currentWebSocket: WebSocket? = null
-        // 이 connect() 호출을 식별하는 세대. 이전 세션의 소켓 콜백이 늦게 도착해도
+        // 이 connect() 호출을 식별하는 세대, 이전 세션의 소켓 콜백이 늦게 도착해도
         // activeWebSocket을 잘못 덮어쓰지 않도록 리스너 콜백에서 함께 확인
         val generation = ++activeGeneration
         // 새 세션은 항상 READY 이전 상태로 시작

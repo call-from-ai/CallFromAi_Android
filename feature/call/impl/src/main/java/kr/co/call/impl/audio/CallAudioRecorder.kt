@@ -41,7 +41,7 @@ class CallAudioRecorder @Inject constructor(
     @Volatile
     private var isReady = false
 
-    // start()/stop() 세션을 구분하기 위한 세대 값. createAndStartRecording()이
+    // start()/stop() 세션을 구분하기 위한 세대 값, 오디오 녹음 시작이
     // 진행 중일 때 stop()이 겹쳐 들어와도 새로 만든 AudioRecord를 놓치지 않도록 사용
     @Volatile
     private var sessionGeneration = 0L
