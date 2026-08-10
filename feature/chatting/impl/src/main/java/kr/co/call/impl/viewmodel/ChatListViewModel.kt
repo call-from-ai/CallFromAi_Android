@@ -167,7 +167,7 @@ class ChatListViewModel @Inject constructor(
                 postSideEffect(ChatListSideEffect.ShowToast("알람 설정이 변경되었습니다."))
             },
             onFailure = {
-                //TODO: 추후 에러 처리
+                postSideEffect(ChatListSideEffect.ShowToast("알람 설정을 변경할 수 없습니다. 잠시 후 다시 시도해주세요"))
             }
         )
     }
@@ -184,7 +184,7 @@ class ChatListViewModel @Inject constructor(
                 }
             },
             onFailure = {
-                //TODO: 추후 에러 처리
+                postSideEffect(ChatListSideEffect.ShowToast("채팅방을 삭제할 수 없습니다. 잠시 후 다시 시도해주세요."))
             }
         )
     }

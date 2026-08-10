@@ -31,4 +31,6 @@ sealed interface AppIntent {
     ) : AppIntent
 
     data object OnNoticePushTapped : AppIntent
+
+    data object DismissIncomingChat : AppIntent
 }
