@@ -129,18 +129,26 @@ class CallAudioPlayer @Inject constructor() {
         var offset = RIFF_HEADER_SIZE
         while (offset + CHUNK_HEADER_SIZE <= wav.size) {
             val chunkId = String(wav, offset, 4, Charsets.US_ASCII)
-            val chunkSize = (wav[offset + 4].toInt() and 0xFF) or
-                ((wav[offset + 5].toInt() and 0xFF) shl 8) or
-                ((wav[offset + 6].toInt() and 0xFF) shl 16) or
-                ((wav[offset + 7].toInt() and 0xFF) shl 24)
+            // RIFF 청크 크기는 unsigned 32bit이라 Int로 계산하면 상위 비트가 설 때 음수로
+            // 뒤집혀 offset이 후퇴할 수 있으므로 Long으로 계산해 부호 오버플로우를 방지
+            val chunkSize = (wav[offset + 4].toLong() and 0xFF) or
+                ((wav[offset + 5].toLong() and 0xFF) shl 8) or
+                ((wav[offset + 6].toLong() and 0xFF) shl 16) or
+                ((wav[offset + 7].toLong() and 0xFF) shl 24)
             val dataStart = offset + CHUNK_HEADER_SIZE
 
             if (chunkId == "data") {
-                val dataEnd = (dataStart + chunkSize).coerceIn(dataStart, wav.size)
+                val dataEnd = (dataStart + chunkSize)
+                    .coerceIn(dataStart.toLong(), wav.size.toLong())
+                    .toInt()
                 return wav.copyOfRange(dataStart, dataEnd)
             }
 
-            offset = dataStart + chunkSize
+            // RIFF 스펙상 청크 데이터는 짝수 바이트로 패딩되므로 홀수 크기면 1바이트 건너뜀
+            val nextOffset = dataStart + chunkSize + (chunkSize and 1L)
+            // 손상된 chunkSize로 offset이 후퇴하거나 배열 범위를 벗어나면 파싱 중단
+            if (nextOffset <= offset || nextOffset > wav.size) return ByteArray(0)
+            offset = nextOffset.toInt()
         }
         return ByteArray(0)
     }
