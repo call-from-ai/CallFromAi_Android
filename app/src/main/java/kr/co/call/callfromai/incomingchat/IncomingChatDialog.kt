@@ -76,7 +76,7 @@ fun IncomingChatDialog(
     profileImageUrl: String?,
     onNavigateToChatRoom: () -> Unit,
     onDismiss: () -> Unit,
-    durationMillis: Long = 3_000L,
+    durationMillis: Long = 4_500L,
     receivedAtText: String = "방금 전",
     isActionEnabled: Boolean = true,
 ) {

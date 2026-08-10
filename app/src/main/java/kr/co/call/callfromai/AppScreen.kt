@@ -532,10 +532,10 @@ private fun MainAppContent(
             profileImageUrl = chat.profileImageUrl,
             onNavigateToChatRoom = {
                 appNavigator.navigate(ChatRoomNavKey(roomId = chat.chatRoomId))
-                viewModel.handleIntent(AppIntent.DismissIncomingChat(chat.chatRoomId))
+                viewModel.handleIntent(AppIntent.DismissIncomingChat)
             },
             onDismiss = {
-                viewModel.handleIntent(AppIntent.DismissIncomingChat(chat.chatRoomId))
+                viewModel.handleIntent(AppIntent.DismissIncomingChat)
             },
         )
     }

@@ -10,6 +10,7 @@ import kr.co.call.callfromai.incomingcall.IncomingCallRouter
 import kr.co.call.callfromai.incomingcall.IncomingCallStore
 import kr.co.call.callfromai.incomingchat.IncomingChat
 import kr.co.call.callfromai.incomingchat.IncomingChatStore
+import kotlinx.coroutines.flow.first
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.state.AppAuthState
@@ -136,11 +137,7 @@ class AppViewModel @Inject constructor(
     }
 
     private fun observeIncomingChat() = intent {
-        incomingChatStore.incomingChat.collect { rawChat ->
-            if (rawChat == null) {
-                reduce { state.copy(incomingChat = null) }
-                return@collect
-            }
+        incomingChatStore.incomingChatFlow.collect { rawChat ->
             // profileImageUrl을 채팅방 헤더 API로 보완한 뒤 상태에 반영
             // API 완료 전까지 incomingChat은 null이므로 다이얼로그 표시가 지연됨
             val profileImageUrl = chatRepository
@@ -159,6 +156,11 @@ class AppViewModel @Inject constructor(
                     ),
                 )
             }
+
+            // 현재 incomingChat이 처리(다이얼로그 표시 및 사용자 확인)될 때까지 다음 알림 처리를 대기
+            // incomingChat이 null이 되는 시점까지 collect가 suspend되므로,
+            // Channel에 대기 중인 다음 알림은 현재 알림 처리가 끝난 후 순차적으로 소비됨
+            container.stateFlow.first { it.incomingChat == null }
         }
     }
 
@@ -192,7 +194,10 @@ class AppViewModel @Inject constructor(
             AppIntent.LogoutSucceeded -> onLogoutSucceeded()
             is AppIntent.OnChatPushTapped -> onChatPushTapped(appIntent.chatRoomId)
             AppIntent.OnNoticePushTapped -> onNoticePushTapped()
-            is AppIntent.DismissIncomingChat -> incomingChatStore.clear(appIntent.chatRoomId)
+            AppIntent.DismissIncomingChat -> intent {
+                // 다이알로그 소비 완료시킴.
+                reduce { state.copy(incomingChat = null) }
+            }
         }
     }
 
