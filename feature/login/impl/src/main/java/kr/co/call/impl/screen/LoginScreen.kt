@@ -47,8 +47,14 @@ import androidx.compose.ui.graphics.Color
 @Composable
 fun LoginScreen(
     navigateToAgreement: (needsOnboarding: Boolean) -> Unit,
-    navigateToOnboarding: (needsOnboarding: Boolean) -> Unit,
-    navigateToHome: (needsOnboarding: Boolean) -> Unit,
+    navigateToOnboarding: (
+        needsOnboarding: Boolean,
+            needsTermsAgreement: Boolean,
+            ) -> Unit,
+    navigateToHome: (
+        needsOnboarding: Boolean,
+        needsTermsAgreement: Boolean,
+            ) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
@@ -67,11 +73,17 @@ fun LoginScreen(
             }
 
             is LoginSideEffect.NavigateToOnboarding -> {
-                navigateToOnboarding(sideEffect.needsOnboarding)
+                navigateToOnboarding(
+                    sideEffect.needsOnboarding,
+                    sideEffect.needsTermsAgreement,
+                )
             }
 
             is LoginSideEffect.NavigateToHome -> {
-                navigateToHome(sideEffect.needsOnboarding)
+                navigateToHome(
+                    sideEffect.needsOnboarding,
+                    sideEffect.needsTermsAgreement,
+                )
             }
 
             is LoginSideEffect.ShowError -> {

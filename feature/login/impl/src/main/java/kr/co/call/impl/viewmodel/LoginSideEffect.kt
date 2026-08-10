@@ -10,9 +10,11 @@ sealed interface LoginSideEffect{
     ): LoginSideEffect
     data class NavigateToOnboarding(
         val needsOnboarding: Boolean,
+        val needsTermsAgreement: Boolean,
     ): LoginSideEffect
     data class NavigateToHome(
         val needsOnboarding: Boolean,
+        val needsTermsAgreement: Boolean,
     ): LoginSideEffect
     data class ShowError(
         val message: String,

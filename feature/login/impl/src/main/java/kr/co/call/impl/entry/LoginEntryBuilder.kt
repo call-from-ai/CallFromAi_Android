@@ -16,12 +16,18 @@ import kr.co.call.impl.screen.LoginScreen
  * 각 화면과 ViewModel을 연결하고 SideEffect에 따라 화면 이동을 처리한다.
  */
 fun EntryProviderScope<NavKey>.loginEntry(
-    navigateToHome:(needsOnboarding: Boolean)->Unit,
+    navigateToHome:(
+        needsOnboarding: Boolean,
+        needsTermsAgreement: Boolean,
+            )->Unit,
     navigateToAgreement:(needsOnboarding: Boolean)->Unit,
     navigateToAgreementDetail:(AgreementTerm)->Unit,
     navigateAfterAgreement:(needsOnboarding: Boolean)->Unit,
     onBack: ()->Unit,
-    navigateToOnboarding: (needsOnboarding: Boolean)->Unit,
+    navigateToOnboarding: (
+        needsOnboarding: Boolean,
+        needsTermsAgreement: Boolean,
+            )->Unit,
 ) {
     entry<LoginNavKey> {
         LoginScreen(

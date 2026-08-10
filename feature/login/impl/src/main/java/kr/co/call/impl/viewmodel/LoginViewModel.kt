@@ -59,11 +59,13 @@ class LoginViewModel @Inject constructor(
                     loginToken.needsOnboarding ->
                         LoginSideEffect.NavigateToOnboarding(
                             needsOnboarding = loginToken.needsOnboarding,
+                            needsTermsAgreement = loginToken.needsTermsAgreement,
                         )
 
                     else ->
                         LoginSideEffect.NavigateToHome(
                             needsOnboarding = loginToken.needsOnboarding,
+                            needsTermsAgreement = loginToken.needsTermsAgreement,
                         )
                 }
             postSideEffect(sideEffect)
