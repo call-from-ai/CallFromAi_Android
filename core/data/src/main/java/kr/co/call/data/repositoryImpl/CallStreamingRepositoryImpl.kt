@@ -71,13 +71,24 @@ class CallStreamingRepositoryImpl @Inject constructor(
     @Volatile
     private var activeWebSocket: WebSocket? = null
 
+    // CALL_READY 이후에만 true. sendAudio()가 recorder 쪽 게이트와 별개로
+    // 소켓 계층에서 한 번 더 pre-READY 전송을 막는 최종 방어선 역할
+    @Volatile
+    private var isCallReady = false
+
+    // connect() 세션을 구분하는 세대 값. 이전 세션의 소켓 콜백이 늦게 도착해
+    // activeWebSocket을 새 세션 값으로 되돌리는 것을 방지
+    @Volatile
+    private var activeGeneration = 0L
+
     // 음소거 활성화 여부를같이 전송하기 위한 setter
     override suspend fun setMicrophoneEnabled(enabled: Boolean) {
         isMicrophoneEnabled = enabled
     }
 
-    // 사용자 음성을 서버에 PCM 데이터로 전송
+    // 사용자 음성을 서버에 PCM 데이터로 전송 (CALL_READY 전이면 폐기)
     override suspend fun sendAudio(pcmBytes: ByteArray) {
+        if (!isCallReady) return
         val payload = if (isMicrophoneEnabled) pcmBytes else ByteArray(pcmBytes.size)
         activeWebSocket?.send(ByteString.of(*payload))
     }
@@ -93,15 +104,22 @@ class CallStreamingRepositoryImpl @Inject constructor(
         var activeCallId: Long? = null
         var readyTimeoutJob: Job? = null
         var currentWebSocket: WebSocket? = null
+        // 이 connect() 호출을 식별하는 세대. 이전 세션의 소켓 콜백이 늦게 도착해도
+        // activeWebSocket을 잘못 덮어쓰지 않도록 리스너 콜백에서 함께 확인
+        val generation = ++activeGeneration
+        // 새 세션은 항상 READY 이전 상태로 시작
+        isCallReady = false
 
         // 종료 이벤트 전달
-        fun emitTerminalEvent(event: CallStreamingEvent) {
+        suspend fun emitTerminalEvent(event: CallStreamingEvent) {
             if (connectionState == ConnectionState.TERMINATED) return
             connectionState = ConnectionState.TERMINATED
+            isCallReady = false
             // 종료 시 타이머 종료
             readyTimeoutJob?.cancel()
             readyTimeoutJob = null
-            output.trySend(event)
+            // 오디오 프레임으로 버퍼가 밀려 있어도 종료 이벤트는 반드시 전달되도록 trySend 대신 send 사용
+            output.send(event)
             output.close()
         }
 
@@ -155,6 +173,7 @@ class CallStreamingRepositoryImpl @Inject constructor(
 
                                 activeCallId = callId
                                 connectionState = ConnectionState.READY
+                                isCallReady = true
                                 readyTimeoutJob?.cancel()
                                 readyTimeoutJob = null
                                 Timber.tag(TAG).d("CALL_READY 수신: callId=%d", callId)
@@ -213,12 +232,15 @@ class CallStreamingRepositoryImpl @Inject constructor(
                     }
                     //
                     is SocketSignal.BinaryReceived -> {
+                        // READY 이전에는 AI 오디오가 올 수 없는 상태이므로 방어적으로 무시
+                        if (connectionState != ConnectionState.READY) {
+                            continue
+                        }
                         output.trySend(
                             CallStreamingEvent.AudioReceived(
                                 wav = signal.bytes.toByteArray(),
                             ),
                         )
-
                     }
 
                     // 소켓 연결을 닫고 연결 상태에 따른 이벤트 전달
@@ -317,6 +339,8 @@ class CallStreamingRepositoryImpl @Inject constructor(
                 webSocket: WebSocket,
                 response: Response,
             ) {
+                // 이전 세션의 지연된 콜백이면 activeWebSocket을 덮어쓰지 않고 무시
+                if (generation != activeGeneration) return
                 currentWebSocket = webSocket
                 activeWebSocket = webSocket
                 signals.trySend(SocketSignal.Opened)

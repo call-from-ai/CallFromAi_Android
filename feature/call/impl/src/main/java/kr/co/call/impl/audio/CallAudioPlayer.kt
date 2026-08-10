@@ -140,7 +140,8 @@ class CallAudioPlayer @Inject constructor() {
                 return wav.copyOfRange(dataStart, dataEnd)
             }
 
-            offset = dataStart + chunkSize
+            // RIFF 스펙상 청크 데이터는 짝수 바이트로 패딩되므로 홀수 크기면 1바이트 건너뜀
+            offset = dataStart + chunkSize + (chunkSize and 1)
         }
         return ByteArray(0)
     }
