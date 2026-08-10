@@ -56,6 +56,8 @@ import kr.co.call.api.Onboarding4NavKey
 import kr.co.call.api.Onboarding5NavKey
 import kr.co.call.api.Onboarding6NavKey
 import kr.co.call.api.TermNavKey
+import kr.co.call.callfromai.incomingchat.IncomingChat
+import kr.co.call.callfromai.incomingchat.IncomingChatDialog
 import kr.co.call.callfromai.intent.AppIntent
 import kr.co.call.callfromai.sideeffect.AppSideEffect
 import kr.co.call.callfromai.ui.MainBottomBar
@@ -119,6 +121,7 @@ fun AppScreen(
                 viewModel = viewModel,
                 incomingCall = incomingCall,
                 onClearIncomingCall = onClearIncomingCall,
+                incomingChat = state.incomingChat,
                 modifier = modifier,
             )
         }
@@ -129,6 +132,7 @@ fun AppScreen(
                 viewModel = viewModel,
                 incomingCall = incomingCall,
                 onClearIncomingCall = onClearIncomingCall,
+                incomingChat = state.incomingChat,
                 modifier = modifier,
             )
         }
@@ -142,6 +146,7 @@ private fun MainAppContent(
     viewModel: AppViewModel,
     incomingCall: IncomingCall?,
     onClearIncomingCall: (callId: Long) -> Unit,
+    incomingChat: IncomingChat?,
     modifier: Modifier = Modifier,
 ) {
     val backStack = rememberNavBackStack(startKey)
@@ -517,6 +522,25 @@ private fun MainAppContent(
                     message,
                     Toast.LENGTH_SHORT,
                 ).show()
+            },
+        )
+    }
+
+    /**
+     * 포그라운드에서 채팅 FCM 수신 시 인앱 다이얼로그 표시
+     * (profileImageUrl 매핑이 완료된 이후에 state.incomingChat이 세팅되므로 API 완료 전까지 표시 지연됨)
+     */
+    incomingChat?.let { chat ->
+        IncomingChatDialog(
+            characterName = chat.characterName,
+            message = chat.message,
+            profileImageUrl = chat.profileImageUrl,
+            onNavigateToChatRoom = {
+                appNavigator.navigate(ChatRoomNavKey(roomId = chat.chatRoomId))
+                viewModel.handleIntent(AppIntent.DismissIncomingChat)
+            },
+            onDismiss = {
+                viewModel.handleIntent(AppIntent.DismissIncomingChat)
             },
         )
     }
