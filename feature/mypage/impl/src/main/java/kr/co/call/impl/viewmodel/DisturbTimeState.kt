@@ -15,9 +15,12 @@ data class DisturbTimeState(
     val draftTime: LocalTime = DEFAULT_START,
     val loadStatus: LoadStatus = LoadStatus.Idle,
     val isSaving: Boolean = false,
+    val isClearedPending: Boolean = false,
 ) {
     val canComplete: Boolean
-        get() = startTime != endTime && !isSaving && loadStatus !is LoadStatus.Loading
+        get() = !isSaving &&
+            loadStatus !is LoadStatus.Loading &&
+            (startTime != endTime || isClearedPending)
 
     companion object {
         val DEFAULT_START: LocalTime = LocalTime.of(9, 0)
