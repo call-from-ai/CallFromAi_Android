@@ -137,15 +137,22 @@ fun Onboarding6Screen(
             Row(
                 modifier=Modifier
                     .fillMaxSize()
-                    .padding(start = 6.dp),
+                    .padding(
+                        start =16.dp,
+                        end=16.dp
+                    ),
                 verticalAlignment=Alignment.CenterVertically,
                 ){
-                Text(text="\uD83D\uDCA1")
-                Spacer(modifier=Modifier.width(6.dp))
+                Box(
+                    modifier = Modifier.width(25.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = "\uD83D\uDCA1")
+                }
+                Spacer(modifier=Modifier.width(12.dp))
                 Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
+                        .weight(1f),
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(

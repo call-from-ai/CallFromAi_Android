@@ -76,7 +76,7 @@ fun Onboarding4Screen(
             totalStep = 4,
             horizontalPadding = 27.dp,
         )
-        Spacer(modifier = Modifier.height(5.dp))
+        Spacer(modifier = Modifier.height(25.dp))
 
         Column(
             modifier = Modifier
