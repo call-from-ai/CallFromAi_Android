@@ -107,7 +107,8 @@ private fun TempDrag(
             .height(151.dp),
 
     ) {
-        val cardWidth =98.dp
+        val cardWidth = (maxWidth * 0.35f)
+            .coerceAtMost(98.dp)
 
         val thumbSize = 47.dp
         val thumbRadius = thumbSize / 2
