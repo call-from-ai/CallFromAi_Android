@@ -93,10 +93,12 @@ class DisturbTimeViewModel @Inject constructor(
                 DisturbTimeSheetType.Start -> state.copy(
                     startTime = confirmed,
                     openSheet = null,
+                    isClearedPending = false,
                 )
                 DisturbTimeSheetType.End -> state.copy(
                     endTime = confirmed,
                     openSheet = null,
+                    isClearedPending = false,
                 )
             }
         }
@@ -111,46 +113,47 @@ class DisturbTimeViewModel @Inject constructor(
         if (!state.canComplete) return@intent
 
         reduce { state.copy(isSaving = true) }
-        myPageRepository.updateDoNotDisturb(
-            startTime = state.startTime.toApiTimeString(),
-            endTime = state.endTime.toApiTimeString(),
-        ).onSuccess {
-            reduce { state.copy(isSaving = false) }
-            postSideEffect(DisturbTimeSideEffect.NavigateBack)
-        }.onFailure { error ->
-            if (error is CancellationException) throw error
-            reduce { state.copy(isSaving = false) }
-            postSideEffect(
-                DisturbTimeSideEffect.ShowMessage(
-                    error.toUserMessage(default = "방해 금지 시간 저장에 실패했습니다."),
-                ),
+
+        val result = if (state.isClearedPending && state.startTime == state.endTime) {
+            myPageRepository.deleteDoNotDisturb()
+        } else {
+            myPageRepository.updateDoNotDisturb(
+                startTime = state.startTime.toApiTimeString(),
+                endTime = state.endTime.toApiTimeString(),
             )
         }
-    }
 
-    private fun delete() = intent {
-        if (state.isSaving) return@intent
-
-        reduce { state.copy(isSaving = true) }
-        myPageRepository.deleteDoNotDisturb()
+        result
             .onSuccess {
-                reduce {
-                    state.copy(
-                        startTime = DisturbTimeState.CLEARED_TIME,
-                        endTime = DisturbTimeState.CLEARED_TIME,
-                        openSheet = null,
-                        isSaving = false,
-                    )
-                }
+                reduce { state.copy(isSaving = false, isClearedPending = false) }
+                postSideEffect(DisturbTimeSideEffect.NavigateBack)
             }
             .onFailure { error ->
                 if (error is CancellationException) throw error
                 reduce { state.copy(isSaving = false) }
                 postSideEffect(
                     DisturbTimeSideEffect.ShowMessage(
-                        error.toUserMessage(default = "방해 금지 시간 삭제에 실패했습니다."),
+                        error.toUserMessage(
+                            default = if (state.isClearedPending) {
+                                "방해 금지 시간 삭제에 실패했습니다."
+                            } else {
+                                "방해 금지 시간 저장에 실패했습니다."
+                            },
+                        ),
                     ),
                 )
             }
+    }
+
+    private fun delete() = intent {
+        if (state.isSaving) return@intent
+        reduce {
+            state.copy(
+                startTime = DisturbTimeState.CLEARED_TIME,
+                endTime = DisturbTimeState.CLEARED_TIME,
+                openSheet = null,
+                isClearedPending = true,
+            )
+        }
     }
 }

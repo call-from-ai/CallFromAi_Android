@@ -36,6 +36,7 @@ import kr.co.call.impl.viewmodel.CharacterManagementIntent
 import kr.co.call.impl.viewmodel.CharacterManagementSideEffect
 import kr.co.call.impl.viewmodel.CharacterManagementState
 import kr.co.call.impl.viewmodel.CharacterManagementViewModel
+import kr.co.call.impl.viewmodel.ChatHistoryUi
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -50,21 +51,15 @@ fun CharacterManagementScreen(
     val state by viewModel.collectAsState()
     val context = LocalContext.current
 
-    var showChatHistory by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showMainDeleteBlocked by remember { mutableStateOf(false) }
     var showAddBlocked by remember { mutableStateOf(false) }
 
     // 팝업 내용
-    var chatHistoryCharacter by remember { mutableStateOf<AiCharacter?>(null) }
     var deleteCharacter by remember { mutableStateOf<AiCharacter?>(null) }
 
     viewModel.collectSideEffect { sideEffect ->
         when (sideEffect) {
-            is CharacterManagementSideEffect.ShowChatHistorySummary -> {
-                chatHistoryCharacter = sideEffect.aiCharacter
-                showChatHistory = true
-            }
             is CharacterManagementSideEffect.ShowDeleteConfirmDialog -> {
                 deleteCharacter = sideEffect.aiCharacter
                 showDeleteConfirm = true
@@ -89,16 +84,23 @@ fun CharacterManagementScreen(
     )
 
     // 팝업 - 채팅 기록 보기
-    if (showChatHistory) {
-        chatHistoryCharacter?.let { character ->
-            OneButtonPopup(
-                label = "채팅 기록 보기",
-                description = buildAnnotatedString { append(character.summary) },
-                buttonText = "확인",
-                onButtonClick = { showChatHistory = false },
-                onDismissRequest = { showChatHistory = false },
-            )
-        }
+    val chatHistoryDescription = when (val chatHistoryUi = state.chatHistoryUi) {
+        ChatHistoryUi.Hidden -> null
+        ChatHistoryUi.Loading -> "채팅 기록을 불러오는 중..."
+        is ChatHistoryUi.Ready -> chatHistoryUi.summary
+    }
+    if (chatHistoryDescription != null) {
+        OneButtonPopup(
+            label = "채팅 기록 보기",
+            description = buildAnnotatedString { append(chatHistoryDescription) },
+            buttonText = "확인",
+            onButtonClick = {
+                viewModel.handleIntent(CharacterManagementIntent.DismissChatHistory)
+            },
+            onDismissRequest = {
+                viewModel.handleIntent(CharacterManagementIntent.DismissChatHistory)
+            },
+        )
     }
 
     // 팝업 - 캐릭터 영구 삭제 확인
@@ -225,6 +227,25 @@ private fun CharacterManagementScreenPreview() {
             state = previewState,
             onIntent = {},
             onBackClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChatHistoryLoadingPopupPreview() {
+    CallFromAiTheme {
+        CharacterManagementScreenContent(
+            state = previewState,
+            onIntent = {},
+            onBackClick = {},
+        )
+        OneButtonPopup(
+            label = "채팅 기록 보기",
+            description = buildAnnotatedString { append("채팅 기록을 불러오는 중...") },
+            buttonText = "확인",
+            onButtonClick = {},
+            onDismissRequest = {},
         )
     }
 }

@@ -25,6 +25,7 @@ class CharacterManagementViewModel @Inject constructor(
     fun handleIntent(userIntent: CharacterManagementIntent) {
         when (userIntent) {
             is CharacterManagementIntent.ClickChatHistory -> showChatHistory(userIntent.aiCharacter)
+            is CharacterManagementIntent.DismissChatHistory -> dismissChatHistory()
             is CharacterManagementIntent.ClickEditCharacter -> navigateToEdit(userIntent.aiCharacter)
             is CharacterManagementIntent.ClickDeleteCharacter -> handleDeleteClick(userIntent.aiCharacter)
             is CharacterManagementIntent.ConfirmDeleteCharacter -> deleteCharacter(userIntent.aiCharacter.id)
@@ -54,26 +55,43 @@ class CharacterManagementViewModel @Inject constructor(
             return@intent
         }
 
+        // 연타 방지: 이미 로딩 중이면 무시
+        if (state.chatHistoryUi is ChatHistoryUi.Loading) return@intent
+
+        // API 전에 팝업을 먼저 연다
+        reduce { state.copy(chatHistoryUi = ChatHistoryUi.Loading) }
+
         aiCharacterRepository.getChatSummary(characterId)
             .onSuccess { summary ->
-                postSideEffect(
-                    CharacterManagementSideEffect.ShowChatHistorySummary(
-                        aiCharacter.copy(
-                            summary = summary.ifBlank { FALLBACK_EMPTY_CHAT_SUMMARY },
-                        ),
-                    ),
-                )
+                reduce {
+                    // 로딩 중에 닫았으면 결과로 다시 열지 않음
+                    if (state.chatHistoryUi !is ChatHistoryUi.Loading) {
+                        state
+                    } else {
+                        state.copy(
+                            chatHistoryUi = ChatHistoryUi.Ready(
+                                summary = summary.ifBlank { FALLBACK_EMPTY_CHAT_SUMMARY },
+                            ),
+                        )
+                    }
+                }
             }
             .onFailure { error ->
                 if (error is CancellationException) throw error
-                postSideEffect(
-                    CharacterManagementSideEffect.ShowChatHistorySummary(
-                        aiCharacter.copy(
-                            summary = FALLBACK_UNAVAILABLE_CHAT_SUMMARY,
-                        ),
-                    ),
-                )
+                reduce {
+                    if (state.chatHistoryUi !is ChatHistoryUi.Loading) {
+                        state
+                    } else {
+                        state.copy(
+                            chatHistoryUi = ChatHistoryUi.Ready(FALLBACK_UNAVAILABLE_CHAT_SUMMARY),
+                        )
+                    }
+                }
             }
+    }
+
+    private fun dismissChatHistory() = intent {
+        reduce { state.copy(chatHistoryUi = ChatHistoryUi.Hidden) }
     }
 
     private companion object {
