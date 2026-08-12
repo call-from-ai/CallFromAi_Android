@@ -107,11 +107,8 @@ private fun TempDrag(
             .height(151.dp),
 
     ) {
-        val cardWidth = (maxWidth * 0.28f)
-            .coerceIn(
-                minimumValue = 82.dp,
-                maximumValue = 98.dp,
-            )
+        val cardWidth = (maxWidth * 0.35f)
+            .coerceAtMost(98.dp)
 
         val thumbSize = 47.dp
         val thumbRadius = thumbSize / 2
@@ -292,8 +289,10 @@ private fun TempCard(
             Text(
                 text=if(isHot){"과감하고 표현이 많은 편\n화끈하고 짜릿한 스타일"}
                 else {"다정하고 배려가 많은 편\n천천히 오래가는 스타일"},
+                modifier=Modifier.fillMaxWidth(),
                 color=Gray400,
-                style= CallTheme.typography.captionSmall
+                style= CallTheme.typography.captionSmall,
+                textAlign=TextAlign.Center,
             )
         }
     }
