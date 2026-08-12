@@ -46,7 +46,8 @@
 
 <p>
   <strong>Realtime / Push / Logging</strong><br />
-  <img src="https://img.shields.io/badge/LiveKit-FF3B5C?style=for-the-badge&logo=webrtc&logoColor=white" />
+  <img src="https://img.shields.io/badge/OkHttp_WebSocket-3E4348?style=for-the-badge&logo=square&logoColor=white" />
+  <img src="https://img.shields.io/badge/AudioRecord_%2F_AudioTrack-3DDC84?style=for-the-badge&logo=android&logoColor=white" />
   <img src="https://img.shields.io/badge/Firebase_FCM-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" />
   <img src="https://img.shields.io/badge/Timber-2E7D32?style=for-the-badge&logoColor=white" />
 </p>
@@ -100,7 +101,7 @@ AI 캐릭터가 채팅뿐 아니라 **먼저 전화를 걸어오고, 예약 통�
 | 네비게이션 | Navigation 3 |
 | 네트워크 | Retrofit, OkHttp, Gson |
 | 실시간 채팅 | OkHttp-SSE (Server-Sent Events, 채팅 응답 스트리밍) |
-| 실시간 통화 | LiveKit Android SDK (WebRTC 기반) |
+| 실시간 통화 | OkHttp WebSocket (PCM 오디오 스트리밍) + AudioRecord/AudioTrack |
 | 페이지네이션 | Paging 3 |
 | 이미지 로딩 | Coil |
 | 푸시 알림 | Firebase Cloud Messaging (FCM) |
@@ -113,7 +114,7 @@ AI 캐릭터가 채팅뿐 아니라 **먼저 전화를 걸어오고, 예약 통�
 - API 명세: OpenAPI (Swagger) — 백엔드 레포 기준
 - 협업 도구: Notion / Figma / Slack
 
----
+
 
 ## 📂 프로젝트 폴더 구조
 
