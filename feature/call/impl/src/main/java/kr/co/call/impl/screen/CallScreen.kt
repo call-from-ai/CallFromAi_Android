@@ -2,6 +2,7 @@ package kr.co.call.impl.screen
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -72,6 +73,11 @@ fun CallScreen(
             )
         },
     )
+    // 블루투스 헤드셋 라우팅용 - 거부돼도 통화 자체는 정상 진행되는 best-effort 권한
+    val bluetoothConnectPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {},
+    )
 
     LaunchedEffect(callId, characterId, isIncoming) {
         viewModel.handleIntent(
@@ -95,6 +101,18 @@ fun CallScreen(
             )
         } else {
             microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+
+        // API 31 미만은 BLUETOOTH가 일반 권한이라 요청 불필요
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val isBluetoothPermissionGranted = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.BLUETOOTH_CONNECT,
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!isBluetoothPermissionGranted) {
+                bluetoothConnectPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+            }
         }
     }
 
