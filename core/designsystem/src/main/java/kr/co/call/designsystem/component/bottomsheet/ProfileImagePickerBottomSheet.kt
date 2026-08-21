@@ -73,6 +73,7 @@ import kr.co.call.designsystem.theme.CallTheme
  * @param onDismissRequest 닫기 / 스크림 / 시스템 뒤로가기
  * @param title 시트 제목 (기본 2줄)
  * @param confirmText 확인 버튼 문구
+ * @param isLoading 목록을 불러오는 중이면 캐러셀 자리에 스켈레톤 표시
  */
 @Composable
 fun ProfileImagePickerBottomSheet(
@@ -86,6 +87,7 @@ fun ProfileImagePickerBottomSheet(
     modifier: Modifier = Modifier,
     title: String = "원하는 사진을\n선택해주세요",
     confirmText: String = "저장하기",
+    isLoading: Boolean = false,
 ) {
     ConfirmBottomSheet(
         title = title,
@@ -101,6 +103,7 @@ fun ProfileImagePickerBottomSheet(
             selectedImageId = selectedImageId,
             onGenderChange = onGenderChange,
             onImageSelected = onImageSelected,
+            isLoading = isLoading,
         )
     }
 }

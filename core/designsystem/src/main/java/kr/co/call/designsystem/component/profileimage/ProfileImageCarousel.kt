@@ -30,14 +30,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kr.co.call.designsystem.R
+import kr.co.call.designsystem.modifier.skeleton
 import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 
@@ -73,7 +72,6 @@ internal fun ProfileImageCarousel(
         initialPage = initialPage,
         pageCount = { images.size },
     )
-    val defaultProfile = painterResource(id = R.drawable.img_profile_url_default)
 
     LaunchedEffect(selectedImageId, images) {
         val target = images.indexOfFirst { it.id == selectedImageId }
@@ -146,15 +144,7 @@ internal fun ProfileImageCarousel(
                             .clip(RoundedCornerShape(CardCornerRadius))
                             .background(CallTheme.colors.gray100),
                     ) {
-                        AsyncImage(
-                            model = option.imageUrl.takeIf { it.isNotBlank() },
-                            contentDescription = "프로필 후보 사진",
-                            modifier = Modifier.fillMaxSize(),
-                            placeholder = defaultProfile,
-                            error = defaultProfile,
-                            fallback = defaultProfile,
-                            contentScale = ContentScale.Crop,
-                        )
+                        ProfileCandidateImage(imageUrl = option.imageUrl)
                         if (dimAlpha > 0f) {
                             Box(
                                 modifier = Modifier
@@ -172,6 +162,45 @@ internal fun ProfileImageCarousel(
         ProfileImagePageIndicator(
             pageCount = images.size,
             currentPage = pagerState.currentPage,
+        )
+    }
+}
+
+@Composable
+private fun ProfileCandidateImage(
+    imageUrl: String,
+    modifier: Modifier = Modifier,
+) {
+    SubcomposeAsyncImage(
+        model = imageUrl.takeIf { it.isNotBlank() },
+        contentDescription = "프로필 후보 사진",
+        modifier = modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        loading = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .skeleton(isLoading = true),
+            )
+        },
+    )
+}
+
+@Composable
+internal fun ProfileImageCarouselLoading(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(CenterImageHeight),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(width = CenterImageWidth, height = CenterImageHeight)
+                .clip(RoundedCornerShape(CardCornerRadius))
+                .skeleton(isLoading = true),
         )
     }
 }

@@ -39,6 +39,7 @@ import kr.co.call.designsystem.theme.CallFromAiTheme
 import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.Gray600
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.BirthdayChoice
 import kr.co.call.impl.component.MemberChoice
 import kr.co.call.impl.component.MessageInputField
@@ -359,6 +360,8 @@ fun Onboarding1Screen (
                 images = currentProfileImages,
                 selectedGender = selectedGender,
                 selectedImageId = currentSelectedImageId,
+                isLoading = currentProfileImages.isEmpty() &&
+                    uiState.presetImageState.loadStatus is LoadStatus.Loading,
                 onGenderChange = { newGender ->
                     selectedGender = newGender
                     viewModel.loadPresetImages(newGender)

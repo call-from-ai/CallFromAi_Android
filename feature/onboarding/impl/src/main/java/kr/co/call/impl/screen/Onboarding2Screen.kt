@@ -47,6 +47,7 @@ import kr.co.call.domain.model.onboarding.CreatedCharacter
 import kr.co.call.domain.model.onboarding.MemberOnboardingInput
 import kr.co.call.domain.model.onboarding.PresetImage
 import kr.co.call.domain.repository.OnboardingRepository
+import kr.co.call.domain.util.LoadStatus
 import kr.co.call.impl.component.AgeInputField
 import kr.co.call.impl.component.BackStepBar
 import kr.co.call.impl.component.MemberChoice
@@ -375,6 +376,8 @@ fun Onboarding2Screen(
                 images = currentProfileImages,
                 selectedGender = selectedGender,
                 selectedImageId = currentSelectedImageId,
+                isLoading = currentProfileImages.isEmpty() &&
+                    uiState.presetImageState.loadStatus is LoadStatus.Loading,
 
                 onGenderChange = { newGender ->
                     selectedGender = newGender

@@ -40,6 +40,13 @@ data class EditCharacterState(
             ProfileImageGender.FEMALE -> femalePresetImages
         }
 
+    val isPickerLoading: Boolean
+        get() = pickerImages.isEmpty() &&
+            when (pickerGender) {
+                ProfileImageGender.MALE -> !isMalePresetsLoaded
+                ProfileImageGender.FEMALE -> !isFemalePresetsLoaded
+            }
+
     val selectedTraits: List<Trait>
         get() = selectedTraitKeywords.mapNotNull(Trait::fromKeyword)
 

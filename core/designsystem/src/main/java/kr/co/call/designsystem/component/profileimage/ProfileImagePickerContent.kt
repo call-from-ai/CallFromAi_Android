@@ -32,6 +32,7 @@ internal fun ProfileImagePickerContent(
     onGenderChange: (ProfileImageGender) -> Unit,
     onImageSelected: (ProfileImageOption) -> Unit,
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -44,27 +45,33 @@ internal fun ProfileImagePickerContent(
 
         Spacer(modifier = Modifier.height(ContentSectionGap))
 
-        if (images.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(CenterImageHeight),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "선택 가능한 사진이 없습니다",
-                    style = CallTheme.typography.bodySmall,
-                    color = CallTheme.colors.gray400,
-                )
+        when {
+            isLoading && images.isEmpty() -> {
+                ProfileImageCarouselLoading()
             }
-        } else {
-            key(images.map { it.id }) {
-                ProfileImageCarousel(
-                    images = images,
-                    selectedImageId = selectedImageId,
-                    onImageSelected = onImageSelected,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            images.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(CenterImageHeight),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "선택 가능한 사진이 없습니다",
+                        style = CallTheme.typography.bodySmall,
+                        color = CallTheme.colors.gray400,
+                    )
+                }
+            }
+            else -> {
+                key(images.map { it.id }) {
+                    ProfileImageCarousel(
+                        images = images,
+                        selectedImageId = selectedImageId,
+                        onImageSelected = onImageSelected,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
@@ -121,6 +128,28 @@ private fun ProfileImagePickerContentEmptyPreview() {
                 selectedImageId = null,
                 onGenderChange = {},
                 onImageSelected = {},
+            )
+        }
+    }
+}
+
+@Preview(name = "로딩", showBackground = true)
+@Composable
+private fun ProfileImagePickerContentLoadingPreview() {
+    CallFromAiTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(CallTheme.colors.white)
+                .padding(vertical = 8.dp),
+        ) {
+            ProfileImagePickerContent(
+                images = emptyList(),
+                selectedGender = ProfileImageGender.MALE,
+                selectedImageId = null,
+                onGenderChange = {},
+                onImageSelected = {},
+                isLoading = true,
             )
         }
     }

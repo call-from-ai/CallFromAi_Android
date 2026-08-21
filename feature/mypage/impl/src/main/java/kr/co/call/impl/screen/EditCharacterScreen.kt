@@ -322,6 +322,7 @@ private fun EditCharacterScreenContent(
                 images = state.pickerImages,
                 selectedGender = state.pickerGender,
                 selectedImageId = state.selectedImageId,
+                isLoading = state.isPickerLoading,
                 onGenderChange = { onIntent(EditCharacterIntent.ChangePickerGender(it)) },
                 onImageSelected = { onIntent(EditCharacterIntent.SelectPickerImage(it)) },
                 onSaveClick = { onIntent(EditCharacterIntent.ConfirmPickerImage) },

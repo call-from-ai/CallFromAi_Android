@@ -34,6 +34,13 @@ data class EditProfileState(
             ProfileImageGender.FEMALE -> femalePresetImages
         }
 
+    val isPickerLoading: Boolean
+        get() = pickerImages.isEmpty() &&
+            when (pickerGender) {
+                ProfileImageGender.MALE -> !isMalePresetsLoaded
+                ProfileImageGender.FEMALE -> !isFemalePresetsLoaded
+            }
+
     val isFormValid: Boolean
         get() = lastName.isNotBlank() &&
             firstName.isNotBlank() &&

@@ -26,7 +26,7 @@ enum class ProfileImageGender {
  * Repository 응답을 feature에서 이 타입으로 변환해 넘깁니다.
  *
  * @property id 저장/식별에 쓰는 고유 키
- * @property imageUrl 표시 URL (우선 api 연동 전 단게이므로, blank면 기본 프로필 표시로 나타냄)
+ * @property imageUrl 표시 URL. 로딩 중에는 스켈레톤을 표시한다.
  */
 data class ProfileImageOption(
     val id: String,

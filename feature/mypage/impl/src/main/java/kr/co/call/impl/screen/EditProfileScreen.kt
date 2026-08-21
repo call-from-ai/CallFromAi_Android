@@ -221,6 +221,7 @@ private fun EditProfileScreenContent(
                 images = state.pickerImages,
                 selectedGender = state.pickerGender,
                 selectedImageId = state.selectedImageId,
+                isLoading = state.isPickerLoading,
                 onGenderChange = { onIntent(EditProfileIntent.ChangePickerGender(it)) },
                 onImageSelected = { onIntent(EditProfileIntent.SelectPickerImage(it)) },
                 onSaveClick = { onIntent(EditProfileIntent.ConfirmPickerImage) },
