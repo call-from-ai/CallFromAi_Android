@@ -139,7 +139,8 @@ fun Onboarding1Screen (
     val canMoveNext =
         lastName.isNotBlank() &&
             firstName.isNotBlank() &&
-            selectedJob!=null
+            selectedJob!=null &&
+            !savedProfileImageUrl.isNullOrBlank()
     Box(
         modifier = modifier.fillMaxSize()
     ) {
