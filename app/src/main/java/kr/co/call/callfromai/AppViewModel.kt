@@ -256,8 +256,10 @@ class AppViewModel @Inject constructor(
         reduce {
             state.copy(
                 authState = AppAuthState.Unauthenticated,
+                incomingChat = null,
             )
         }
+        postSideEffect(AppSideEffect.NavigateToLogin)
     }
 
     // 로그인 상태면 FCM 토큰 재등록

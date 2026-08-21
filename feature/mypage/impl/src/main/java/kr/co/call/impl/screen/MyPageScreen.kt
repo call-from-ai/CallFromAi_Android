@@ -98,6 +98,7 @@ fun MyPageScreen(
             }
 
             is MyPageSideEffect.NavigateToCharacterManagement -> onNavigateToCharacterManagement()
+
             is MyPageSideEffect.NavigateToFaq -> {
                 navigateToFaq()
             }

@@ -137,6 +137,7 @@ class MyPageViewModel @Inject constructor(
             return@intent
         }
 
+        reduce { state.copy(authStatus = LoadStatus.Idle) }
         postSideEffect(MyPageSideEffect.NavigateToLogin)
     }
 
@@ -152,6 +153,7 @@ class MyPageViewModel @Inject constructor(
                     .onFailure {error->
                         Timber.w(error, "탈퇴 후 카카오 로그아웃 실패")
                     }
+                reduce { state.copy(authStatus = LoadStatus.Idle) }
                 postSideEffect(MyPageSideEffect.NavigateToLogin)
             }.onFailure { error ->
             if (error is CancellationException) throw error

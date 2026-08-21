@@ -1,7 +1,6 @@
 package kr.co.call.callfromai
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
@@ -80,12 +79,10 @@ import kr.co.call.impl.screen.IncomingCallDialogRoute
 /**
  * 애플리케이션 화면 내비게이션의 메인 진입점입니다.
  *
- * 단일 백스택으로 로그인/온보딩/탭 화면을 모두 관리하며,
- * 현재 백스택 최상단 키를 기준으로 BottomBar 표시 여부를 결정합니다.
- *
- * @param incomingCall 현재 앱 내부에 표시할 착신 정보
- * @param onClearIncomingCall 처리가 끝난 착신 상태를 제거하는 콜백
- * @param modifier 루트 [Box]에 적용할 [Modifier]
+ * Loading일 때만 LandingScreen으로 early return하고, 이후에는 단일 MainAppContent 인스턴스가
+ * authState 변화와 무관하게 유지됩니다. 덕분에 rememberNavBackStack, NavDisplay,
+ * 엔트리별 ViewModelStore가 전부 보존되어 Authenticated ↔ Unauthenticated 전환 시
+ * 백스택과 VM이 예기치 않게 재생성되지 않습니다.
  */
 @Composable
 fun AppScreen(
@@ -95,48 +92,33 @@ fun AppScreen(
     modifier: Modifier = Modifier,
 ) {
     val state by viewModel.collectAsState()
+    val authState = state.authState
 
-    when (val authState =state.authState) {
-        AppAuthState.Loading -> {
-            LandingScreen(
-                modifier = modifier.fillMaxSize(),
-            )
-        }
-
-        is AppAuthState.Authenticated -> {
-            MainAppContent(
-                startKey = when {
-                    authState.needsTermsAgreement -> LoginNavKey
-                    authState.needsOnboarding-> Onboarding1NavKey
-                    else -> HomeNavKey
-                    },
-                agreementKey=if(authState.needsTermsAgreement){
-                    AgreementNavKey(
-                        needsOnboarding=authState.needsOnboarding,
-                    )
-                }
-                    else {
-                        null
-                },
-                viewModel = viewModel,
-                incomingCall = incomingCall,
-                onClearIncomingCall = onClearIncomingCall,
-                incomingChat = state.incomingChat,
-                modifier = modifier,
-            )
-        }
-
-        AppAuthState.Unauthenticated -> {
-            MainAppContent(
-                startKey = LoginNavKey,
-                viewModel = viewModel,
-                incomingCall = incomingCall,
-                onClearIncomingCall = onClearIncomingCall,
-                incomingChat = state.incomingChat,
-                modifier = modifier,
-            )
-        }
+    // 스플래시 게이트: Loading일 때만 early return
+    // 여기서 return하지 않으면 backStack이 잘못된 startKey로 굳을 수 있음
+    if (authState is AppAuthState.Loading) {
+        LandingScreen(modifier = modifier.fillMaxSize())
+        return
     }
+
+    val authenticated = authState as? AppAuthState.Authenticated
+
+    MainAppContent(
+        startKey = when {
+            authenticated == null -> LoginNavKey
+            authenticated.needsTermsAgreement -> LoginNavKey
+            authenticated.needsOnboarding -> Onboarding1NavKey
+            else -> HomeNavKey
+        },
+        agreementKey = authenticated
+            ?.takeIf { it.needsTermsAgreement }
+            ?.let { AgreementNavKey(needsOnboarding = it.needsOnboarding) },
+        viewModel = viewModel,
+        incomingCall = incomingCall,
+        onClearIncomingCall = onClearIncomingCall,
+        incomingChat = state.incomingChat,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -255,12 +237,12 @@ private fun MainAppContent(
                             )
                             appNavigator.replaceAll(Onboarding1NavKey)
                         },
-                        navigateToHome = {needsOnboarding,needsTermsAgreement, ->
+                        navigateToHome = { needsOnboarding, needsTermsAgreement, ->
                         viewModel.handleIntent(
                                 AppIntent.LoginSucceeded(
                                     needsOnboarding = needsOnboarding,
-                                    needsTermsAgreement = needsTermsAgreement,
-                                    ),
+                                    needsTermsAgreement = needsTermsAgreement
+                                ),
                             )
                             appNavigator.replaceAll(HomeNavKey)
                         },
@@ -307,7 +289,6 @@ private fun MainAppContent(
                         },
                         onBackFromOnboarding1 = {
                             viewModel.handleIntent(AppIntent.LogoutSucceeded)
-                            appNavigator.replaceAll(LoginNavKey)
                         },
                         onBackFromOnboarding2 = {
                             appNavigator.popBackStack()
@@ -439,7 +420,6 @@ private fun MainAppContent(
                     myPageEntry(
                         navigateToLogin = {
                             viewModel.handleIntent(AppIntent.LogoutSucceeded)
-                            appNavigator.replaceAll(LoginNavKey)
                         },
                         navigateToFaq = {
                             appNavigator.navigate(FaqNavKey)
