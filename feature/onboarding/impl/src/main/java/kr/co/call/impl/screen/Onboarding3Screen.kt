@@ -179,6 +179,8 @@ fun Onboarding3Screen(
                     ),
                 text = "다음",
                 enabled = canMoveNext,
+                showRipple = false,
+                showPressedEffect = false,
                 onClick = {
                     onNextClick(
                         selectedSpeech!!,

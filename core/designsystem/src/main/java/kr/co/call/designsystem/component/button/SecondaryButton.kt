@@ -44,6 +44,8 @@ fun SecondaryButton(
     containerColor: Color = CallTheme.colors.mainVariant4,
     contentColor: Color = CallTheme.colors.white,
     pressedContainerColor: Color = CallTheme.colors.subPressed3,
+    showRipple: Boolean = true,
+    showPressedEffect: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -55,7 +57,7 @@ fun SecondaryButton(
             .background(
                 color = when {
                     !enabled -> containerColor.copy(alpha = 0.38f)
-                    isPressed -> pressedContainerColor
+                    showPressedEffect && isPressed -> pressedContainerColor
                     else -> containerColor
                 },
                 shape = RoundedCornerShape(10.dp),
@@ -63,7 +65,7 @@ fun SecondaryButton(
             .clickable(
                 enabled = enabled,
                 interactionSource = interactionSource,
-                indication = ripple(),
+                indication = if (showRipple) ripple() else null,
                 onClick = onClick,
             ),
         contentAlignment = Alignment.Center,

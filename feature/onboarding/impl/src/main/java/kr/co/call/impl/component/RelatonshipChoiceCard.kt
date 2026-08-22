@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,6 +33,7 @@ import kr.co.call.designsystem.theme.MainVariant3
 import kr.co.call.designsystem.theme.MainVariant5Chat
 import kr.co.call.designsystem.theme.White
 import kr.co.call.onboarding.impl.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 
 @Composable
 fun RelationshipChoiceCard(
@@ -47,8 +47,7 @@ fun RelationshipChoiceCard(
     Surface(
         modifier = modifier
             .height(172.dp)
-            .selectable(
-                selected=selected,
+            .noRippleClickable(
                 onClick=onClick,
                 role=Role.RadioButton,
             ),

@@ -1,7 +1,6 @@
 package kr.co.call.impl.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,6 +27,7 @@ import kr.co.call.designsystem.theme.Gray400
 import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.SubRed
+import kr.co.call.designsystem.modifier.noRippleClickable
 
 @Composable
 fun NameBox(
@@ -59,7 +59,7 @@ fun NameBox(
                     color=Gray100,
                     shape=RoundedCornerShape(10.dp)
                 )
-                .clickable(onClick=onClick)
+                .noRippleClickable(onClick=onClick)
                 .padding(horizontal=16.dp),
             contentAlignment= Alignment.CenterStart
         ) {

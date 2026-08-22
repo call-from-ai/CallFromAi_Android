@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +18,7 @@ import kr.co.call.designsystem.theme.CallTheme
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.MainVariant5Chat
 import kr.co.call.designsystem.theme.White
+import kr.co.call.designsystem.modifier.noRippleClickable
 
 @Composable
 fun SpeechChoice(
@@ -28,8 +28,7 @@ fun SpeechChoice(
     modifier: Modifier =Modifier,
 ){
     Surface(
-        modifier=modifier.selectable(
-            selected=selected,
+        modifier=modifier.noRippleClickable(
             onClick=onClick,
             role=Role.RadioButton,
         ),

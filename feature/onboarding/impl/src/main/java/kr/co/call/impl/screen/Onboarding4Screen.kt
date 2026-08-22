@@ -133,6 +133,8 @@ fun Onboarding4Screen(
                     ),
                 text = "다음",
                 enabled = selectedTraits.isNotEmpty(),
+                showRipple = false,
+                showPressedEffect = false,
                 onClick = {
                     if (selectedTraits.isNotEmpty()) {
                         onNextClick(selectedTraits)

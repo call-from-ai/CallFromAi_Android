@@ -2,7 +2,6 @@ package kr.co.call.impl.screen
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kr.co.call.designsystem.component.bottomsheet.ProfileImagePickerBottomSheet
 import kr.co.call.designsystem.component.button.SecondaryButton
+import kr.co.call.designsystem.modifier.noRippleClickable
 import kr.co.call.designsystem.component.profileimage.ProfileImageGender
 import kr.co.call.designsystem.component.profileimage.ProfileImageOption
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -271,6 +271,8 @@ fun Onboarding1Screen (
                     modifier = Modifier.fillMaxWidth(),
                     text = "다음",
                     enabled = canMoveNext,
+                    showRipple = false,
+                    showPressedEffect = false,
                     onClick = {
                             val state = Onboarding1State(
                                 lastName=lastName,
@@ -302,7 +304,7 @@ fun Onboarding1Screen (
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.15f))
-                .clickable {
+                .noRippleClickable {
                     when (editingNameField) {
                         EditingNameField.LAST_NAME -> {
                             lastName = nameInput

@@ -1,7 +1,6 @@
 package kr.co.call.impl.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,6 +35,7 @@ import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant3
 import kr.co.call.designsystem.theme.White
 import kr.co.call.onboarding.impl.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
@@ -88,7 +88,7 @@ fun MemberChoice(
                 modifier=Modifier
                     .fillMaxWidth()
                     .height(51.dp)
-                    .clickable(
+                    .noRippleClickable(
                         role= Role.Button,
                         onClick={
                         expanded= !expanded

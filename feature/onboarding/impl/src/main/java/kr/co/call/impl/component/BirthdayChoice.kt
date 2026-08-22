@@ -1,6 +1,5 @@
 package kr.co.call.impl.component
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +30,7 @@ import kr.co.call.designsystem.theme.Gray600
 import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.SubRed
 import kr.co.call.onboarding.impl.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 import java.time.LocalDate
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -68,7 +68,7 @@ fun BirthdayChoice(
             modifier= Modifier
                 .fillMaxWidth()
                 .height(55.dp)
-                .clickable(
+                .noRippleClickable(
                     role=Role.Button,
                     onClick = { showBottomWheel = true },
                 ),

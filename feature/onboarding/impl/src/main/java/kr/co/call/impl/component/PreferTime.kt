@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -36,6 +35,7 @@ import kr.co.call.designsystem.theme.MainVariant2
 import kr.co.call.designsystem.theme.White
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import kr.co.call.designsystem.modifier.noRippleClickable
 
 enum class PreferTime(
     val emoji: String,
@@ -83,8 +83,7 @@ fun PreferTime(
         modifier = modifier
             .fillMaxWidth()
             .height(93.dp)
-            .selectable(
-                selected = selected,
+            .noRippleClickable(
                 onClick = onClick,
                 role = Role.RadioButton,
             ),

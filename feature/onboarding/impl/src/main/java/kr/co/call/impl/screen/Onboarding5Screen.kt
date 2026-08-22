@@ -93,6 +93,8 @@ fun Onboarding5Screen(
                     ),
                 text = "다음",
                 enabled = selectedPreferTime != null && !isLoading,
+                showRipple = false,
+                showPressedEffect = false,
                 onClick = { selectedPreferTime?.let(onNextClick) },
             )
         }

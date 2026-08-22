@@ -2,8 +2,6 @@ package kr.co.call.impl.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +17,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,9 +53,6 @@ fun Onboarding6Screen(
     onCallLaterClick:()->Unit,
     modifier: Modifier =Modifier,
 ){
-    var isCallNowPressed by remember {mutableStateOf(false)}
-    var isCallLaterPressed by remember {mutableStateOf(false)}
-
     Column(
         modifier=modifier
             .fillMaxSize()
@@ -90,28 +81,20 @@ fun Onboarding6Screen(
         )
         Spacer(modifier=Modifier.height(30.dp))
         PrimaryButton(
-            modifier=Modifier
-                .size(width = 280.dp, height = 49.dp)
-                .trackPressState {
-                    isCallNowPressed = it
-                },
+            modifier=Modifier.size(width = 280.dp, height = 49.dp),
             text="지금 전화할래",
             onClick= { if (!isLoading){
                      onShowCallDialog()}
                      },
             containerColor=CallTheme.colors.mainVariant3,
-            contentColor=if(isCallNowPressed){
-                Black
-            }else{White},
+            contentColor=White,
             pressedContainerColor = SubPressed,
+            showRipple = false,
+            showPressedEffect = false,
         )
         Spacer(modifier=Modifier.height(17.dp))
         PrimaryButton(
-            modifier=Modifier
-                .size(width = 280.dp, height = 49.dp)
-                .trackPressState {
-                    isCallLaterPressed = it
-                },
+            modifier=Modifier.size(width = 280.dp, height = 49.dp),
             text="조금 이따할래",
             onClick={
                 if (!isLoading){
@@ -119,9 +102,10 @@ fun Onboarding6Screen(
                 }
             },
             containerColor= Gray200,
-            contentColor=if(isCallLaterPressed){
-                Gray800 }else{ Gray600},
+            contentColor=Gray600,
             pressedContainerColor = Gray400,
+            showRipple = false,
+            showPressedEffect = false,
         )
         Spacer(modifier=Modifier.height(62.dp))
         Box(
@@ -194,24 +178,5 @@ fun Onboarding6Screen(
                 }
             },
         )
-    }
-}
-
-private fun Modifier.trackPressState(
-        onPressedChange:(Boolean)->Unit,
-):Modifier=pointerInput(Unit){
-    awaitEachGesture{
-        awaitFirstDown(
-            requireUnconsumed=false,
-            pass=PointerEventPass.Initial,
-        )
-        onPressedChange(true)
-        try{
-            do{
-                val event=awaitPointerEvent(PointerEventPass.Initial)
-            }while (event.changes.any{it.pressed})
-        }finally {
-            onPressedChange(false)
-        }
     }
 }

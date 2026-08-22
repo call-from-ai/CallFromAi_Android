@@ -35,6 +35,8 @@ fun PrimaryButton(
     containerColor: Color = CallTheme.colors.mainVariant1,
     contentColor: Color = CallTheme.colors.white,
     pressedContainerColor: Color = CallTheme.colors.subPressed,
+    showRipple: Boolean = true,
+    showPressedEffect: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -44,12 +46,12 @@ fun PrimaryButton(
             .fillMaxWidth()
             .height(42.dp)
             .background(
-                color = if (isPressed) pressedContainerColor else containerColor,
+                color = if (showPressedEffect && isPressed) pressedContainerColor else containerColor,
                 shape = RoundedCornerShape(percent = 50),
             )
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(),
+                indication = if (showRipple) ripple() else null,
                 onClick = onClick,
             ),
         contentAlignment = Alignment.Center,

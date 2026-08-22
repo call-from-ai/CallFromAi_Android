@@ -2,7 +2,6 @@ package kr.co.call.impl.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,6 +37,7 @@ import kr.co.call.designsystem.theme.Gray900
 import kr.co.call.designsystem.theme.MainVariant1
 import kr.co.call.designsystem.theme.SubGray
 import kr.co.call.onboarding.impl.R
+import kr.co.call.designsystem.modifier.noRippleClickable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import kr.co.call.designsystem.theme.CallFromAiTheme
@@ -144,7 +144,7 @@ fun MessageInputField(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .clickable(
+                .noRippleClickable(
                     enabled = canSend,
                     role = Role.Button,
                     onClick = onSendClick,
